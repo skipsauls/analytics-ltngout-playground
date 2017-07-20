@@ -1,0 +1,54 @@
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>Einstein Analytics + Lightning Out</title>
+</head>
+<body>
+    <button onclick="showDashboard(this);">Show Dashboard</button>
+    <div id="dashboard" />
+    <script src="/javascripts/force.oauth.js"></script>
+    <script src="https://adx-dev-ed.lightning.force.com/lightning/lightning.out.js"></script>
+    <script>
+    // Change to URL https://test.salesforce.com for sandboxes
+    var loginURL = 'https://login.salesforce.com';
+
+    // Change this URL to match the custom domain for your org
+    var ltngURL = 'https://adx-dev-ed.lightning.force.com';
+
+    var oauthCallbackURL = window.location.origin + '/oauthcallback.html';
+
+    // The Consumer Key for the Connected App
+    var appId = '3MVG9SemV5D80oBcff3jWxxK32ej7YRj5N2VFaNk72.eE38z.dZuXhbnlB8p1pe88y9C6K6dRa3JN3icBcN.j';
+
+    if (window.location.origin.indexOf('localhost') >= 0) {
+        // This will be the Consumer Key for the Connected App on localhost
+        appId = '3MVG9SemV5D80oBcff3jWxxK32RKEGuV4rwCe0au2N57DF5JLbaPRJq_vbfAR43i60NyBEUSd_SnRtKMHnPcR';
+    }
+
+    // Change this if you selected a different name for the Lightning Out Dependency App
+    var loAppName = 'c:loApp';
+
+    // This is the ID of the Analytics dashboard that you wish to display
+    var dashboardId = '0FKB0000000DEFlOAO';
+
+    var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+
+    function showDashboard(el) {
+        oauth.login().then(function(oauthResult) {
+            $Lightning.use(loAppName, function(evt) {
+                var config = {
+                    dashboardId: dashboardId,
+                    width: '1200px',
+                    height: '600px'
+                }
+                $Lightning.createComponent('wave:waveDashboard', config, 'dashboard', function(cmp, msg, err) {
+                    // Hide the login button
+                    el.style.display = 'none';
+                });
+            }, ltngURL, oauthResult.accessToken);
+        });
+    }
+    </script>
+</body>
+</html>
