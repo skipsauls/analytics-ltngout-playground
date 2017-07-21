@@ -29,7 +29,7 @@
         </div>
       </div>
     </div>
-    <script src="https://adx-dev-ed.lightning.force.com/lightning/lightning.out.js"></script>
+    <script src="<%- origin %>/lightning/lightning.out.js"></script>
     <script src="/javascripts/force.all.js"></script>
     <script src="/javascripts/util.js"></script>
     <script>
@@ -41,7 +41,7 @@
         var oauthCallbackURL = window.location.origin + '/oauthcallback.html';
         var appId = '<%= appId %>';
         console.warn('appId: ', appId);
-        var loAppName = 'c:loApp';
+        var loAppName = 'c:analyticsLtngOutDeps';
         var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
         oauth.login().then(function(oauthResult) {
           console.warn('oauthResult: ', oauthResult);
