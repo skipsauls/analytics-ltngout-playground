@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test</title>
+  </head>
+  <body>
+    <div>
+        Count: <%- count %>
+    </div>
+    <div>
+      <label for="app-id">App ID:</label>
+      <input id="app-id" type="text" value="<%= appId %>"/>
+      <button onclick="updateAppId();">Update</button>
+    </div>
+    <script src="/javascripts/force.all.js"></script>
+    <script src="/javascripts/util.js"></script>
+    <script>
+      function updateAppId() {
+        var val = document.querySelector("#app-id").value;
+        console.warn("value: ", val);
+        var config = {
+          path: '/appid',
+          method: 'POST',
+          data: {
+            'appId': val
+          }
+        };
+        console.warn('calling /appid with: ', config);
+        request(config,
+          function(res) {
+            console.warn('res: ', res);
+          },
+          function(err) {
+            console.warn('err: ', err);
+          }
+        );
+
+      }
+    </script>
+  </body>
+</html>

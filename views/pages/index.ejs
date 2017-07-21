@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel="stylesheet" type="text/css" href="/assets/styles/index.css" />
+  </head>
+  <body>
+    <div>
+      <button class="slds-button slds-button_neutral" onclick="connect();">Connect</button>
+      <button class="slds-button slds-button_neutral" onclick="connect(true);">Connect Sandbox</button>
+    </div>
+    <div>
+      <div class="slds-grid slds-wrap slds-grid--pull-padded slds-p-around--medium">
+        <div class="slds-p-horizontal--small slds-size--1-of-2 slds-medium-size--2-of-6 slds-large-size--4-of-12">
+          <div class="slds-form-element slds-p-around--medium">
+            <label class="slds-form-element__label" for="dashboard-select">Dashboard</label>
+            <div class="slds-form-element__control">
+              <div class="slds-select_container">
+                <select class="slds-select" id="dashboard-select" onchange="selectDashboard(this)">
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slds-p-horizontal--small slds-size--1-of-2 slds-medium-size--4-of-6 slds-large-size--8-of-12">
+          <div class="dashboard-outer lightning">
+            <div id="dashboard" class="dashboard"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://adx-dev-ed.lightning.force.com/lightning/lightning.out.js"></script>
+    <script src="/javascripts/force.all.js"></script>
+    <script src="/javascripts/util.js"></script>
+    <script>
+      var service = null;
+      var _oauthResult;
+      var _dashboardMap = {};
+      function connect(sandbox) {
+        var loginURL = sandbox === true ? 'https://test.salesforce.com' : 'https://login.salesforce.com';
+        var oauthCallbackURL = window.location.origin + '/oauthcallback.html';
+        var appId = '<%= appId %>';
+        console.warn('appId: ', appId);
+        var loAppName = 'c:loApp';
+        var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+        oauth.login().then(function(oauthResult) {
+          console.warn('oauthResult: ', oauthResult);
+          service = force.DataService.createInstance(oauthResult, {apiVersion: "v40.0"});
+          _oauthResult = oauthResult;
+          console.warn('service: ', service);
+
+          $Lightning.use(loAppName, function(evt) {
+            console.warn('Lightning.use returned: ', evt);
+          }, '<%- origin %>', oauthResult.accessToken);
+
+          listDashboards();
+
+        });
+      }
+      function listDashboards() {
+        console.warn("listDashboards path: ", "<%- origin %>/services/data/v40.0/wave/dashboards");
+        var config = {
+          path: _oauthResult.instanceURL + '/services/data/v40.0/wave/dashboards',
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + _oauthResult.accessToken,
+            'Content-Type': 'application/json'
+          }
+        };
+        console.warn('config: ', config);
+        request(config, 
+          function(res) {
+            console.warn(res);
+            if (res.dashboards && res.dashboards.length > 0) {
+              var select = document.querySelector("#dashboard-select");
+              var option = document.createElement("option");
+              var dashboard = null;
+              select.appendChild(option);
+              _dashboardMap = {};
+              for (var i = 0; i < res.dashboards.length; i++) {
+                dashboard = res.dashboards[i];
+                _dashboardMap[dashboard.id] = dashboard;
+                option = document.createElement("option");
+                option.innerHTML = dashboard.label;
+                option.setAttribute("dashboard-id", dashboard.id);
+                select.appendChild(option);
+              }
+            }
+          },
+          function(err) {
+            console.warn(err);
+          }
+        );
+      }
+      function selectDashboard(select) {
+        var option = select.selectedOptions[0];
+        var id = option.getAttribute("dashboard-id");
+        var dashboard = _dashboardMap[id];
+        console.warn("dashboard: ", dashboard);
+        var config = {
+            dashboardId: dashboard.id,
+            width: '1200px',
+            height: '600px'
+        }
+        var el = document.querySelector('#dashboard');
+        el.innerHTML = '';
+        $Lightning.createComponent('wave:waveDashboard', config, el, function(cmp, msg, err) {
+        });
+      }
+    </script>
+  </body>
+</html>
