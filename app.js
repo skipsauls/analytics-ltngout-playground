@@ -8,6 +8,8 @@ var low = require('lowdb');
 var cookieSession = require('cookie-session');
 var bodyParser = require('body-parser');
 var uuidv4 = require('uuid/v4');
+var proxy = require('http-proxy-middleware');
+var sslRedirect = require('heroku-ssl-redirect')
 
 var port = process.env.PORT || 3000;
 var https_port = process.env.HTTPS_PORT || parseInt(port) + 1;
@@ -68,23 +70,216 @@ app.use(cookieSession({
 
 app.use(express.static(__dirname + '/public'));
 
+// enable ssl redirect
+app.use(sslRedirect());
+
+var stubOAuthResult = {
+	accessToken: undefined,
+	appId: undefined,
+	instanceURL: undefined,
+	refreshToken: undefined,
+	userId: undefined
+};
 
 app.get('/', function(req, res) {
-	var origin = req.query.origin;
+	var origin = req.session.origin || req.query.origin;
 	console.warn('origin: ', origin);
 	if (!origin || origin.indexOf('lightning') < 0) {
 		res.render('pages/noorigin');
 	} else {
-		req.session.uuid = req.session.uuid || uuidv4();
-	    res.render('pages/index', {title: 'Analytics Lightning Out Playground', appId: appId, origin: origin});		
+		if (req.query.origin) {
+			req.session.origin = req.query.origin;
+			res.redirect('/');
+		} else {
+
+			req.session.uuid = req.session.uuid || uuidv4();
+		    res.render('pages/index', {
+		    	title: 'Analytics Lightning Out Playground',
+		    	appId: appId, origin: origin,
+		    	oauthResult: req.session.oauthResult || null,
+		    	loAppName: req.session.loAppName,
+		    	sandbox: req.session.sandbox,
+		    	origin: req.session.origin
+		    });		
+		}
 	}
 });
 
-app.get('/test', function(req, res) {
-	req.session.uuid = req.session.uuid || uuidv4();
-	req.session.count = (req.session.count || 0)+ 1;
-	console.warn('req.session: ', req.session);
-    res.render('pages/test', {title: 'Test', count: req.session.count, appId: req.session.appId});
+app.get('/lo2', function(req, res) {
+    res.render('pages/lo2', {title: 'Fancy Lightning Out Demo', appId: process.env.APPID});
+});
+
+app.get('/lo3', function(req, res) {
+    res.render('pages/lo3', {title: 'Fancy Lightning Out Demo', appId: process.env.APPID});
+});
+
+app.get('/lo4', function(req, res) {
+    res.render('pages/lo4', {title: 'Fancy Lightning Out Demo', appId: process.env.APPID});
+});
+
+/*
+ * Proxy for REST requests, etc.
+ * The instanceURL from OAuth is used to route to the correct org
+ */
+var options = {
+	target: 'http://salesforce.com',
+	changeOrigin: true,
+	ws: true,
+	pathRewrite: {
+		'^/proxy' : '/'
+	},
+	router: function(req) {
+		console.warn('router req.session.oauthResult: ', req.session.oauthResult);
+
+		//req.setHeader('Authorization', 'Bearer ' + req.session.oauthResult.accessToken);
+		req.headers['Authorization'] = 'Bearer ' + req.session.oauthResult.accessToken;
+
+		return req.session.oauthResult.instanceURL
+	}
+};
+
+// create the proxy (without context)
+var sfdcProxy = proxy(options);
+
+app.use('/proxy', sfdcProxy);
+
+
+app.get('/userinfo', function(req, res) {
+
+	var url = req.session.oauthResult.instanceURL + '/services/data/v40.0/sobjects/User/' + req.session.oauthResult.userId;
+
+	request({
+		url: url,
+		headers: {
+			'Authorization': 'Bearer ' + req.session.oauthResult.accessToken,
+			'Content-Type': 'application/json'
+		}
+	}, function(error, response, body) {
+		if (error) {
+			console.error('error: ', error);
+			res.send({error: error});
+		} else {
+			var obj = JSON.parse(body);
+			res.send(body);
+		}
+	});
+});
+
+
+app.get('/dashboards', function(req, res) {
+
+	var url = req.session.oauthResult.instanceURL + '/services/data/v40.0/wave/dashboards';
+
+	request({
+		url: url,
+		headers: {
+			'Authorization': 'Bearer ' + req.session.oauthResult.accessToken,
+			'Content-Type': 'application/json'
+		}
+	}, function(error, response, body) {
+		if (error) {
+			console.error('error: ', error);
+			res.send({error: error});
+		} else {
+			var obj = JSON.parse(body);
+			res.send(body);
+		}
+	});
+});
+
+
+app.get('/ltngoutapps', function(req, res) {
+
+	var query = "SELECT AuraDefinitionBundleId,Source FROM AuraDefinition WHERE DefType = 'APPLICATION'";
+    query = query.replace(/\s\s+/g, '+');
+
+	var url = req.session.oauthResult.instanceURL + '/services/data/v40.0/query/?q=' + query;
+
+	request({
+		url: url,
+		headers: {
+			'Authorization': 'Bearer ' + req.session.oauthResult.accessToken,
+			'Content-Type': 'application/json'
+		}
+	}, function(error, response, body) {
+		if (error) {
+			console.error('error: ', error);
+			res.send({error: error});
+		} else {
+			console.warn('body: ', body);
+			var obj = JSON.parse(body);
+			console.warn('obj: ', obj);
+
+            var auraDefinitions = obj.records;
+
+            // Map for use when getting the apps
+            var auraDefinitionsMap = {};
+
+            var query2 = "SELECT Id,DeveloperName,NamespacePrefix,MasterLabel FROM AuraDefinitionBundle WHERE Id IN (";
+            var delim = "";
+            for (var i = 0; i < auraDefinitions.length; i++) {
+              auraDefinitionsMap[auraDefinitions[i].AuraDefinitionBundleId] = auraDefinitions[i];
+              if (auraDefinitions[i].Source.indexOf("extends=\"ltng:outApp\"") >= 0) {
+                query2 += delim + "'" + auraDefinitions[i].AuraDefinitionBundleId + "'";
+                delim = ",";
+              }
+            }
+ 
+            query2 += ")";
+
+            query2 = query2.replace(/\s\s+/g, '+');
+
+			var url = req.session.oauthResult.instanceURL + '/services/data/v40.0/query/?q=' + query2;
+
+			request({
+				url: url,
+				headers: {
+					'Authorization': 'Bearer ' + req.session.oauthResult.accessToken,
+					'Content-Type': 'application/json'
+				}
+			}, function(error, response, body) {
+				if (error) {
+					console.error('error: ', error);
+					res.send({error: error});
+				} else {
+					var obj = JSON.parse(body);
+	                res.send({auraDefinitionsMap: auraDefinitionsMap, auraDefinitionBundles: obj.records});
+				}
+			});
+		}
+	});
+});
+
+app.post('/oauth-result', function(req, res) {
+    console.warn("req.params: ", req.params);
+    console.warn("req.body: ", req.body);
+
+    var body = req.body;
+    var json = JSON.stringify(req.body);
+
+    console.warn("json: ", json);
+
+	req.session.oauthResult = body.oauthResult;
+	req.session.sandbox = body.sandbox || false;
+	if (body.oauthResult === null) {
+		req.session.loAppName = null;
+	}
+
+    res.send('success');
+});
+
+app.post('/lo-app-name', function(req, res) {
+    console.warn("req.params: ", req.params);
+    console.warn("req.body: ", req.body);
+
+    var body = req.body;
+    var json = JSON.stringify(req.body);
+
+    console.warn("json: ", json);
+
+	req.session.loAppName = body.loAppName;
+
+    res.send('success');
 });
 
 app.post('/appid', function(req, res) {

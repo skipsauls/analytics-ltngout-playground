@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />  
+    <title>LO2</title>
+  </head>
+  <body>
+    <div>
+      <div id="button"></div>
+      <div id="dashboard"></div>
+    </div>
+    <script src="https://wavepm.force.com/wavecommunities/lightning/lightning.out.js"></script>
+    <script src="/javascripts/force.all.js"></script>
+    <script src="/javascripts/util.js"></script>
+    <script>
+  
+      var appId = null;
+      if (window.location.origin.indexOf('localhost') >= 0) {
+        appId = '3MVG9SemV5D80oBelr7Nm4Bdjw6BnmUh4vwUjXSbk9voHgz5V2izIejkkhpUWVWYJUobhfiwGjY6.4E8WgYUc';
+      } else {
+        appId = '3MVG9SemV5D80oBelr7Nm4Bdjwy5RRWNippw5uGB35tQjn0Tu9KSZwPCXAF7TTMfW6h7bK9pRAIj5Ry9kLRQn';
+      }
+
+      var loginURL = 'https://wavepm.force.com/wavecommunities';
+      var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
+      var ltngURL = "https://wavepm.force.com/wavecommunities";
+
+      var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+      oauth.login().then(function(oauthResult) {
+        console.warn('oauthResult: ', oauthResult);
+
+
+        if (oauthResult && oauthResult.userId) {
+
+          // https://wavepm.force.com/wavecommunities/services/data/v40.0/wave/dashboards/0FKB0000000DDhtOAG
+          console.warn("getUserInfo");
+          var config = {
+            path: loginURL + '/services/data/v40.0/sobjects/User/' + oauthResult.userId,
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + oauthResult.accessToken,
+            }
+          };
+          console.warn('config: ', config);
+          request(config, 
+            function(res) {
+              console.warn('getUser result: ', res);
+            },
+            function(err) {
+              console.warn('getUser error: ', err);
+            }
+          );
+
+                                             
+          console.warn("get dashboard using: https://wavepm.force.com/wavecommunities/services/data/v40.0/wave/dashboards/0FKB0000000DDhtOAG");
+          var config = {
+            path: 'https://wavepm.force.com/wavecommunities/services/data/v40.0/wave/dashboards/0FKB0000000DDhtOAG',
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + oauthResult.accessToken,
+            }
+          };
+          console.warn('config: ', config);
+          request(config, 
+            function(res) {
+              console.warn('get dashboard result: ', res);
+            },
+            function(err) {
+              console.warn('get dashboard error: ', err);
+            }
+          );
+
+        }        
+        
+        //ltngURL = oauthResult.instanceURL.replace('my.salesforce', 'lightning.force');
+        console.warn('ltngURL: ', ltngURL);
+
+        $Lightning.use("c:loApp", function(evt) {
+          console.warn("Lightning.use returned: ", evt);
+          var config = {
+            dashboardId: "0FKB0000000DFXjOAO",
+            width: "1200",
+            height: "500",
+            showTitle: true,
+            showSharing: false
+          };
+          
+          $Lightning.createComponent("ui:button", {label: 'Test'}, "button", function(cmp, msg, err) {
+            //console.warn("Wave Dashboard Ready: ", cmp, msg, err);
+          });
+          
+          $Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {
+            console.warn("Wave Dashboard Ready: ", cmp, msg, err);
+          });       
+        }, ltngURL, oauthResult.accessToken);        
+
+      });
+
+    </script>
+  </body>
+</html>

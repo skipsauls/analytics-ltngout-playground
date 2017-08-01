@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />  
+    <title>LO4</title>
+  </head>
+  <body>
+    <div>
+      <div id="button"></div>
+      <div id="sdk"></div>
+      <div id="dashboard"></div>
+    </div>
+    <script src="https://wavepm.force.com/wavecommunities/lightning/lightning.out.js"></script>
+    <script src="/javascripts/force.all.js"></script>
+    <script src="/javascripts/util.js"></script>
+    <script>
+  
+      // Setup the URLs
+      var ns = "wavepm";
+      var domain = ns; // + "-dev-ed";
+      var loginURL = "https://wds.mobile01.blitz.salesforce.com";
+      var ltngURL = "https://wds.lightning.mobile1.t.force.com";
+      var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
+
+      // Set the App ID (aka Consumer Key) for OAuth
+      var appId = null;
+      if (window.location.origin.indexOf('localhost') >= 0) {
+        appId = '3MVG9Iu66FKeHhIODWpn7gGBW66yf4JXeNi4ZDmX7uJdErycEYzONFPWqiJgpg2djaw0z2cEfeDyCsgXCAjgs';
+      } else {
+        appId = '';
+      }
+
+      var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+      oauth.login().then(function(oauthResult) {
+        console.warn('oauthResult: ', oauthResult);
+
+
+        if (oauthResult && oauthResult.userId) {
+
+          // https://wavepm.force.com/wavecommunities/services/data/v40.0/wave/dashboards/0FKB0000000DDhtOAG
+          console.warn("getUserInfo");
+          var config = {
+            path: oauthResult.instanceURL + '/services/data/v40.0/sobjects/User/' + oauthResult.userId,
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + oauthResult.accessToken,
+            }
+          };
+          console.warn('config: ', config);
+          request(config, 
+            function(res) {
+              console.warn('getUser result: ', res);
+            },
+            function(err) {
+              console.warn('getUser error: ', err);
+            }
+          );
+
+                                             
+          var config = {
+            path: oauthResult.instanceURL + '/services/data/v41.0/wave/dashboards/0FKR000000007FaOAI',
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + oauthResult.accessToken,
+            }
+          };
+          console.warn('config: ', config);
+          request(config, 
+            function(res) {
+              console.warn('get dashboard result: ', res);
+              var steps = res.state.steps;
+              var step = null;
+              var query = null;
+              for (var key in steps) {
+                step = steps[key];
+                console.warn('step: ', step);
+                query = step.query.query;
+                query = query.replace(/\&quot\;/g, "'");
+                console.warn('query: ', query);
+              }
+            },
+            function(err) {
+              console.warn('get dashboard error: ', err);
+            }
+          );
+
+        }        
+        
+        //ltngURL = oauthResult.instanceURL.replace('my.salesforce', 'lightning.force');
+        console.warn('ltngURL: ', ltngURL);
+
+        $Lightning.use("wave:waveApp", function(evt) {
+          console.warn("Lightning.use returned: ", evt);
+
+          var config = {
+            dashboardId: "0FKR000000007FaOAI",
+            width: "1200",
+            height: "500",
+            showTitle: true,
+            showSharing: false
+          };
+          
+          $Lightning.createComponent("ui:button", {label: 'Test'}, "button", function(cmp, msg, err) {
+            console.warn("Button Ready: ", cmp, msg, err);
+          });
+
+          $Lightning.createComponent("wave:sdk", {}, "sdk", function(cmp, msg, err) {
+            console.warn("SDK Ready: ", cmp, msg, err);
+            wavesdk = cmp;
+
+            var context= {apiVersion: "41"};
+            var methodName = "describeDashboard";
+            var methodParams = {dashboardId: "0FKR000000007FaOAI"};
+            wavesdk.invokeMethod(context, methodName, methodParams, $A.getCallback(function(error, data) {
+                console.warn("callback returned: ", error, data);
+                if (error) {
+                } else {
+                    var def = JSON.stringify(data, null, 4);
+                    console.warn("def: ", def);
+                    var textarea = document.createElement("textarea");
+                    textarea.classList.add("slds-textarea");
+                    textarea.value = def;
+                    document.querySelector("#details").appendChild(textarea);
+                }
+            }));
+
+          });
+/*          
+          $Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {
+            console.warn("Wave Dashboard Ready: ", cmp, msg, err);
+          });
+*/          
+        }, ltngURL, oauthResult.accessToken);        
+
+      });
+
+    </script>
+  </body>
+</html>

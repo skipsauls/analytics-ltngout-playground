@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />  
+    <title>LO3</title>
+  </head>
+  <body>
+    <div>
+      <div id="button"></div>
+      <div id="dashboard"></div>
+    </div>
+    <script src="https://wavepm.force.com/wavecommunities/lightning/lightning.out.js"></script>
+    <script src="/javascripts/force.all.js"></script>
+    <script src="/javascripts/util.js"></script>
+    <script>
+  
+      // Setup the URLs
+      var ns = "wavepm";
+      var domain = ns; // + "-dev-ed";
+      var loginURL = "https://" + domain + ".my.salesforce.com";
+      var ltngURL = "https://" + domain + ".lightning.force.com";
+      var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
+
+      // Set the App ID (aka Consumer Key) for OAuth
+      var appId = null;
+      if (window.location.origin.indexOf('localhost') >= 0) {
+        appId = '3MVG9SemV5D80oBelr7Nm4Bdjw6BnmUh4vwUjXSbk9voHgz5V2izIejkkhpUWVWYJUobhfiwGjY6.4E8WgYUc';
+      } else {
+        appId = '3MVG9SemV5D80oBelr7Nm4Bdjwy5RRWNippw5uGB35tQjn0Tu9KSZwPCXAF7TTMfW6h7bK9pRAIj5Ry9kLRQn';
+      }
+
+
+      function execQuery(oauthResult, saql) {
+          var config = {
+            path: oauthResult.instanceURL + '/services/data/v40.0/wave/query',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + oauthResult.accessToken,
+            },
+            data: {
+              query: saql
+            }
+          };
+          console.warn('config: ', config);
+          request(config, 
+            function(res) {
+              console.warn('execQuery result: ', res);
+            },
+            function(err) {
+              console.warn('execQuery error: ', err);
+            }
+          );
+
+      }
+
+      var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+      oauth.login().then(function(oauthResult) {
+        console.warn('oauthResult: ', oauthResult);
+
+
+        if (oauthResult && oauthResult.userId) {
+
+          // https://wavepm.force.com/wavecommunities/services/data/v40.0/wave/dashboards/0FKB0000000DDhtOAG
+          console.warn("getUserInfo");
+          var config = {
+            path: oauthResult.instanceURL + '/services/data/v40.0/sobjects/User/' + oauthResult.userId,
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + oauthResult.accessToken,
+            }
+          };
+          console.warn('config: ', config);
+          request(config, 
+            function(res) {
+              console.warn('getUser result: ', res);
+            },
+            function(err) {
+              console.warn('getUser error: ', err);
+            }
+          );
+
+                                             
+          var config = {
+            path: oauthResult.instanceURL + '/services/data/v40.0/wave/dashboards/0FKB0000000DFf9OAG',
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + oauthResult.accessToken,
+            }
+          };
+          console.warn('config: ', config);
+          request(config, 
+            function(res) {
+              console.warn('get dashboard result: ', res);
+              var steps = res.state.steps;
+              var step = null;
+              var query = null;
+              var json = null;
+              var saql = null;
+              var dataset = null;
+              for (var key in steps) {
+                step = steps[key];
+                console.warn('step: ', step);
+                query = step.query.query;
+                query = query.replace(/\&quot\;/g, "\"");
+                console.warn('query: ', query);
+
+                // HTML trick to decode the encoded query
+                var txt = document.createElement("textarea");
+                txt.innerHTML = query;
+                query = txt.value;
+                json = JSON.parse(query);
+                console.warn("json: ", json);
+                saql = json.pigql;
+
+                for (var i = 0; i < res.datasets.length; i++) {                  
+                  dataset = res.datasets[0];
+                  var config = {
+                    path: oauthResult.instanceURL + '/services/data/v40.0/wave/datasets/' + dataset.id,
+                    method: 'GET',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': 'Bearer ' + oauthResult.accessToken,
+                    }
+                  };
+                  console.warn('config: ', config);
+                  request(config, 
+                    function(res) {
+                      console.warn('get dataset result: ', res);
+
+                      saql = saql.replace(dataset.name, dataset.id + "/" + res.currentVersionId);
+
+                      console.warn('saql: ', saql);
+       
+                      execQuery(oauthResult, saql);
+
+
+                    },
+                    function(err) {
+                      console.warn('get dataset error: ', err);
+                    });
+
+
+
+
+                }
+
+              }
+            },
+            function(err) {
+              console.warn('get dashboard error: ', err);
+            }
+          );
+
+        }        
+        
+        //ltngURL = oauthResult.instanceURL.replace('my.salesforce', 'lightning.force');
+        console.warn('ltngURL: ', ltngURL);
+/*
+        $Lightning.use("c:loApp", function(evt) {
+          console.warn("Lightning.use returned: ", evt);
+          var config = {
+            dashboardId: "0FKB0000000DDhtOAG",
+            width: "1200",
+            height: "500",
+            showTitle: true,
+            showSharing: false
+          };
+          
+          $Lightning.createComponent("ui:button", {label: 'Test'}, "button", function(cmp, msg, err) {
+            //console.warn("Wave Dashboard Ready: ", cmp, msg, err);
+          });
+          
+          $Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {
+            console.warn("Wave Dashboard Ready: ", cmp, msg, err);
+          });       
+        }, ltngURL, oauthResult.accessToken);        
+*/
+      });
+
+    </script>
+  </body>
+</html>

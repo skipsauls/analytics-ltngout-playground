@@ -4,8 +4,6 @@ function getRequestBaseURL() {
 
 function request(obj, successHandler, errorHandler) {
 
-    console.warn('request: ', obj);
-
     var method = obj.method || 'GET',
         xhr = new XMLHttpRequest(),
         url = getRequestBaseURL();
@@ -15,8 +13,6 @@ function request(obj, successHandler, errorHandler) {
         obj.path = '/' + obj.path;
     }
     url = url + obj.path;
-
-    console.warn('url: ', url);
 
     if (obj.params) {
         url += '?' + toQueryString(obj.params);
@@ -60,11 +56,12 @@ function request(obj, successHandler, errorHandler) {
 
     if (obj.headers) {
         for (var k in obj.headers) {
-            console.warn("setting header: ", k, obj.headers[k]); 
             xhr.setRequestHeader(k, obj.headers[k]);            
         }
     }
-    console.warn('sending: ', obj.data);
+    
+    console.warn("xhr.send obj.data: ", obj.data, JSON.stringify(obj.data));
+
     xhr.send(obj.data ? JSON.stringify(obj.data) : undefined);
 }
 
