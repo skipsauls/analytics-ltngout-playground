@@ -184,6 +184,7 @@
 
       var service = null;
       var _oauthResult = <%- JSON.stringify(oauthResult) %> || null;
+      var _dataService = null;
       var _dashboardMap = {};
       var _loAppMap = {};
       var _loAppName = '<%= loAppName %>' || 'wave:waveApp';
@@ -203,6 +204,8 @@
       }());
 
       function setup() {
+          _dataService = force.DataService.createInstance(_oauthResult, {apiVersion: 'v40.0', useProxy: false});
+          _dataService.useProxy = false;
           setProfileMenu();
           getUserInfo();
           setupLightningOut();
@@ -273,6 +276,21 @@
       }
 
       function getUserInfo() {
+
+
+        _dataService.request({
+          path: '/services/data/v40.0/sobjects/User/' + _oauthResult.userId
+        })
+          .then(result => {
+              console.warn('_dataService.request result: ', result);
+              _userInfo = result;
+
+              setupUI();
+          })
+          .catch(error => {
+              console.error('_dataService.request error: ', error);
+          });
+/*
         if (_oauthResult && _oauthResult.userId) {
 
           console.warn("getUserInfo: /userinfo");
@@ -296,6 +314,7 @@
             }
           );          
         }
+*/        
       }
 
       // Note that this is for testing communities only!!!
@@ -342,13 +361,15 @@
 
         //var loAppName = 'wave:waveApp';
         var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+        console.warn('oauth: ', oauth);
         oauth.login().then(function(oauthResult) {
           console.warn('oauthResult: ', oauthResult);
 
           updateOAuthResult(oauthResult, function(res, err) {
             console.warn("updateOAuthResult returned: ", res, err);
-            service = force.DataService.createInstance(oauthResult, {apiVersion: "v40.0"});
-            console.warn('service: ', service);
+            _dataService = force.DataService.createInstance(oauthResult, {apiVersion: 'v40.0', useProxy: false});
+            _dataService.useProxy = false;
+            console.warn('_dataService: ', _dataService);
 
             _oauthResult = oauthResult;
 
@@ -400,6 +421,38 @@
 
 
       function listDashboards() {
+
+        _dataService.request({
+          path: '/services/data/v40.0/wave/dashboards'
+        })
+          .then(result => {
+              console.warn('_dataService.request result: ', result);
+                if (result.dashboards && result.dashboards.length > 0) {
+                var select = document.querySelector("#dashboard-select");
+                select.innerHTML = null;
+                var option = document.createElement("option");
+                option.value = "";
+                option.setAttribute("disabled", "disabled");
+                option.setAttribute("selected", "selected");
+                option.setAttribute("hidden", "hidden");
+                option.innerHTML = "Please Choose...";              
+                select.appendChild(option);
+                var dashboard = null;
+                _dashboardMap = {};
+                for (var i = 0; i < result.dashboards.length; i++) {
+                  dashboard = result.dashboards[i];
+                  _dashboardMap[dashboard.id] = dashboard;
+                  option = document.createElement("option");
+                  option.innerHTML = dashboard.label;
+                  option.setAttribute("dashboard-id", dashboard.id);
+                  select.appendChild(option);
+                }
+              }
+          })
+          .catch(error => {
+              console.error('_dataService.request error: ', error);
+          });
+/*
         console.warn("listDashboards path: /dashboards");
         var config = {
           path: '/dashboards',
@@ -438,6 +491,7 @@
             console.warn(err);
           }
         );
+*/
       }
 
       function listDashboards2() {
@@ -500,6 +554,12 @@
       function listLtngOutApps(callback) {
 
         console.warn("listLtngOutApps");
+
+/* TODO - Finish conversion to use _dataService.request
+ *
+ *
+ *
+*/
 
         var config = {
           path: '/ltngoutapps',

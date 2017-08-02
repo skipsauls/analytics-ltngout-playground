@@ -84,6 +84,7 @@ var stubOAuthResult = {
 app.get('/', function(req, res) {
 	var origin = req.session.origin || req.query.origin;
 	console.warn('origin: ', origin);
+	origin = 'https://wavepm.lightning.force.com';
 	if (!origin || origin.indexOf('lightning') < 0) {
 		res.render('pages/noorigin');
 	} else {
