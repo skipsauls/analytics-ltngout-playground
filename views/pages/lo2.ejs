@@ -24,7 +24,7 @@
 
       var loginURL = 'https://wavepm.force.com/wavecommunities';
       var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
-      var ltngURL = "https://wavepm.force.com/wavecommunities";
+      var ltngURL = "https://wavepm.lightning.force.com/wavecommunities";
 
       var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
       oauth.login().then(function(oauthResult) {
@@ -76,7 +76,7 @@
 
         }        
  */
-        
+
         //ltngURL = oauthResult.instanceURL.replace('my.salesforce', 'lightning.force');
         console.warn('ltngURL: ', ltngURL);
 

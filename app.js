@@ -10,6 +10,7 @@ var bodyParser = require('body-parser');
 var uuidv4 = require('uuid/v4');
 var proxy = require('http-proxy-middleware');
 var sslRedirect = require('heroku-ssl-redirect')
+var Alexa = require('alexa-sdk');
 
 var port = process.env.PORT || 3000;
 var https_port = process.env.HTTPS_PORT || parseInt(port) + 1;
@@ -81,6 +82,24 @@ var stubOAuthResult = {
 	userId: undefined
 };
 
+
+var handlers = {
+
+    'Testing': function () {
+    	console.warn('Testing');
+        this.emit(':tell', 'Hello World!');
+    }
+
+};
+
+exports.handler = function(event, context, callback){
+    var alexa = Alexa.handler(event, context, callback);
+    alexa.registerHandlers(handlers);
+    alexa.execute();
+};
+
+
+
 app.get('/', function(req, res) {
 	var origin = req.session.origin || req.query.origin;
 	console.warn('origin: ', origin);
@@ -94,13 +113,15 @@ app.get('/', function(req, res) {
 		} else {
 
 			req.session.uuid = req.session.uuid || uuidv4();
+			var domain = req.session.origin.replace(/^https?\:\/\//i, "");
 		    res.render('pages/index', {
 		    	title: 'Analytics Lightning Out Playground',
 		    	appId: appId, origin: origin,
 		    	oauthResult: req.session.oauthResult || null,
 		    	loAppName: req.session.loAppName,
 		    	sandbox: req.session.sandbox,
-		    	origin: req.session.origin
+		    	origin: req.session.origin,
+		    	domain: domain
 		    });		
 		}
 	}

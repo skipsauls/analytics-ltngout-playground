@@ -28,6 +28,22 @@
         max-width: 25rem;
       }
 
+      .lightning-component {
+        min-width: 100px;
+        min-height: 50px;
+        border: 1px solid #A0A0A0;
+        background-color: #C0C0C0;
+      }
+
+      .draggable {
+        border: 1px solid red;
+        padding: 5px;
+      }
+
+      .droppable {
+        border: 1px solid green;
+        padding: 10px;
+      }
     </style>
   </head>
   <body>
@@ -129,8 +145,8 @@
             </span>
           </div>
           <div class="slds-media__body">
-            <h1 class="slds-page-header__title slds-truncate slds-align-middle" title="Rohde Corp - 80,000 Widgets">Rohde Corp - 80,000 Widgets</h1>
-            <p class="slds-text-body_small slds-line-height_reset">Mark Jaeckal • Unlimited Customer • 11/13/15</p>
+            <h1 class="slds-page-header__title slds-truncate slds-align-middle" title="<%- domain %>"><%- domain %></h1>
+            <p class="slds-text-body_small slds-line-height_reset">TBD • TBD • TBD</p>
           </div>
         </div>
       </div>
@@ -140,7 +156,7 @@
       <div class="slds-grid slds-wrap slds-grid--pull-padded slds-p-around--medium">
         <div class="slds-p-horizontal--small slds-size--1-of-2 slds-medium-size--2-of-6 slds-large-size--4-of-12">
 
-          <div class="slds-form-element slds-p-around--medium">
+          <div class="slds-form-element slds-p-around--x-small">
             <label class="slds-form-element__label" for="lo-app-select">Lightning Out Apps</label>
             <div class="slds-form-element__control">
               <div class="slds-select_container">
@@ -149,7 +165,7 @@
               </div>
             </div>
           </div>
-          <div class="slds-form-element slds-p-around--medium">
+          <div class="slds-form-element slds-p-around--x-small">
             <label class="slds-form-element__label" for="dashboard-select">Dashboards</label>
             <div class="slds-form-element__control">
               <div class="slds-select_container">
@@ -158,7 +174,7 @@
               </div>
             </div>
           </div>
-          <div class="slds-form-element slds-p-around--medium">
+          <div class="slds-form-element slds-p-around--x-small">
             <label class="slds-form-element__label" for="component-select">Components</label>
             <div class="slds-form-element__control">
               <div class="slds-select_container">
@@ -167,10 +183,17 @@
               </div>
             </div>
           </div>
+          <div class="slds-form-element slds-p-around--x-small">
+            <ul id="component-list" class="droppable">
+                <li class="draggable">Test 1</li>
+                <li class="draggable">Test 2</li>
+                <li class="draggable">Test 3</li>
+            </ul>
+          </div>
         </div>
         <div class="slds-p-horizontal--small slds-size--1-of-2 slds-medium-size--4-of-6 slds-large-size--8-of-12">
-          <div class="dashboard-outer lightning">
-            <div id="dashboard" class="dashboard"></div>
+          <div class="dashboard-outer lightning droppable">
+            <div id="dashboard" class="dashboard draggable"></div>
           </div>
         </div>
       </div>
@@ -180,6 +203,7 @@
     <script src="<%- origin %>/lightning/lightning.out.js"></script>
     <script src="/javascripts/force.all.js"></script>
     <script src="/javascripts/util.js"></script>
+    <script src="/javascripts/interact.js"></script>
     <script>
 
       var service = null;
@@ -203,6 +227,54 @@
         }
       }());
 
+      function setupDragAndDrop() {
+        console.warn('setupDragAndDrop');
+
+        interact('.draggable')
+          .draggable({
+            inertia: false,
+            restrict: {
+              restriction: ".droppable",
+              endOnly: true,
+              elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+            },
+            autoScroll: true,
+
+            onmove: dragMoveListener,
+            onend: function (event) {
+              //console.warn('end: ', event);
+              /*
+              var textEl = event.target.querySelector('p');
+
+              textEl && (textEl.textContent =
+                'moved a distance of '
+                + (Math.sqrt(event.dx * event.dx +
+                             event.dy * event.dy)|0) + 'px');
+              */
+            }
+          });
+
+      }
+
+      function dragMoveListener (event) {
+        var target = event.target,
+            // keep the dragged position in the data-x/data-y attributes
+            x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+            y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+        // translate the element
+        target.style.webkitTransform =
+        target.style.transform =
+          'translate(' + x + 'px, ' + y + 'px)';
+
+        // update the posiion attributes
+        target.setAttribute('data-x', x);
+        target.setAttribute('data-y', y);
+      }
+
+      // this is used later in the resizing and gesture demos
+      window.dragMoveListener = dragMoveListener;
+
       function setup() {
           _dataService = force.DataService.createInstance(_oauthResult, {apiVersion: 'v40.0', useProxy: false});
           _dataService.useProxy = false;
@@ -216,6 +288,7 @@
               listComponents();
             }
           });
+          setupDragAndDrop();
       }
 
       function setupUI() {
@@ -277,44 +350,19 @@
 
       function getUserInfo() {
 
-
         _dataService.request({
           path: '/services/data/v40.0/sobjects/User/' + _oauthResult.userId
         })
-          .then(result => {
-              console.warn('_dataService.request result: ', result);
-              _userInfo = result;
+        .then(result => {
+            console.warn('_dataService.request result: ', result);
+            _userInfo = result;
 
-              setupUI();
-          })
-          .catch(error => {
-              console.error('_dataService.request error: ', error);
-          });
-/*
-        if (_oauthResult && _oauthResult.userId) {
+            setupUI();
+        })
+        .catch(error => {
+            console.error('_dataService.request error: ', error);
+        });
 
-          console.warn("getUserInfo: /userinfo");
-          var config = {
-            path: '/userinfo',
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          };
-          console.warn('config: ', config);
-          request(config, 
-            function(res) {
-              console.warn('getUser result: ', res);
-              _userInfo = res;
-
-              setupUI();
-            },
-            function(err) {
-              console.warn('getUser error: ', err);
-            }
-          );          
-        }
-*/        
       }
 
       // Note that this is for testing communities only!!!
@@ -425,47 +473,9 @@
         _dataService.request({
           path: '/services/data/v40.0/wave/dashboards'
         })
-          .then(result => {
-              console.warn('_dataService.request result: ', result);
-                if (result.dashboards && result.dashboards.length > 0) {
-                var select = document.querySelector("#dashboard-select");
-                select.innerHTML = null;
-                var option = document.createElement("option");
-                option.value = "";
-                option.setAttribute("disabled", "disabled");
-                option.setAttribute("selected", "selected");
-                option.setAttribute("hidden", "hidden");
-                option.innerHTML = "Please Choose...";              
-                select.appendChild(option);
-                var dashboard = null;
-                _dashboardMap = {};
-                for (var i = 0; i < result.dashboards.length; i++) {
-                  dashboard = result.dashboards[i];
-                  _dashboardMap[dashboard.id] = dashboard;
-                  option = document.createElement("option");
-                  option.innerHTML = dashboard.label;
-                  option.setAttribute("dashboard-id", dashboard.id);
-                  select.appendChild(option);
-                }
-              }
-          })
-          .catch(error => {
-              console.error('_dataService.request error: ', error);
-          });
-/*
-        console.warn("listDashboards path: /dashboards");
-        var config = {
-          path: '/dashboards',
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        };
-        console.warn('config: ', config);
-        request(config, 
-          function(res) {
-            console.warn(res);
-            if (res.dashboards && res.dashboards.length > 0) {
+        .then(result => {
+            console.warn('_dataService.request result: ', result);
+              if (result.dashboards && result.dashboards.length > 0) {
               var select = document.querySelector("#dashboard-select");
               select.innerHTML = null;
               var option = document.createElement("option");
@@ -477,8 +487,8 @@
               select.appendChild(option);
               var dashboard = null;
               _dashboardMap = {};
-              for (var i = 0; i < res.dashboards.length; i++) {
-                dashboard = res.dashboards[i];
+              for (var i = 0; i < result.dashboards.length; i++) {
+                dashboard = result.dashboards[i];
                 _dashboardMap[dashboard.id] = dashboard;
                 option = document.createElement("option");
                 option.innerHTML = dashboard.label;
@@ -486,53 +496,11 @@
                 select.appendChild(option);
               }
             }
-          },
-          function(err) {
-            console.warn(err);
-          }
-        );
-*/
-      }
+        })
+        .catch(error => {
+            console.error('_dataService.request error: ', error);
+        });
 
-      function listDashboards2() {
-        console.warn("listDashboards path: /proxy/services/data/v40.0/wave/dashboards");
-        var config = {
-          path: '/proxy/services/data/v40.0/wave/dashboards',
-          method: 'GET',
-          headers: {
-            //'Authorization': 'Bearer ' + _oauthResult.accessToken,
-            'Content-Type': 'application/json'
-          }
-        };
-        console.warn('config: ', config);
-        request(config, 
-          function(res) {
-            console.warn(res);
-            if (res.dashboards && res.dashboards.length > 0) {
-              var select = document.querySelector("#dashboard-select");
-              var option = document.createElement("option");
-              option.value = "";
-              option.setAttribute("disabled", "disabled");
-              option.setAttribute("selected", "selected");
-              option.setAttribute("hidden", "hidden");
-              option.innerHTML = "Please Choose...";              
-              select.appendChild(option);
-              var dashboard = null;
-              _dashboardMap = {};
-              for (var i = 0; i < res.dashboards.length; i++) {
-                dashboard = res.dashboards[i];
-                _dashboardMap[dashboard.id] = dashboard;
-                option = document.createElement("option");
-                option.innerHTML = dashboard.label;
-                option.setAttribute("dashboard-id", dashboard.id);
-                select.appendChild(option);
-              }
-            }
-          },
-          function(err) {
-            console.warn(err);
-          }
-        );
       }
 
       function selectDashboard(select) {
@@ -545,82 +513,121 @@
             width: '1200px',
             height: '600px'
         }
+        createDashboard(config);
+      }
+
+      function createDashboard(config) {
         var el = document.querySelector('#dashboard');
         el.innerHTML = '';
         $Lightning.createComponent('wave:waveDashboard', config, el, function(cmp, msg, err) {
         });
       }
 
+      function test() {
+        var config = {
+            dashboardId: '0FKB00000005vPgOAI',
+            width: '1200px',
+            height: '600px'
+        }        
+        createDashboard(config);
+      }
+
       function listLtngOutApps(callback) {
 
         console.warn("listLtngOutApps");
 
-/* TODO - Finish conversion to use _dataService.request
- *
- *
- *
-*/
+        var query = "SELECT AuraDefinitionBundleId,Source FROM AuraDefinition WHERE DefType = 'APPLICATION'";
+        query = query.replace(/\s\s+/g, '+');
 
-        var config = {
-          path: '/ltngoutapps',
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        };
-        console.warn('config: ', config);
-        request(config, 
-          function(res) {
+        _dataService.request({
+          path: '/services/data/v40.0/query/?q=' + query
+        })
+        .then(result => {
+          console.warn('get AuraDefinitions result: ', result);
 
-            var auraDefinitionBundles = res.auraDefinitionBundles;
-            var auraDefinitionsMap = res.auraDefinitionsMap;
+          var auraDefinitions = result.records;
 
-            var select = document.querySelector("#lo-app-select");
-            select.innerHTML = null;
+          // Map for use when getting the apps
+          var auraDefinitionsMap = {};
 
-            var option = document.createElement("option");
-            option.value = "wave:waveApp";
-            option.innerHTML = "wave:waveApp";
-            if (typeof _loAppName === undefined || _loAppName === null || _loAppName === '') {
-              option.setAttribute("selected", "selected");
+          var query2 = "SELECT Id,DeveloperName,NamespacePrefix,MasterLabel FROM AuraDefinitionBundle WHERE Id IN (";
+          var delim = "";
+          for (var i = 0; i < auraDefinitions.length; i++) {
+            auraDefinitionsMap[auraDefinitions[i].AuraDefinitionBundleId] = auraDefinitions[i];
+            if (auraDefinitions[i].Source.indexOf("extends=\"ltng:outApp\"") >= 0) {
+              query2 += delim + "'" + auraDefinitions[i].AuraDefinitionBundleId + "'";
+              delim = ",";
             }
-/*
-            option.value = "";
-            option.setAttribute("disabled", "disabled");
-            option.setAttribute("selected", "selected");
-            option.setAttribute("hidden", "hidden");
-            option.innerHTML = "Please Choose...";
-*/
-            select.appendChild(option);
+          }
 
-            var bundle = null;
-            _loAppMap = {};
-            var ns = null;
-            for (var i = 0; i < auraDefinitionBundles.length; i++) {
-              bundle = auraDefinitionBundles[i];
-              ns = bundle.NamespacePrefix || 'c';
-              _loAppMap[bundle.Id] = {
-                id: bundle.Id,
-                name: bundle.DeveloperName,
-                namespace: ns,
-                fullName: ns + ":" + bundle.DeveloperName,
-                label: bundle.MasterLabel,
-                source: auraDefinitionsMap[bundle.Id].Source                 
-              };
-              //findComponents(auraDefinitionsMap[bundle.Id].Source);
-              option = document.createElement("option");
-              option.innerHTML = ns + ":" + bundle.DeveloperName;
-              option.setAttribute("bundle-id", bundle.Id);
-              if (_loAppName === (ns + ":" + bundle.DeveloperName)) {
+          query2 += ")";
+
+          query2 = query2.replace(/\s\s+/g, '+');
+
+          _dataService.request({
+            path: '/services/data/v40.0/query/?q=' + query2
+          })
+          .then(result => {
+              console.warn('get AuraDefinitionBundles result: ', result);
+
+              var auraDefinitionBundles = result.records;
+
+              var select = document.querySelector("#lo-app-select");
+              select.innerHTML = null;
+
+              var option = document.createElement("option");
+              option.value = "wave:waveApp";
+              option.innerHTML = "wave:waveApp";
+              if (typeof _loAppName === undefined || _loAppName === null || _loAppName === '') {
                 option.setAttribute("selected", "selected");
               }
+  /*
+              option.value = "";
+              option.setAttribute("disabled", "disabled");
+              option.setAttribute("selected", "selected");
+              option.setAttribute("hidden", "hidden");
+              option.innerHTML = "Please Choose...";
+  */
               select.appendChild(option);
-            }
-            if (typeof callback === "function") {
-              callback("success", null);
-            }
-          }
-        );
+
+              var bundle = null;
+              _loAppMap = {};
+              var ns = null;
+              for (var i = 0; i < auraDefinitionBundles.length; i++) {
+                bundle = auraDefinitionBundles[i];
+                ns = bundle.NamespacePrefix || 'c';
+                _loAppMap[bundle.Id] = {
+                  id: bundle.Id,
+                  name: bundle.DeveloperName,
+                  namespace: ns,
+                  fullName: ns + ":" + bundle.DeveloperName,
+                  label: bundle.MasterLabel,
+                  source: auraDefinitionsMap[bundle.Id].Source                 
+                };
+                //findComponents(auraDefinitionsMap[bundle.Id].Source);
+                option = document.createElement("option");
+                option.innerHTML = ns + ":" + bundle.DeveloperName;
+                option.setAttribute("bundle-id", bundle.Id);
+                if (_loAppName === (ns + ":" + bundle.DeveloperName)) {
+                  option.setAttribute("selected", "selected");
+                }
+                select.appendChild(option);
+              }
+              if (typeof callback === "function") {
+                callback("success", null);
+              }
+
+          })
+          .catch(error => {
+              console.error('get AuraDefinitionBundles error: ', error);
+          });        
+
+
+        })
+        .catch(error => {
+            console.error('get AuraDefinitions  error: ', error);
+        });        
+
       }
 
       function selectLtngOutApp(select) {
@@ -727,6 +734,18 @@
         var option = select.selectedOptions[0];
         var fullName = option.getAttribute("full-name");
         console.warn("fullName: ", fullName);
+
+        var config = {
+        }
+        var list = document.querySelector('#component-list');
+        var item = document.createElement('li');
+        item.classList.add('lightning-component');
+        item.classList.add('draggable');
+        list.appendChild(item);
+        console.warn('item: ', item);
+        $Lightning.createComponent(fullName, config, item, function(cmp, msg, err) {
+          console.warn('createComponent ' + fullName + ' returned: ', cmp);
+        });        
       }
 
 
