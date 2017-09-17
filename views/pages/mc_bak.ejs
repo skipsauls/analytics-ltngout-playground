@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />  
+    <title>MC</title>
+  </head>
+  <body>
+    <div>
+      <div id="button"></div>
+      <div id="dashboard"></div>
+    </div>
+    <script src="https://mobile2.t.salesforce.com/lightning/lightning.out.js"></script>
+    <script src="/javascripts/force.all.js"></script>
+    <script src="/javascripts/util.js"></script>
+    <script>
+  
+      var appId = null;
+      if (window.location.origin.indexOf('localhost') >= 0) {
+        // MC org
+        appId = '3MVG9Iu66FKeHhINsTSPXM9jotZbnNL1qWsItL7R08Mo9_vezeWRh.ZmkCnO814RknuFx5zDSSmdhXAkDubCz';
+
+        // My demo org
+        //appId = '3MVG9Iu66FKeHhIMpA3q2O3L0g6OHJctlbN8ylo8pFUadXg5Q4.DSxytpGgE2xrQF5BB5iGkWoEHf74QmKqUL';
+
+      } else {
+        appId = '';
+      }
+
+      var loginURL = 'https://mobile2.t.salesforce.com';
+
+      //var loginURL = "https://mclodemo-dev-ed.mobile02.blitz.salesforce.com";
+
+      // Command Center
+      var loginURL = "https://commandcenter.mobile02.blitz.salesforce.com";
+
+      var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
+
+      //var ltngURL = "https://ap1.lightning.mobile2.t.force.com";
+
+      var ltngURL = "https://mclodemo-dev-ed.lightning.mobile2.t.force.com";
+
+      // Command Center
+      var ltngURL = "https://commandcenter.lightning.mobile2.t.force.com";
+
+      var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+      oauth.login().then(function(oauthResult) {
+        console.warn('oauthResult: ', oauthResult);
+        var config = {
+          path: loginURL + '/services/data/v41.0/sobjects/User/' + oauthResult.userId,
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + oauthResult.accessToken,
+          }
+        };        
+        console.warn("config: ", config);
+        request(config, function(res) {
+          console.warn("res: ", res);            
+        },
+        function(err) {
+          console.warn("err: ", err);
+        });
+
+        //ltngURL = oauthResult.instanceURL.replace('my.salesforce', 'lightning.force');
+        console.warn('ltngURL: ', ltngURL);
+
+        var loAppName = "c:loApp";
+
+        // Command Center
+        var loAppName = "c:commandcenterwave";
+
+        $Lightning.use(loAppName, function(evt) {
+          console.warn("Lightning.use returned: ", evt);
+          var config = {
+            dashboardId: "0FKR000000006keOAA",
+            width: "1200",
+            height: "500",
+            showTitle: false,
+            showSharing: false,
+            showHeader: false
+          };
+          
+          $Lightning.createComponent("ui:button", {label: 'Test'}, "button", function(cmp, msg, err) {
+            console.warn("Button Ready: ", cmp, msg, err);
+          });
+          
+          $Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {
+            console.warn("Wave Dashboard Ready: ", cmp, msg, err);
+          });
+
+        }, ltngURL, oauthResult.accessToken);        
+
+      });
+
+    </script>
+  </body>
+</html>

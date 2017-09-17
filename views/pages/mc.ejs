@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />  
+    <title>MC</title>
+  </head>
+  <body>
+    <div>
+      <div id="dashboard"></div>
+    </div>
+    <script src="https://mobile2.t.salesforce.com/lightning/lightning.out.js"></script>
+    <script src="/javascripts/force.all.js"></script>
+    <script>
+      var appId = null;
+      if (window.location.origin.indexOf('localhost') >= 0) {
+        appId = '3MVG9Iu66FKeHhINsTSPXM9jotZbnNL1qWsItL7R08Mo9_vezeWRh.ZmkCnO814RknuFx5zDSSmdhXAkDubCz';
+      } else {
+        appId = '';
+      }
+
+      var loginURL = "https://commandcenter.mobile02.blitz.salesforce.com";
+      var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
+      var ltngURL = "https://commandcenter.lightning.mobile2.t.force.com";
+
+      var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+      oauth.login().then(function(oauthResult) {
+        var loAppName = "c:commandcenterwave";
+
+        $Lightning.use(loAppName, function(evt) {
+          console.warn("Lightning.use returned: ", evt);
+          var config = {
+            dashboardId: "0FKR000000006keOAA",
+            width: "1200",
+            height: "500",
+            showTitle: false,
+            showSharing: false,
+            showHeader: false
+          };
+          
+          $Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {
+            console.warn("Wave Dashboard Ready: ", cmp, msg, err);
+          });
+
+        }, ltngURL, oauthResult.accessToken);        
+
+      });
+    </script>
+  </body>
+</html>

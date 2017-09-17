@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head><title>Einstein Analytics - Lightning Out</title></head>
+  <body>
+    <div id="dashboard"></div>
+    <script src="https://mobile2.t.salesforce.com/lightning/lightning.out.js"></script>
+    <script src="/javascripts/force.all.js"></script>
+    <script>
+      var appId = '3MVG9SemV5D80oBcff3jWxxK32RKEGuV4rwCe0au2N57DF5JLbaPRJq_vbfAR43i60NyBEUSd_SnRtKMHnPcR';
+      var loginURL = "https://login.salesforce.com";
+      var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
+      var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+      var loAppName = "c:loApp";
+      oauth.login().then(function(oauthResult) {
+        var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
+        $Lightning.use(loAppName, function(evt) {
+          var config = {
+            dashboardId: "0FKB000000091kVOAQ",
+            height: "600",
+            showTitle: false,
+            showHeader: false
+          };
+          $Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {});
+        }, ltngURL, oauthResult.accessToken);        
+      });
+    </script>
+  </body>
+</html>

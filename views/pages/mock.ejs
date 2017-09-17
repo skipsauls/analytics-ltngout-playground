@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      Mock
+    </title>
+    <link rel="stylesheet" type="text/css" href="/assets/styles/index.css" />    
+    <style>
+      textarea.slds-textarea {
+        width: 60em;
+        height: 24em;
+        resize: none;
+        overflow: auto;
+      }
+
+      .main-content {
+        position: absolute;
+        top: 40px;
+        height: calc(100% - 40px);
+        width: 100%;    
+      }
+
+    </style>
+  </head>
+  <body>
+    <header class="slds-global-header_container">
+      <div class="slds-global-header slds-grid slds-grid_align-spread">
+        <div class="slds-global-header__item">
+          <div class="slds-global-header__logo">
+            <img src="/assets/images/logo-noname.svg" alt="">
+          </div>
+        </div>
+        <div class="slds-global-header__item">
+          <button class="slds-button slds-button_neutral" onclick="login();">Login</button>
+        </div>
+      </div>
+    </header>
+    <section class="main-content">
+      <div class="slds-grid slds-wrap slds-grid--pull-padded slds-p-around--medium">
+        <div class="slds-p-horizontal--small slds-size--1-of-2 slds-medium-size--2-of-6 slds-large-size--4-of-12">
+          <div class="slds-form-element slds-m-around_small">
+            <label class="slds-form-element__label" for="mock_list">Mocks</label>
+            <div class="slds-form-element__control">
+              <div class="slds-select_container">
+                <select class="slds-select" id="mock_list" onchange="selectMock(this)">
+                </select>
+              </div>
+            </div>
+          </div>          
+          <div class="slds-form-element slds-m-around_small">
+            <label class="slds-form-element__label" for="mock_name">Name</label>
+            <div class="slds-form-element__control">
+              <input type="text" id="mock_name" class="slds-input" placeholder="Name" />
+            </div>
+          </div>
+          <div class="slds-form-element slds-m-around_small">
+            <label class="slds-form-element__label" for="mock_body">Mock</label>
+            <textarea class="slds-textarea" name="mock_body" id="mock_body"></textarea>            
+            <button class="slds-button slds-button_neutral" onclick="updateMock();">Update</button>
+            <button class="slds-button slds-button_neutral" onclick="deleteMock();">Delete</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script src="https://mobile2.t.salesforce.com/lightning/lightning.out.js"></script>
+    <script src="/javascripts/force.all.js"></script>
+    <script src="/javascripts/util.js"></script>    
+    <script>
+      var appId = '3MVG9SemV5D80oBcff3jWxxK32RKEGuV4rwCe0au2N57DF5JLbaPRJq_vbfAR43i60NyBEUSd_SnRtKMHnPcR';
+      var loginURL = "https://login.salesforce.com";
+      var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
+      var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+      var oauthResult = null;
+
+      oauth.login().then(function(_oauthResult) {
+        oauthResult = _oauthResult;
+        setup();
+      });        
+
+      function setup() {
+        listMocks();
+      }
+
+      function updateMock(evt) {
+        console.warn('updateMock: ', evt);
+        var name = document.querySelector('input#mock_name').value;
+        var body = document.querySelector('textarea#mock_body').value;
+        body = JSON.parse(body);
+        //body = JSON.stringify(body);
+
+        var config = {
+          path: oauthResult.instanceURL + '/services/apexrest/eadx/apexmock/' + name,
+          method: 'PUT',
+          data: body,
+          headers: {
+            'Authorization': 'Bearer ' + oauthResult.accessToken,
+          }
+        };
+        console.warn('calling /apexmock with: ', config);
+        request(config,
+          function(res) {
+            console.warn('res: ', res);
+            var obj = JSON.parse(res);
+            console.warn('obj: ', obj);
+            listMocks(name);
+          },
+          function(err) {
+            console.warn('err: ', err);
+          }
+        );        
+
+      }
+
+      function deleteMock(evt) {
+        console.warn('deleteMock: ', evt);
+        var name = document.querySelector('input#mock_name').value;
+
+        var config = {
+          path: oauthResult.instanceURL + '/services/apexrest/eadx/apexmock/' + name,
+          method: 'DELETE',
+          headers: {
+            'Authorization': 'Bearer ' + oauthResult.accessToken,
+          }
+        };
+        console.warn('calling /apexmock with: ', config);
+        request(config,
+          function(res) {
+            console.warn('res: ', res);
+            var obj = JSON.parse(res);
+            console.warn('obj: ', obj);
+            listMocks();
+          },
+          function(err) {
+            console.warn('err: ', err);
+          }
+        );        
+
+      }
+
+      function listMocks(selectedName) {
+        console.warn('listMocks: ', selectedName);
+        var config = {
+          path: oauthResult.instanceURL + '/services/apexrest/eadx/apexmock',
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + oauthResult.accessToken,
+          }
+        };
+        console.warn('calling /apexmock with: ', config);
+        request(config,
+          function(res) {
+            console.warn('res: ', res);
+            var mocks = res;//JSON.parse(res);
+            console.warn('mocks: ', mocks);
+            var select = document.querySelector('select#mock_list');
+            select.innerHTML = null;
+            var item = null;
+            var mock = null;
+            var json = null;
+            var idx = 0;
+            for (var name in mocks) {
+              mock = mocks[name];
+              item = document.createElement('option');
+              item.innerHTML = mock.name;
+              item.setAttribute('data-mock-name', mock.name);
+              item.setAttribute('data-mock-body', mock.body);
+              if (mock.name === selectedName || (typeof selectedName === 'undefined' && idx === 0)) {
+                console.warn('mock: ', mock);
+                item.setAttribute("selected", "selected");
+                document.querySelector('input#mock_name').value = mock.name;
+                json = JSON.parse(mock.body);
+                console.warn('json: ', json);
+                document.querySelector('textarea#mock_body').value = JSON.stringify(json, null, 2);                
+              }
+              select.appendChild(item);
+              idx++;
+            }
+          },
+          function(err) {
+            console.warn('err: ', err);
+          }
+        );        
+
+      }
+
+      function selectMock(select) {
+        var option = select.selectedOptions[0];
+        var name = option.getAttribute("data-mock-name");
+        var body = option.getAttribute("data-mock-body");
+        body = JSON.parse(body);
+
+        document.querySelector('input#mock_name').value = name;
+        document.querySelector('textarea#mock_body').value = JSON.stringify(body, null, 2);
+
+      }
+
+      var testdata = {
+        "metadata":{
+          "strings":[
+            "Name"
+          ],
+          "numbers":[
+
+          ],
+          "groupings":[
+
+          ]
+        },
+        "data":[
+          {
+             "Name":"id"
+          },
+          {
+             "Name":"isdeleted"
+          },
+          {
+             "Name":"masterrecordid"
+          },
+          {
+             "Name":"name"
+          },
+          {
+             "Name":"type"
+          },
+          {
+             "Name":"parentid"
+          },
+          {
+             "Name":"billingstreet"
+          },
+          {
+             "Name":"billingcity"
+          },
+          {
+             "Name":"billingstate"
+          },
+          {
+             "Name":"billingpostalcode"
+          },
+          {
+             "Name":"billingcountry"
+          },
+          {
+             "Name":"billinglatitude"
+          },
+          {
+             "Name":"billinglongitude"
+          },
+          {
+             "Name":"billinggeocodeaccuracy"
+          },
+          {
+             "Name":"billingaddress"
+          },
+          {
+             "Name":"shippingstreet"
+          },
+          {
+             "Name":"shippingcity"
+          },
+          {
+             "Name":"shippingstate"
+          },
+          {
+             "Name":"shippingpostalcode"
+          },
+          {
+             "Name":"shippingcountry"
+          },
+          {
+             "Name":"shippinglatitude"
+          },
+          {
+             "Name":"shippinglongitude"
+          },
+          {
+             "Name":"shippinggeocodeaccuracy"
+          },
+          {
+             "Name":"shippingaddress"
+          },
+          {
+             "Name":"phone"
+          },
+          {
+             "Name":"fax"
+          },
+          {
+             "Name":"accountnumber"
+          },
+          {
+             "Name":"website"
+          },
+          {
+             "Name":"photourl"
+          },
+          {
+             "Name":"sic"
+          },
+          {
+             "Name":"industry"
+          },
+          {
+             "Name":"annualrevenue"
+          },
+          {
+             "Name":"numberofemployees"
+          },
+          {
+             "Name":"ownership"
+          },
+          {
+             "Name":"tickersymbol"
+          },
+          {
+             "Name":"description"
+          },
+          {
+             "Name":"rating"
+          },
+          {
+             "Name":"site"
+          },
+          {
+             "Name":"ownerid"
+          },
+          {
+             "Name":"createddate"
+          },
+          {
+             "Name":"createdbyid"
+          },
+          {
+             "Name":"lastmodifieddate"
+          },
+          {
+             "Name":"lastmodifiedbyid"
+          },
+          {
+             "Name":"systemmodstamp"
+          },
+          {
+             "Name":"lastactivitydate"
+          },
+          {
+             "Name":"lastvieweddate"
+          },
+          {
+             "Name":"lastreferenceddate"
+          },
+          {
+             "Name":"jigsaw"
+          },
+          {
+             "Name":"jigsawcompanyid"
+          },
+          {
+             "Name":"cleanstatus"
+          },
+          {
+             "Name":"accountsource"
+          },
+          {
+             "Name":"dunsnumber"
+          },
+          {
+             "Name":"tradestyle"
+          },
+          {
+             "Name":"naicscode"
+          },
+          {
+             "Name":"naicsdesc"
+          },
+          {
+             "Name":"yearstarted"
+          },
+          {
+             "Name":"sicdesc"
+          },
+          {
+             "Name":"dandbcompanyid"
+          },
+          {
+             "Name":"operatinghoursid"
+          },
+          {
+             "Name":"eadx__customerpriority__c"
+          },
+          {
+             "Name":"eadx__sla__c"
+          },
+          {
+             "Name":"eadx__active__c"
+          },
+          {
+             "Name":"eadx__numberoflocations__c"
+          },
+          {
+             "Name":"eadx__upsellopportunity__c"
+          },
+          {
+             "Name":"eadx__slaserialnumber__c"
+          },
+          {
+             "Name":"eadx__slaexpirationdate__c"
+          }
+        ]
+      };
+
+
+      //document.querySelector('input#mock_name').value = 'Test';
+      //document.querySelector('textarea#mock_body').value = JSON.stringify(testdata, null, 2);
+
+    </script>
+  </body>
+</html>

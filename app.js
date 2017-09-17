@@ -139,6 +139,112 @@ app.get('/lo4', function(req, res) {
     res.render('pages/lo4', {title: 'Fancy Lightning Out Demo', appId: process.env.APPID});
 });
 
+
+// Hello World
+app.get('/lo_ea', function(req, res) {
+    res.render('pages/lo_ea', {title: 'Lightning Out - Einstein Analytics', appId: process.env.APPID});
+});
+
+
+/*
+ * MC test
+ */
+app.get('/mc', function(req, res) {
+    res.render('pages/mc', {title: 'MC Test', appId: "3MVG9Iu66FKeHhINsTSPXM9jotcGhUKpq63lvwh3eTOa5GrA8EjBtrrMHtZsrHVmYxE3g8Asn_yPW0Uur2MnE"});
+});
+
+app.get('/mc2', function(req, res) {
+    res.render('pages/mc2', {title: 'MC2 Test', appId: ""});
+});
+
+
+app.get('/mock', function(req, res) {
+    res.render('pages/mock', {title: 'Mock', appId: ""});
+});
+
+app.get('/feed/insights', function(req, res) {
+	console.warn('feed');
+
+	var content = [
+		{
+	    	"uid": "EXAMPLE_CHANNEL_MULTI_ITEM_JSON_TTS_1",
+	    	"updateDate": "2016-04-10T00:00:00.0Z",
+	    	"titleText": "Multi Item JSON (TTS)",
+	    	"mainText": "This channel has multiple TTS JSON items. This is the first item.",
+	    	"redirectionUrl": "https://www.amazon.com"
+		},
+		{
+			"uid": "EXAMPLE_CHANNEL_MULTI_ITEM_JSON_TTS_2",
+			"updateDate": "2016-04-10T00:00:00.0Z",
+			"titleText": "Multi Item JSON (TTS)",
+			"mainText": "This channel has multiple TTS JSON items. This is the second item.",
+			"redirectionUrl": "https://www.amazon.com"
+		}
+	];
+
+	res.send(content);
+});
+
+/*
+ * Apex callout test
+ */
+
+app.post('/apexstep', function(req, res) {
+	console.warn("apexstep");
+    console.warn("req.params: ", req.params);
+    console.warn("req.body: ", req.body);
+
+    var body = req.body;
+    var json = JSON.stringify(req.body);
+
+    console.warn("json: ", json);
+
+    var sampleData = 
+	{
+	   "metadata":{
+	      "strings":[
+	         "Name"
+	      ],
+	      "numbers":[
+
+	      ],
+	      "groupings":[
+
+	      ]
+	   },
+	   "data":[
+	      {
+	         "Name":"id"
+	      },
+	      {
+	         "Name":"isdeleted"
+	      },
+	      {
+	         "Name":"masterrecordid"
+	      },
+	      {
+	         "Name":"name"
+	      },
+	      {
+	         "Name":"type"
+	      }
+
+	   ]
+	};
+
+    res.send(sampleData);
+});
+
+
+/*
+ * Canvas Test
+ *
+ */
+
+app.get('/hw', function(req, res) {
+    res.render('pages/hw', {title: 'Canvas Test', signedRequestJson: process.env.CANVAS_CONSUMER_SECRET});
+});
+
 /*
  * Proxy for REST requests, etc.
  * The instanceURL from OAuth is used to route to the correct org

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />  
+    <meta name="google" value="notranslate"/>  
+    <title><%= title %></title>
+    <link rel="stylesheet" type="text/css" href="/assets/styles/index.css" />
+    
+  </head>
+  <body>
+    <h1>Canvas App on NodeJS Localhost</h1>
+
+    <script type="text/javascript" src="/javascripts/canvas-all.js"></script>
+
+    <script>
+
+        if (self === top) {
+            // Not in Iframe
+            alert("This canvas app must be included within an iframe");
+        }
+
+        Sfdc.canvas(function() {
+            var sr = JSON.parse('<%= signedRequestJson %>');
+            // Save the token
+            Sfdc.canvas.oauth.token(sr.oauthToken);
+            Sfdc.canvas.byId('username').innerHTML = sr.context.user.fullName;
+        });
+
+
+    </script>
+  </body>
+</html>
