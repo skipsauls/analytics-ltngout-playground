@@ -165,20 +165,33 @@ app.get('/mock', function(req, res) {
 app.get('/feed/insights.json', function(req, res) {
 	console.warn('feed/insights.json');
 
+	var date = new Date();
+	date.setMinutes(0);
+	date.setSeconds(0);
+	date.setMilliseconds(0);
+	var isoString = date.toISOString();
+
 	var content = [
 		{
-	    	"uid": "EXAMPLE_CHANNEL_MULTI_ITEM_JSON_TTS_1",
-	    	"updateDate": "2016-04-10T00:00:00.0Z",
-	    	"titleText": "Multi Item JSON (TTS)",
-	    	"mainText": "This channel has multiple TTS JSON items. This is the first item.",
-	    	"redirectionUrl": "https://www.amazon.com"
+	    	"uid": "EXAMPLE_EA_INSIGHTS_TTS_1",
+	    	"updateDate": isoString,
+	    	"titleText": "Marketing Opportunity",
+	    	"mainText": "You can increase revenue with a marketing spiff.",
+	    	"redirectionUrl": "https://www.salesforce.com"
 		},
 		{
-			"uid": "EXAMPLE_CHANNEL_MULTI_ITEM_JSON_TTS_2",
-			"updateDate": "2016-04-10T00:00:00.0Z",
-			"titleText": "Multi Item JSON (TTS)",
-			"mainText": "This channel has multiple TTS JSON items. This is the second item.",
-			"redirectionUrl": "https://www.amazon.com"
+			"uid": "EXAMPLE_EA_INSIGHTS_TTS_2",
+			"updateDate": isoString,
+			"titleText": "Stale Accounts",
+			"mainText": "You have three accounts that are not driving any business.",
+			"redirectionUrl": "https://www.salesforce.com"
+		},
+		{
+			"uid": "EXAMPLE_EA_INSIGHTS_TTS_3",
+			"updateDate": isoString,
+			"titleText": "Case Escalations",
+			"mainText": "Two of your key accounts have escalated open cases in recent days.",
+			"redirectionUrl": "https://www.salesforce.com"
 		}
 	];
 
