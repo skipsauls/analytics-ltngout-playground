@@ -162,8 +162,8 @@ app.get('/mock', function(req, res) {
     res.render('pages/mock', {title: 'Mock', appId: ""});
 });
 
-app.get('/feed/insights', function(req, res) {
-	console.warn('feed');
+app.get('/feed/insights.json', function(req, res) {
+	console.warn('feed/insights.json');
 
 	var content = [
 		{
