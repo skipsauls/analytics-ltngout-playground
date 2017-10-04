@@ -162,6 +162,17 @@ app.get('/mock', function(req, res) {
     res.render('pages/mock', {title: 'Mock', appId: ""});
 });
 
+app.get('/ping', function(req, res) {
+	var content = [
+		{
+			msg: 'Hello from Heroku!',
+			date: new Date().toISOString()
+		}
+	];
+
+	res.send(content);
+});
+
 app.get('/feed/insights.json', function(req, res) {
 	console.warn('feed/insights.json');
 
