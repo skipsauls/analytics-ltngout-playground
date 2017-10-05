@@ -328,6 +328,7 @@ app.get('/ping', function(req, res) {
 	];
 
 	res.send(content);
+	res.end();
 });
 
 app.get('/feed/insights.json', function(req, res) {
