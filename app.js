@@ -250,11 +250,15 @@ app.get('/alexa/connect', function(req, res) {
 		console.warn('alexa connect phrase: ', phrase);
 		phrase = phrase.replace(/\ /g, '_');
 		phrase = phrase.toLowerCase();
-		for (var appId in _authMap) {
-			auth = _authMap[appId];
+		console.warn('phrase: ', phrase);
+		var matchPhrase = null;
+		for (var accessToken in _authMap) {			
+			auth = _authMap[accessToken];
 			console.warn('auth: ', auth);
 			try {
-				if (phrase === auth.phrase.phrase.join('_').toLowerCase()) {
+				matchPhrase = auth.phrase.phrase.join('_').toLowerCase();
+				console.warn('matchPhrase: ', matchPhrase);
+				if (phrase === matchPhrase) {
 					console.warn('matched auth: ', auth);
 					auth.connected = true;
 					auth.token = uuidv4();
