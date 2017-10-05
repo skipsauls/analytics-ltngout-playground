@@ -205,7 +205,7 @@ app.get('/alexa/auth', function(req, res) {
 
 	console.warn('req.session.oauthResult: ', req.session.oauthResult);
 
-	var expires = 15000; // 60000;
+	var expires = 60000;
 
 	if (req.session.oauthResult) {
 		req.session.phrase = {
