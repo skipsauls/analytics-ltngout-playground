@@ -267,6 +267,7 @@ app.get('/alexa/connect', function(req, res) {
 					console.error('no match!!!');
 				}
 			} catch (e) {
+				console.error('Exception: ', e);
 			}
 		}
 	}	
