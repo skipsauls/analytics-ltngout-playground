@@ -54,6 +54,7 @@
     <script src="/javascripts/util.js"></script>    
     <script>
 
+      var _appId = <%- JSON.stringify(phrase) %> || null;
       var _sandbox = <%= JSON.stringify(sandbox) %> || false;;      
       var _phrase = <%- JSON.stringify(phrase) %> || null;
       
@@ -91,7 +92,7 @@
             window.location.reload();
           });                  
         } else {
-          var appId = '3MVG9SemV5D80oBcff3jWxxK32RKEGuV4rwCe0au2N57DF5JLbaPRJq_vbfAR43i60NyBEUSd_SnRtKMHnPcR';
+          var appId = _appId;
           var loginURL = "https://login.salesforce.com";
           var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
           var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);

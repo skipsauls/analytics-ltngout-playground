@@ -19,7 +19,7 @@ var https_port = process.env.HTTPS_PORT || parseInt(port) + 1;
 console.warn('process.env: ', process.env);
 
 // Localhost appId
-var appId = '3MVG9SemV5D80oBcff3jWxxK32b.valGtNTj90WK4mj5IAn1LOmdrz1ObgypNEnd9JRtxfhKpuE.iX7vv0WSy';
+var appId = 'MVG9SemV5D80oBcff3jWxxK32RKEGuV4rwCe0au2N57DF5JLbaPRJq_vbfAR43i60NyBEUSd_SnRtKMHnPcR';
 
 
 // Check and set Heroku appId
