@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel="stylesheet" type="text/css" href="/assets/styles/index.css" />
+    <style>
+      .main-content {
+        position: absolute;
+        top: 90px;
+        height: calc(100% - 90px);    
+        width: 100%;    
+      }
+
+      .hide {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="slds-global-header_container">
+      <a href="javascript:void(0);" class="slds-assistive-text slds-assistive-text_focus">Skip to Navigation</a>
+      <a href="javascript:void(0);" class="slds-assistive-text slds-assistive-text_focus">Skip to Main Content</a>
+      <div class="slds-global-header slds-grid slds-grid_align-spread">
+        <div class="slds-global-header__item">
+          <div class="slds-global-header__logo">
+            <img src="/assets/images/logo-noname.svg" alt="">
+          </div>
+        </div>
+        <div class="slds-align_absolute-center">
+          <div class="slds-text-heading_medium"><%= title %></div>
+        </div>
+        <div class="slds-global-header__item">
+          <div class="slds-global-header__logo">
+            <img src="/assets/images/alexa_logo_32x32.png" alt="">
+          </div>
+        </div>
+      </div>
+    </header>
+
+
+    <section class="main-content">
+        <div class="slds-align_absolute-center slds-m-around--large">
+          <div class="slds-text-heading_large">
+              <%= phrase1 %>&nbsp;<%= phrase2 %>
+          </div>
+        </div>
+        <div class="slds-align_absolute-center slds-m-around--xx-large">
+          <button class="slds-button slds-button_neutral hide" id="login" onclick="login();">Login</button>
+        </div>
+
+    </section>
+
+    <div id="controls">
+      <button onclick="login();">Login</button>
+      <button onclick="logout();">Logout</button>
+    </div>
+    <div>
+      <h1>App ID: <%= appId %>
+    </div>
+    <script src="/javascripts/force.all.js"></script>
+    <script src="/javascripts/util.js"></script>    
+    <script>
+
+      var _sandbox = <%- JSON.stringify(sandbox) %> || false;;      
+      var _phrase = <%- JSON.stringify(phrase) %> || null;
+      
+      (function() {
+
+        var _oauthResult = <%- JSON.stringify(oauthResult) %> || null;
+
+        console.warn("oauthResult: ", _oauthResult);
+        console.warn("phrase: ", _phrase);
+
+        var button = document.querySelector("button#login");
+
+        if (_phrase) {
+          button.innerHTML = "Logout";
+
+          console.warn("timeout: ", new Date(_phrase.timeout));
+          var timeleft = _phrase.timeout - Date.now();
+          console.warn('timeleft: ', timeleft);
+          //timeleft = 5000;
+          setTimeout(function() {
+            window.location.reload();
+          }, timeleft);
+
+        } else {
+          button.innerHTML = "Login";
+        }
+
+        button.classList.remove("hide");
+
+      }());
+
+      function login() {
+        if (_phrase) {
+          updateOAuthResult(null, function(res, err) {
+            window.location.reload();
+          });                  
+        } else {
+          var appId = '3MVG9SemV5D80oBcff3jWxxK32RKEGuV4rwCe0au2N57DF5JLbaPRJq_vbfAR43i60NyBEUSd_SnRtKMHnPcR';
+          var loginURL = "https://login.salesforce.com";
+          var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
+          var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+          oauth.login().then(function(oauthResult) {
+            updateOAuthResult(oauthResult, function(res, err) {
+              console.warn("updateOAuthResult returned: ", res, err);
+              window.location.reload();
+            });
+          });
+        }
+      }
+
+      function logout() {
+        updateOAuthResult(null, function(res, err) {
+          window.location.reload();
+        });        
+      }
+
+      function updateOAuthResult(oauthResult, callback) {
+        var config = {
+          path: '/oauth-result',
+          method: 'POST',
+          data: {
+            'oauthResult': oauthResult,
+            sandbox: _sandbox
+          }
+        };
+        console.warn('calling /oauth-result with: ', config);
+        request(config,
+          function(res) {
+            console.warn('res: ', res);
+            if (typeof callback === 'function') {
+              callback(res, null);
+            }
+          },
+          function(err) {
+            console.warn('err: ', err);
+            if (typeof callback === 'function') {
+              callback(null, err);
+            }
+          }
+        );
+
+      }
+
+    </script>
+  </body>
+</html>

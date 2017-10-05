@@ -21,6 +21,7 @@
     "heroku-ssl-redirect": "0.0.4",
     "http-proxy-middleware": "^0.17.4",
     "lowdb": "^0.16.2",
+    "random-words": "0.0.1",
     "request": "^2.81.0",
     "restler": "^3.4.0",
     "uuid": "^3.1.0"

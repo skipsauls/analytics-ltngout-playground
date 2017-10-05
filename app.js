@@ -11,6 +11,7 @@ var uuidv4 = require('uuid/v4');
 var proxy = require('http-proxy-middleware');
 var sslRedirect = require('heroku-ssl-redirect')
 var Alexa = require('alexa-sdk');
+var randomWords = require('random-words');
 
 var port = process.env.PORT || 3000;
 var https_port = process.env.HTTPS_PORT || parseInt(port) + 1;
@@ -161,6 +162,157 @@ app.get('/mc2', function(req, res) {
 app.get('/mock', function(req, res) {
     res.render('pages/mock', {title: 'Mock', appId: ""});
 });
+
+/* NEED A BETTER SECURE STORE FOR MORE THAN DEMOS!!!!! */
+var _authMap = {};
+
+var daysOfWeek = [
+	"Sunday",
+	"Monday",
+	"Tuesday",
+	"Wednesday",
+	"Thursday",
+	"Friday",
+	"Saturday"
+];
+
+var colors = [
+	"Red",
+	"Green",
+	"Blue",
+	"Purple",
+	"Yellow",
+	"Orange",
+	"Black",
+	"White",
+	"Pink",
+	"Cyan",
+	"Fuscia",
+	"Aqua",
+	"Maroon",
+	"Gray"
+];
+
+function generatePassphrase() {
+	var rand1 = Math.floor(Math.random() * daysOfWeek.length);
+	var rand2 = Math.floor(Math.random() * colors.length);
+	return [colors[rand2], daysOfWeek[rand1]];
+}
+
+app.get('/alexa/auth', function(req, res) {
+	//var domain = req.session.origin.replace(/^https?\:\/\//i, "");
+	req.session.uuid = req.session.uuid || uuidv4();
+
+	console.warn('req.session.oauthResult: ', req.session.oauthResult);
+
+	var expires = 15000; // 60000;
+
+	if (req.session.oauthResult) {
+		req.session.phrase = {
+			phrase: generatePassphrase(), //randomWords(2),
+			timeout: Date.now() + expires
+		};
+		var auth = _authMap[req.session.oauthResult.accessToken];
+		if (auth && auth.connected === true) {
+			console.warn('connected!!!');
+		} else {
+			_authMap[req.session.oauthResult.accessToken] = {
+				oauthResult: req.session.oauthResult,
+				phrase: req.session.phrase,
+				connected: false
+			};
+		}
+	} else {
+		req.session.phrase = null;
+	}
+
+	console.warn('phrase: ', req.session.phrase);
+
+    res.render('pages/alexaauth', {
+    	title: 'Salesforce Einstein - Amazon Alexa',
+    	appId: appId,
+		oauthResult: req.session.oauthResult || null,
+    	sandbox: req.session.sandbox,
+    	phrase: req.session.phrase,
+    	phrase1: req.session.phrase ? req.session.phrase.phrase[0] : null,
+    	phrase2: req.session.phrase ? req.session.phrase.phrase[1] : null,    	
+    	//domain: domain
+    });
+
+    //res.render('pages/alexaauth', {title: 'Amazon Alexa - Salesforce Authorization', appId: ""});
+});
+
+app.get('/alexa/connect', function(req, res) {
+	console.warn('req.query: ', req.query);
+	var _auth = null;
+	if (req.query.phrase) {
+		var phrase = req.query.phrase;
+		console.warn('alexa connect phrase: ', phrase);
+		phrase = phrase.replace(/\ /g, '_');
+		phrase = phrase.toLowerCase();
+		for (var appId in _authMap) {
+			auth = _authMap[appId];
+			console.warn('auth: ', auth);
+			try {
+				if (phrase === auth.phrase.phrase.join('_').toLowerCase()) {
+					console.warn('matched auth: ', auth);
+					auth.connected = true;
+					auth.token = uuidv4();
+					_auth = auth;
+				} else {
+					console.error('no match!!!');
+				}
+			} catch (e) {
+			}
+		}
+	}	
+
+	// Only return the token to the remote client (Alexa)
+	res.send({token: _auth ? _auth.token : null});
+});
+
+/*
+	NOTES
+
+	On Alexa handle the "two-factor" auth by having user enter 2 word keyphrase
+	If successful, store the token on Alexa side
+	For each request to an Alexa endpoint, check for the token and validate (client spec, etc.?)
+	Add commands on Heroku to access SFDC resources
+
+	User flow/script:
+
+	User: Alexa, open Einstein Analytics
+	Alexa: Blah blah blah, please visit https://foo.bar to login and get your passphrase
+	User: The passphrase is Foo Bar
+	Alexa: Great, I've connnected to your Salesforce org
+	User: Show my Power Insights...
+
+*/
+
+app.post('/oauth-result', function(req, res) {
+    console.warn("req.params: ", req.params);
+    console.warn("req.body: ", req.body);
+
+    var body = req.body;
+    var json = JSON.stringify(req.body);
+
+    console.warn("json: ", json);
+
+	if (body.oauthResult === null) {
+		req.session.loAppName = null;
+		console.warn('req.session.oauthResult.appId: ', req.session.oauthResult.appId);
+		console.warn('_authMap[req.session.oauthResult.accessToken: ', _authMap[req.session.oauthResult.accessToken]);
+		_authMap[req.session.oauthResult.accessToken] = null;
+	}
+
+	req.session.oauthResult = body.oauthResult;
+	req.session.sandbox = body.sandbox || false;
+
+    res.send('success');
+});
+
+
+
 
 app.get('/ping', function(req, res) {
 	var content = [
@@ -402,23 +554,6 @@ app.get('/ltngoutapps', function(req, res) {
 	});
 });
 
-app.post('/oauth-result', function(req, res) {
-    console.warn("req.params: ", req.params);
-    console.warn("req.body: ", req.body);
-
-    var body = req.body;
-    var json = JSON.stringify(req.body);
-
-    console.warn("json: ", json);
-
-	req.session.oauthResult = body.oauthResult;
-	req.session.sandbox = body.sandbox || false;
-	if (body.oauthResult === null) {
-		req.session.loAppName = null;
-	}
-
-    res.send('success');
-});
 
 app.post('/lo-app-name', function(req, res) {
     console.warn("req.params: ", req.params);
