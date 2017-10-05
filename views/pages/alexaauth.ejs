@@ -50,19 +50,12 @@
 
     </section>
 
-    <div id="controls">
-      <button onclick="login();">Login</button>
-      <button onclick="logout();">Logout</button>
-    </div>
-    <div>
-      <h1>App ID: <%= appId %>
-    </div>
     <script src="/javascripts/force.all.js"></script>
     <script src="/javascripts/util.js"></script>    
     <script>
 
       var _sandbox = <%= JSON.stringify(sandbox) %> || false;;      
-      var _phrase = <%= JSON.stringify(phrase) %> || null;
+      var _phrase = <%- JSON.stringify(phrase) %> || null;
       
       (function() {
 
