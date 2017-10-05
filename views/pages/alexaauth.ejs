@@ -54,16 +54,19 @@
     <script src="/javascripts/util.js"></script>    
     <script>
 
-      var _appId = <%- JSON.stringify(phrase) %> || null;
+      var _appId = "" + <%- JSON.stringify(appId) %> || null;
       var _sandbox = <%= JSON.stringify(sandbox) %> || false;;      
       var _phrase = <%- JSON.stringify(phrase) %> || null;
+
+      console.warn("appId: ", _appId);
+      console.warn("phrase: ", _phrase);
+      console.warn("sandbox: ", _sandbox);
       
       (function() {
 
         var _oauthResult = <%- JSON.stringify(oauthResult) %> || null;
 
         console.warn("oauthResult: ", _oauthResult);
-        console.warn("phrase: ", _phrase);
 
         var button = document.querySelector("button#login");
 
