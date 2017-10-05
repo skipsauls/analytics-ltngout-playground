@@ -232,7 +232,7 @@ app.get('/alexa/auth', function(req, res) {
     	title: 'Salesforce Einstein - Amazon Alexa',
     	appId: appId,
 		oauthResult: req.session.oauthResult || null,
-    	sandbox: req.session.sandbox,
+    	sandbox: req.session.sandbox || null,
     	phrase: req.session.phrase,
     	phrase1: req.session.phrase ? req.session.phrase.phrase[0] : null,
     	phrase2: req.session.phrase ? req.session.phrase.phrase[1] : null,    	
