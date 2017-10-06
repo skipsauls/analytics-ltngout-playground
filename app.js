@@ -3,6 +3,7 @@ var express = require('express');
 var https = require('https');
 var http = require('http');
 var request = require('request');
+var rest = require('restler');
 var app = express();
 var low = require('lowdb');
 var cookieSession = require('cookie-session');
@@ -20,11 +21,13 @@ console.warn('process.env: ', process.env);
 
 // Localhost appId
 var appId = '3MVG9SemV5D80oBcff3jWxxK32b.valGtNTj90WK4mj5IAn1LOmdrz1ObgypNEnd9JRtxfhKpuE.iX7vv0WSy';
+var appSecret = '5138307552141816846';
 
 
 // Check and set Heroku appId
 if (process.env.HEROKU === 'true') {
 	appId = '3MVG9SemV5D80oBcff3jWxxK32f4PQBwm702A4fEFlSAEviJg7BsC7PUI_WpupyyBwMfhXypJSkdVqKX7_IXr';
+	appSecret = '6818833808157477050';
 }
 
 console.warn('appId: ', appId);
@@ -58,7 +61,8 @@ app.set('views', './views');
 
 app.use(express.static(__dirname + '/public'));
 
-app.use(bodyParser.json())
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 //app.use(cookieParser('waveiscool'));
 
@@ -242,8 +246,37 @@ app.get('/alexa/auth', function(req, res) {
     //res.render('pages/alexaauth', {title: 'Amazon Alexa - Salesforce Authorization', appId: ""});
 });
 
+app.post('/alexa/login', function(req, res) {
+	console.warn("alexa/login: ", req.query, req.body);
+
+
+    var config = {
+      client_id: appId,
+      client_secret: appSecret,
+      grant_type: 'password',
+      username: req.body.username,
+      password: req.body.password
+    };
+
+    rest.post('https://login.salesforce.com/services/oauth2/token', {data: config}).on('complete', function(data, response) {
+    	console.warn('data: ', data);
+
+        if (response.statusCode === 200) {
+            req.session.oauthResult = {
+            	instanceURL: data.instance_url,
+            	accessToken: data.access_token,
+            	id: data.id,
+            	tokenType: data.token_type,
+            	issuedAt: data.issued_at,
+            	signature: data.signature
+            };
+        }
+        res.redirect("/alexa/auth");
+    });
+});
+
 app.get('/alexa/connect', function(req, res) {
-	console.warn('req.query: ', req.query);
+	console.warn('---------------------------> /alexa/connect req.query: ', req.query);
 	var _auth = null;
 	if (req.query.phrase) {
 		var phrase = req.query.phrase;
@@ -263,6 +296,10 @@ app.get('/alexa/connect', function(req, res) {
 					auth.connected = true;
 					auth.token = uuidv4();
 					_auth = auth;
+					_authMap[auth.token] = auth;
+					for (var a in _authMap) {
+						console.warn('authMap[' + a + ']: ', auth);
+					}
 				} else {
 					console.error('no match!!!');
 				}
@@ -329,6 +366,51 @@ app.get('/ping', function(req, res) {
 
 	res.send(content);
 	res.end();
+});
+
+app.get('/einstein/analytics/list', function(req, res) {
+	console.warn('/einstein/analytics/list req.query: ', req.query);
+	
+	if (req.query.type && req.query.token) {
+		var token = req.query.token;
+		console.warn('token: ', token);
+
+		for (var a in _authMap) {
+			console.warn('authMap[' + a + ']: ', auth);
+		}
+
+		var auth = _authMap[token];
+		console.warn('auth: ', auth);
+		if (auth !== null && typeof auth !== "undefined") {
+
+			var type = req.query.type;
+
+			var url = auth.oauthResult.instanceURL + '/services/data/v41.0/wave/' + type.toLowerCase();
+
+			console.warn('auth.oauthResult.accessToken: ', auth.oauthResult.accessToken);
+			console.warn('url: ', url);
+
+			request({
+				url: url,
+				headers: {
+					'Authorization': 'Bearer ' + auth.oauthResult.accessToken,
+					'Content-Type': 'application/json'
+				}
+			}, function(error, response, body) {
+				if (error) {
+					console.error('error: ', error);
+					res.send({error: error});
+				} else {
+					var obj = JSON.parse(body);
+					res.send(body);
+				}
+			});
+		} else {
+			res.send({err: 'Not Authorized'});
+		}
+	} else {
+		res.send({err: 'No access token'});
+	}
 });
 
 app.get('/feed/insights.json', function(req, res) {

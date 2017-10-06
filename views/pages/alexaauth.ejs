@@ -7,8 +7,19 @@
       .main-content {
         position: absolute;
         top: 90px;
-        height: calc(100% - 90px);    
-        width: 100%;    
+        height: calc(100% - 90px);
+        width: 100%;
+      }
+
+      .form-content {
+        width: 50%;
+        max-width: 560px;
+        min-width: 280px;
+        margin: 0px auto;
+      }
+
+      .form-input {
+        min-width: 12rem;
       }
 
       .hide {
@@ -44,6 +55,44 @@
               <%= phrase1 %>&nbsp;<%= phrase2 %>
           </div>
         </div>
+
+        <form name="login_form" action="/alexa/login" method="POST">
+          <div class="slds-form slds-form_compound form-content">
+            <fieldset class="slds-form-element">
+              <legend class="slds-form-element__label slds-text-title_caps">Login to Salesforcce</legend>
+              <div class="slds-form-element__group">
+                <div class="slds-form-element__row">
+
+                  <div class="slds-form-element slds-p-around--x-small">
+                    <label class="slds-form-element__label" for="username">Username</label>
+                    <div class="slds-form-element__control">
+                      <input type="text" class="slds-input form-input" name="username" value="skip@eadx.com" placeholder="Enter your Salesforce org username"/>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="slds-form-element__row">
+                  <div class="slds-form-element slds-p-around--x-small">
+                    <label class="slds-form-element__label" for="password">Password</label>
+                    <div class="slds-form-element__control">
+                      <input type="password" class="slds-input form-input" name="password" value="waveout1!" placeholder="Enter your Salesforce org Password"/>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="slds-form-element__row">
+                  <div class="slds-form-element slds-p-around--x-small">
+                    <div class="slds-align_absolute-center slds-m-around--xx-large">
+                      <input type="submit" class="slds-button slds-button_neutral" name="login_button" value="Login"/>
+                  </div>
+              </div>
+
+            </fieldset>
+          </div>
+        </form>
+
         <div class="slds-align_absolute-center slds-m-around--xx-large">
           <button class="slds-button slds-button_neutral hide" id="login" onclick="login();">Login</button>
         </div>
@@ -72,12 +121,13 @@
           }, timeleft);
           */
 
-          setTimeout(function() {
+          var interval = setInterval(function() {
             
             var timeleft = timeout - Date.now();
             console.warn('timeleft: ', timeleft);
 
             if (timeleft <= 0) {
+              clearInterval(interval);
               window.location.reload();
             }
           }, 1000);
@@ -106,6 +156,25 @@
         button.classList.remove("hide");
 
       }());
+
+      function OLDER_login() {
+        if (_phrase) {
+          updateOAuthResult(null, function(res, err) {
+            window.location.reload();
+          });                  
+        } else {
+          var appId = _appId;
+          var loginURL = "https://login.salesforce.com";
+          var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
+          var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+          oauth.login().then(function(oauthResult) {
+            updateOAuthResult(oauthResult, function(res, err) {
+              console.warn("updateOAuthResult returned: ", res, err);
+              window.location.reload();
+            });
+          });
+        }
+      }
 
       function login() {
         if (_phrase) {
