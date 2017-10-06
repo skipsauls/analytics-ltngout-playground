@@ -94,12 +94,7 @@
         </form>
     </section>
 
-  <!--
-    <script src="/javascripts/force.all.js"></script>
-    <script src="/javascripts/util.js"></script>
-  -->
     <script>
-
       var _sandbox = <%= JSON.stringify(sandbox) %> || false;;      
       var _phrase = <%- JSON.stringify(phrase) %> || null;
 
@@ -125,96 +120,17 @@
 
       (function() {
 
-
         var button = document.querySelector("#login_button");
 
         if (_phrase) {
           button.value = "Logout";
-
           console.warn("timeout: ", new Date(_phrase.timeout));
-
           animateTimer(_phrase.timeout);
-
         } else {
           button.value = "Login";
         }
-
         button.classList.remove("hide");
-
       }());
-/*
-      function OLDER_login() {
-        if (_phrase) {
-          updateOAuthResult(null, function(res, err) {
-            window.location.reload();
-          });                  
-        } else {
-          var appId = _appId;
-          var loginURL = "https://login.salesforce.com";
-          var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
-          var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
-          oauth.login().then(function(oauthResult) {
-            updateOAuthResult(oauthResult, function(res, err) {
-              console.warn("updateOAuthResult returned: ", res, err);
-              window.location.reload();
-            });
-          });
-        }
-      }
-
-      function login() {
-        if (_phrase) {
-          updateOAuthResult(null, function(res, err) {
-            window.location.reload();
-          });                  
-        } else {
-          var appId = _appId;
-          var loginURL = "https://login.salesforce.com";
-          var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
-          var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
-          oauth.login().then(function(oauthResult) {
-            updateOAuthResult(oauthResult, function(res, err) {
-              console.warn("updateOAuthResult returned: ", res, err);
-              window.location.reload();
-            });
-          });
-        }
-      }
-
-      function logout() {
-        updateOAuthResult(null, function(res, err) {
-          window.location.reload();
-        });        
-      }
-
-      function updateOAuthResult(oauthResult, callback) {
-        var config = {
-          path: '/oauth-result',
-          method: 'POST',
-          data: {
-            'oauthResult': oauthResult,
-            sandbox: _sandbox
-          }
-        };
-        console.warn('calling /oauth-result with: ', config);
-        request(config,
-          function(res) {
-            console.warn('res: ', res);
-            if (typeof callback === 'function') {
-              callback(res, null);
-            }
-          },
-          function(err) {
-            console.warn('err: ', err);
-            if (typeof callback === 'function') {
-              callback(null, err);
-            }
-          }
-        );
-
-      }
-*/
-
     </script>
   </body>
 </html>
