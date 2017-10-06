@@ -4,6 +4,7 @@ var https = require('https');
 var http = require('http');
 var request = require('request');
 var rest = require('restler');
+var url = require('url');
 var app = express();
 var low = require('lowdb');
 var cookieSession = require('cookie-session');
@@ -368,6 +369,14 @@ app.get('/ping', function(req, res) {
 	res.end();
 });
 
+function fullUrl(req, partialUrl) {
+  return url.format({
+    protocol: req.protocol,
+    host: req.get('host'),
+    pathname: partialUrl
+  });
+}
+
 app.get('/einstein/analytics/list', function(req, res) {
 	console.warn('/einstein/analytics/list req.query: ', req.query);
 	
@@ -402,7 +411,20 @@ app.get('/einstein/analytics/list', function(req, res) {
 					res.send({error: error});
 				} else {
 					var obj = JSON.parse(body);
-					res.send(body);
+
+					if (obj[type]) {
+						obj[type].forEach(function(asset) {
+							// Call without callback
+							_getImages(auth, asset);
+
+							// Set the thumbnailUrl to point to the service
+							asset.thumbnailUrl = fullUrl(req, '/einstein/analytics/thumb/' + asset.type + '/' + asset.id);
+							console.warn('thumbnailUrl: ', asset.thumbnailUrl);
+						});
+					}
+
+					var json = JSON.stringify(obj);
+					res.send(json);
 				}
 			});
 		} else {
@@ -412,6 +434,120 @@ app.get('/einstein/analytics/list', function(req, res) {
 		res.send({err: 'No access token'});
 	}
 });
+
+
+var _imageData = {};
+
+function _sendImage(req, res, type, data) {
+	console.warn('_sendImage: ', type, data);
+    if (typeof data == 'undefined' || data === null) {
+        var url = 'https://adx-dev-ed.my.salesforce.com/analytics/wave/web/proto/images/app/icons/16.png';        
+        //res.writeHead(200, {'Content-Type': 'image/png'});
+        //res.send(url);
+        req.pipe(request(url)).pipe(res);
+    } else {
+        var imgData = data.toString('base64');
+
+        var img = new Buffer(imgData, 'base64');
+
+        res.writeHead(200, {'Content-Type': 'image/png', 'Content-Length': img.length});
+        res.end(img, 'binary');
+    }
+}
+
+/*
+ * Get the thumnail for an asset
+ * Use the next callback to get the buffer, otherwise leave it out for async loading
+ */
+function _getImages(auth, item, next) {
+	console.warn('_getImages: ', auth, item);
+    if (item) {
+
+        if (item.files && item.files.length > 0) {
+            var count = 0;
+            for (var j = 0; j < item.files.length; j++) {
+                (function(file) {
+                	console.warn('file: ', file);
+                    if (file.fileName === "assetPreviewThumb" && file.contentType === "image/png") {
+                        var self = this;
+
+                        var options = {
+                            headers: {
+                                "Accept": "image/png",
+                                "Authorization": auth.oauthResult.tokenType + " " + auth.oauthResult.accessToken
+                            },
+                            decoding: 'binary'
+
+                        };
+
+                        var url = auth.oauthResult.instanceURL + file.url;
+                        console.warn('url: ', url);
+
+                        opts = options;
+                        opts.url = url;
+
+                        console.warn('calling rest.get for ' + url);
+                        rest.get(url, options).on('complete', function(result, response) {
+                        	
+                        	//console.warn('complete: ', result);
+
+                            var buffer = new Buffer(result, 'binary');
+                            //_imageData[item.id] = buffer;
+                            _imageData[item.type + '_' + item.id] = buffer;
+
+                            if (typeof next === 'function') {
+                                next(buffer);
+                            }
+                        });
+
+                    }
+                })(item.files[j]);         
+                        
+            }
+        } else {
+            if (typeof next === 'function') {
+                next(null);
+            }
+        }
+    }
+}
+
+app.get('/einstein/analytics/thumb/:type/:id', function(req, res) {
+    var id = req.params.id;
+    console.warn('id: ', id);
+    var type = req.params.type;
+    console.warn('type: ', type);
+    type = type === 'apps' ? 'folders' : type;
+    console.warn('type: ', type);
+
+    var data = _imageData[type + '_' + id];
+
+    console.warn('get thumb: ', type, id);
+
+	_sendImage(req, res, type, data);
+
+	return;
+
+    if (!data) {
+        var options = {id: id};
+        console.warn('calling getAsset: ', type, options);
+        getAsset(req, res, type, options, function(result, response) {
+            if (response.statusCode === 200) {
+                var item = result;
+                getImages(req, res, item, function(imageData) {
+                    _imageData[type + '_' + id] = imageData;
+                    _sendImage(req, res, type, imageData);
+                });
+            } else {
+                console.warn('error for: ', type, options);
+            }
+
+        });
+    } else {
+        sendImage(req, res, type, data);
+    }
+});
+
 
 app.get('/feed/insights.json', function(req, res) {
 	console.warn('feed/insights.json');
