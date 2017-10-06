@@ -377,6 +377,10 @@ function fullUrl(req, partialUrl) {
   });
 }
 
+// For testing pruning, may need to make this configurable
+// Used to prune the results
+const _prune = true;
+
 app.get('/einstein/analytics/list', function(req, res) {
 	console.warn('/einstein/analytics/list req.query: ', req.query);
 	
@@ -412,6 +416,9 @@ app.get('/einstein/analytics/list', function(req, res) {
 				} else {
 					var obj = JSON.parse(body);
 
+					var obj2 = {};
+					obj2[type] = [];
+					asset2 = null;
 					if (obj[type]) {
 						obj[type].forEach(function(asset) {
 							// Call without callback
@@ -419,11 +426,30 @@ app.get('/einstein/analytics/list', function(req, res) {
 
 							// Set the thumbnailUrl to point to the service
 							asset.thumbnailUrl = fullUrl(req, '/einstein/analytics/thumb/' + asset.type + '/' + asset.id);
-							console.warn('thumbnailUrl: ', asset.thumbnailUrl);
+
+							if (_prune === false) {
+								asset2 = asset;
+							} else {
+								asset2 = {
+									id: asset.id,
+									name: asset.name,
+									namespace: asset.namespace,
+									label: asset.label,
+									type: asset.type,
+									thumbnailUrl: asset.thumbnailUrl,
+									assetSharingUrl: asset.assetSharingUrl,
+									createdBy: asset.createdBy.name,
+									createdDate: asset.createdDate,
+									lastModifiedBy: asset.lastModifiedBy.name,
+									lastModifiedDate: asset.lastModifiedDate
+								};
+							}
+							
+							obj2[type].push(asset2);
 						});
 					}
 
-					var json = JSON.stringify(obj);
+					var json = JSON.stringify(obj2);
 					res.send(json);
 				}
 			});
