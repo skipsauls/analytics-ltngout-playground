@@ -377,6 +377,28 @@ function fullUrl(req, partialUrl) {
   });
 }
 
+var pluralMap = {
+    'app': 'apps',
+    'dashboard': 'dashboards',
+    'dataset': 'datasets',
+    'folder': 'folders',
+    'lens': 'lenses',
+    'query': 'queries'
+};
+
+var singularMap = {
+    'apps': 'app',
+    'dashboards': 'dashboard',
+    'datasets': 'dataset',
+    'folders': 'folders',
+    'lenses': 'lens',
+    'queries': 'query'
+};
+
+function isPlural(type) {
+    return singularMap[type] ? true : false;
+}
+
 // For testing pruning, may need to make this configurable
 // Used to prune the results
 const _prune = true;
@@ -397,6 +419,8 @@ app.get('/einstein/analytics/list', function(req, res) {
 		if (auth !== null && typeof auth !== "undefined") {
 
 			var type = req.query.type;
+
+			type = isPlural(type) ? type : pluralMap[type];
 
 			var url = auth.oauthResult.instanceURL + '/services/data/v41.0/wave/' + type.toLowerCase();
 
