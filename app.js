@@ -235,8 +235,8 @@ app.get('/alexa/auth', function(req, res) {
 
     res.render('pages/alexaauth', {
     	title: 'Salesforce Einstein - Amazon Alexa',
-    	appId: appId,
-		oauthResult: req.session.oauthResult || null,
+    	//appId: appId,
+		//oauthResult: req.session.oauthResult || null,
     	sandbox: req.session.sandbox || null,
     	phrase: req.session.phrase,
     	phrase1: req.session.phrase ? req.session.phrase.phrase[0] : null,
@@ -250,30 +250,38 @@ app.get('/alexa/auth', function(req, res) {
 app.post('/alexa/login', function(req, res) {
 	console.warn("alexa/login: ", req.query, req.body);
 
+	console.warn('req.body.login_button: ', req.body.login_button);
 
-    var config = {
-      client_id: appId,
-      client_secret: appSecret,
-      grant_type: 'password',
-      username: req.body.username,
-      password: req.body.password
-    };
-
-    rest.post('https://login.salesforce.com/services/oauth2/token', {data: config}).on('complete', function(data, response) {
-    	console.warn('data: ', data);
-
-        if (response.statusCode === 200) {
-            req.session.oauthResult = {
-            	instanceURL: data.instance_url,
-            	accessToken: data.access_token,
-            	id: data.id,
-            	tokenType: data.token_type,
-            	issuedAt: data.issued_at,
-            	signature: data.signature
-            };
-        }
+	if (req.body.login_button === 'Logout') {
+		delete req.session.oauthResult;
         res.redirect("/alexa/auth");
-    });
+
+	} else {
+
+	    var config = {
+	      client_id: appId,
+	      client_secret: appSecret,
+	      grant_type: 'password',
+	      username: req.body.username,
+	      password: req.body.password
+	    };
+
+	    rest.post('https://login.salesforce.com/services/oauth2/token', {data: config}).on('complete', function(data, response) {
+	    	console.warn('data: ', data);
+
+	        if (response.statusCode === 200) {
+	            req.session.oauthResult = {
+	            	instanceURL: data.instance_url,
+	            	accessToken: data.access_token,
+	            	id: data.id,
+	            	tokenType: data.token_type,
+	            	issuedAt: data.issued_at,
+	            	signature: data.signature
+	            };
+	        }
+	        res.redirect("/alexa/auth");
+	    });
+	}
 });
 
 app.get('/alexa/connect', function(req, res) {

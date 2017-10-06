@@ -85,30 +85,41 @@
               <div class="slds-form-element__row">
                   <div class="slds-form-element slds-p-around--x-small">
                     <div class="slds-align_absolute-center slds-m-around--xx-large">
-                      <input type="submit" class="slds-button slds-button_neutral" id="login_button" name="login_button" value="Login"/>
+                      <input type="submit" class="slds-button slds-button_neutral" name="login_button" value="Login"/>
                   </div>
               </div>
 
             </fieldset>
           </div>
         </form>
+
+        <div class="slds-align_absolute-center slds-m-around--xx-large">
+          <button class="slds-button slds-button_neutral hide" id="login" onclick="login();">Login</button>
+        </div>
+
     </section>
 
-  <!--
     <script src="/javascripts/force.all.js"></script>
-    <script src="/javascripts/util.js"></script>
-  -->
+    <script src="/javascripts/util.js"></script>    
     <script>
 
+      var _appId = "" + <%- JSON.stringify(appId) %> || null;
       var _sandbox = <%= JSON.stringify(sandbox) %> || false;;      
       var _phrase = <%- JSON.stringify(phrase) %> || null;
 
+      console.warn("appId: ", _appId);
       console.warn("phrase: ", _phrase);
       console.warn("sandbox: ", _sandbox);
       
       function animateTimer(timeout) {
           var timeleft = timeout - Date.now();
           console.warn('timeleft: ', timeleft);
+          //timeleft = 5000;
+          /*
+          setTimeout(function() {
+            window.location.reload();
+          }, timeleft);
+          */
 
           var interval = setInterval(function() {
             
@@ -125,24 +136,27 @@
 
       (function() {
 
+        var _oauthResult = <%- JSON.stringify(oauthResult) %> || null;
 
-        var button = document.querySelector("#login_button");
+        console.warn("oauthResult: ", _oauthResult);
+
+        var button = document.querySelector("button#login");
 
         if (_phrase) {
-          button.value = "Logout";
+          button.innerHTML = "Logout";
 
           console.warn("timeout: ", new Date(_phrase.timeout));
 
           animateTimer(_phrase.timeout);
 
         } else {
-          button.value = "Login";
+          button.innerHTML = "Login";
         }
 
         button.classList.remove("hide");
 
       }());
-/*
+
       function OLDER_login() {
         if (_phrase) {
           updateOAuthResult(null, function(res, err) {
@@ -213,7 +227,6 @@
         );
 
       }
-*/
 
     </script>
   </body>
