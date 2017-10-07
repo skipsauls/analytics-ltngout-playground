@@ -56,6 +56,12 @@
           </div>
         </div>
 
+        <div class="slds-align_absolute-center slds-m-around--large">
+          <div id="oauth_result">
+              oauthResult: <%= oauthResult %>
+          </div>
+        </div>
+
         <form name="login_form" action="/alexa/login" method="POST">
           <div class="slds-form slds-form_compound form-content">
             <fieldset class="slds-form-element">
@@ -97,9 +103,11 @@
     <script>
       var _sandbox = <%= JSON.stringify(sandbox) %> || false;;      
       var _phrase = <%- JSON.stringify(phrase) %> || null;
+      var _oauthResult = <%- JSON.stringify(oauthResult) %> || null;
 
-      console.warn("phrase: ", _phrase);
-      console.warn("sandbox: ", _sandbox);
+      console.warn("_phrase: ", _phrase);
+      console.warn("_sandbox: ", _sandbox);
+      console.warn("_oauthResult: ", _oauthResult);
       
       function animateTimer(timeout) {
           var timeleft = timeout - Date.now();

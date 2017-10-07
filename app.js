@@ -233,10 +233,11 @@ app.get('/alexa/auth', function(req, res) {
 
 	console.warn('phrase: ', req.session.phrase);
 
+	var oauthResult = req.session.oauthResult || {};
     res.render('pages/alexaauth', {
     	title: 'Salesforce Einstein - Amazon Alexa',
     	//appId: appId,
-		//oauthResult: req.session.oauthResult || null,
+		oauthResult: JSON.stringify(oauthResult, null, 4),
     	sandbox: req.session.sandbox || null,
     	phrase: req.session.phrase,
     	phrase1: req.session.phrase ? req.session.phrase.phrase[0] : null,
