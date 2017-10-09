@@ -470,8 +470,8 @@ const _prune = true;
 app.get('/einstein/analytics/list', function(req, res) {
 	console.warn('/einstein/analytics/list req.query: ', req.query);
 
-	var auth = req.session.auth;
-	if (auth && req.query.type && req.query.token) {
+	//var auth = req.session.auth;
+	//if (auth && req.query.type && req.query.token) {
 	
 		if (auth.token === req.query.token) {
 			var token = req.query.token;
@@ -564,7 +564,7 @@ app.get('/einstein/analytics/list', function(req, res) {
 		} else {
 			res.send({err: 'No access token'});
 		}
-	}
+	//}
 });
 
 
