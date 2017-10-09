@@ -310,6 +310,15 @@ app.post('/alexa/login', function(req, res) {
 
 app.get('/alexa/connect', function(req, res) {
 	console.warn('---------------------------> /alexa/connect req.query: ', req.query);
+	console.warn('----------------------------------------------------------------------------------------------------');
+	console.warn('---------- headers ---------------------------------------------------------------------------------');
+	console.warn('----------------------------------------------------------------------------------------------------');
+	var header = null;
+	for (var h in req.headers) {
+		header = req.headers[h];
+		console.warn('header: ', h, header);
+	}
+	console.warn('----------------------------------------------------------------------------------------------------');
 	var _auth = null;
 	if (req.query.phrase) {
 		var phrase = req.query.phrase;
