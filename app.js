@@ -954,25 +954,27 @@ app.post('/appid', function(req, res) {
 
 });
 
+	function handleWsConnection(ws, req) {
+	  const location = url.parse(req.url, true);
+	  // You might use location.query.access_token to authenticate or share sessions
+	  // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
+
+	  ws.on('message', function incoming(message) {
+	    console.log('received: %s', message);
+	  });
+
+	  ws.send('secureWss sent something');
+	};	
+
+
+
 // Create an HTTP service
 var server = http.createServer(app).listen(port);
 console.log("Server listening for HTTP connections on port " + port);
 
 
 var wss = new WebSocket.Server({ server });
-wss.on('connection', function connection(ws, req) {
-  const location = url.parse(req.url, true);
-  // You might use location.query.access_token to authenticate or share sessions
-  // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
-
-  ws.on('message', function incoming(message) {
-    console.log('received: %s', message);
-  });
-
-  ws.send('wss sent something');
-});
-
-//server.on('upgrade', wss.handleUpgrade);
+wss.on('connection', handleWsConnection);
 
 
 var secureWss = null;
@@ -995,27 +997,8 @@ try {
 		secureWss.handleUpgrade(arguments);
 	});
 
-	secureWss.on('connection', function connection(ws, req) {
-	  const location = url.parse(req.url, true);
-	  // You might use location.query.access_token to authenticate or share sessions
-	  // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
-
-	  ws.on('message', function incoming(message) {
-	    console.log('received: %s', message);
-	  });
-
-	  ws.send('secureWss sent something');
-	});	
+	secureWss.on('connection', handleWsConnection);
 
 } catch (e) {
     console.error(e + " - Security certs not found, HTTPS not available");
 }
-
-/*
-app.ws('/echo', function(ws, req) {
-	console.warn('ws: ', ws);
-	ws.on('message', function(msg) {
-		ws.send(msg);
-	});
-});
-*/

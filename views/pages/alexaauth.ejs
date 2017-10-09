@@ -84,6 +84,7 @@
     </header>
     <section class="main-content">
       <div class="slds-align_absolute-center slds-m-around--small">
+        <button class="slds-button slds-button_neutral" onclick="testWs();">Test WS</button>
         <div id="phrase_container" class="hide">
           <div class="slds-text-heading_large">
               <%= phrase1 %>&nbsp;<%= phrase2 %>&nbsp;<%= phrase3 %>
@@ -200,7 +201,7 @@
       } else {
         connection = new WebSocket('wss://' + location.host + '/echo');
       }
-      
+
       //var connection = new WebSocket('ws://localhost:3000/echo');
 
       connection.onopen = function () {
@@ -218,9 +219,13 @@
       };
 
       function sendMessage(msg) {
+        msg = typeof msg === 'object' ? JSON.stringify(msg) : msg;
         connection.send(msg);
       }
 
+      function testWs() {
+        sendMessage({msg: 'Testing', timestamp: Date.now()});
+      }
     </script>
   </body>
 </html>
