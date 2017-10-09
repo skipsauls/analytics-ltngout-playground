@@ -208,7 +208,7 @@ app.get('/alexa/auth', function(req, res) {
 	//var domain = req.session.origin.replace(/^https?\:\/\//i, "");
 	req.session.uuid = req.session.uuid || uuidv4();
 
-	console.warn('req.session.oauthResult: ', req.session.oauthResult);
+	//console.warn('req.session.oauthResult: ', req.session.oauthResult);
 
 	var expires = 30000;
 
@@ -218,9 +218,12 @@ app.get('/alexa/auth', function(req, res) {
 			timeout: Date.now() + expires,
 			expires: expires
 		};
-		var auth = _authMap[req.session.oauthResult.accessToken];
+		console.warn('req.session.phrase: ', req.session.phrase);
+		var keyPhrase = req.session.phrase.phrase.join('_').toLowerCase();
+
+		var auth = _authMap[keyPhrase];
 		//var auth = req.session.auth;
-		console.warn('auth: ', auth);
+		//console.warn('auth: ', auth);
 		if (auth && auth.connected === true) {
 			console.warn('connected!!!');
 			/*
@@ -230,7 +233,7 @@ app.get('/alexa/auth', function(req, res) {
 				connected: true
 			};
 			*/
-			_authMap[req.session.oauthResult.accessToken] = {
+			_authMap[keyPhrase] = {
 				oauthResult: req.session.oauthResult,
 				phrase: req.session.phrase,
 				connected: true
@@ -243,7 +246,7 @@ app.get('/alexa/auth', function(req, res) {
 				connected: false
 			};
 			*/
-			_authMap[req.session.oauthResult.accessToken] = {
+			_authMap[keyPhrase] = {
 				oauthResult: req.session.oauthResult,
 				phrase: req.session.phrase,
 				connected: false
@@ -327,12 +330,14 @@ app.get('/alexa/connect', function(req, res) {
 		phrase = phrase.toLowerCase();
 		console.warn('phrase: ', phrase);
 		var matchPhrase = null;
-		for (var accessToken in _authMap) {			
-			auth = _authMap[accessToken];
+		//for (var phrase in _authMap) {			
+			auth = _authMap[phrase];
 			//auth = req.session.auth;
+			console.warn('------------------------------------------------------------');
 			console.warn('auth: ', auth);
+			console.warn('------------------------------------------------------------');
 
-			}
+			//}
 			try {
 				matchPhrase = auth.phrase.phrase.join('_').toLowerCase();
 				console.warn('matchPhrase: ', matchPhrase);
@@ -341,7 +346,7 @@ app.get('/alexa/connect', function(req, res) {
 					auth.connected = true;
 					auth.token = uuidv4();
 					_auth = auth;
-					_authMap[auth.token] = auth;
+					_authMap[phrase] = auth;
 					req.session.auth = auth;
 					
 					for (var a in _authMap) {
@@ -349,17 +354,27 @@ app.get('/alexa/connect', function(req, res) {
 					}
 					
 				} else {
+					console.warn('------------------------------------------------------------');
 					console.error('no match!!!');
+					console.warn('------------------------------------------------------------');
 					res.send({err: 'Phrase does not match.'});
+
 				}
 			} catch (e) {
+				console.warn('------------------------------------------------------------');
 				console.error('Exception: ', e);
+				console.warn('------------------------------------------------------------');
 				res.send({err: 'Phrase does not match.'});
 			}
 		//}
 	}	
 
 	// Only return the token to the remote client (Alexa)
+	console.warn('------------------------------------------------------------');
+	console.warn('------------------------------------------------------------');
+	console.warn('------------------------------------------------------------');
+	console.warn('------------------------------------------------------------');
+	console.warn('sending token - _auth: ', _auth);
 	res.send({token: _auth ? _auth.token : null});
 });
 
