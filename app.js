@@ -169,7 +169,7 @@ app.get('/mock', function(req, res) {
 });
 
 /* NEED A BETTER SECURE STORE FOR MORE THAN DEMOS!!!!! */
-//var _authMap = {};
+var _authMap = {};
 
 var daysOfWeek = [
 	"Sunday",
@@ -218,36 +218,36 @@ app.get('/alexa/auth', function(req, res) {
 			timeout: Date.now() + expires,
 			expires: expires
 		};
-		//var auth = _authMap[req.session.oauthResult.accessToken];
-		var auth = req.session.auth;
+		var auth = _authMap[req.session.oauthResult.accessToken];
+		//var auth = req.session.auth;
 		console.warn('auth: ', auth);
 		if (auth && auth.connected === true) {
 			console.warn('connected!!!');
+			/*
 			req.session.auth = {
 				oauthResult: req.session.oauthResult,
 				phrase: req.session.phrase,
 				connected: true
 			};
-			/*
+			*/
 			_authMap[req.session.oauthResult.accessToken] = {
 				oauthResult: req.session.oauthResult,
 				phrase: req.session.phrase,
 				connected: true
-			};
-			*/
+			};			
 		} else {
+			/*
 			req.session.auth = {
 				oauthResult: req.session.oauthResult,
 				phrase: req.session.phrase,
 				connected: false
 			};
-			/*
+			*/
 			_authMap[req.session.oauthResult.accessToken] = {
 				oauthResult: req.session.oauthResult,
 				phrase: req.session.phrase,
 				connected: false
 			};
-			*/
 		}
 	} else {
 		req.session.phrase = null;
@@ -310,15 +310,15 @@ app.post('/alexa/login', function(req, res) {
 
 app.get('/alexa/connect', function(req, res) {
 	console.warn('---------------------------> /alexa/connect req.query: ', req.query);
-	console.warn('----------------------------------------------------------------------------------------------------');
-	console.warn('---------- headers ---------------------------------------------------------------------------------');
-	console.warn('----------------------------------------------------------------------------------------------------');
 	var header = null;
 	for (var h in req.headers) {
 		header = req.headers[h];
 		console.warn('header: ', h, header);
 	}
-	console.warn('----------------------------------------------------------------------------------------------------');
+	if (req.headers['SFDC-SECRET'] && req.headers['SFDC-SECRET'] !== 'ALEXA-ECHO-SHOW-DEMO') {
+		res.send({err: 'Incorrect Secret'});
+		return;
+	}
 	var _auth = null;
 	if (req.query.phrase) {
 		var phrase = req.query.phrase;
@@ -327,10 +327,12 @@ app.get('/alexa/connect', function(req, res) {
 		phrase = phrase.toLowerCase();
 		console.warn('phrase: ', phrase);
 		var matchPhrase = null;
-		//for (var accessToken in _authMap) {			
-			//auth = _authMap[accessToken];
-			auth = req.session.auth;
+		for (var accessToken in _authMap) {			
+			auth = _authMap[accessToken];
+			//auth = req.session.auth;
 			console.warn('auth: ', auth);
+
+			}
 			try {
 				matchPhrase = auth.phrase.phrase.join('_').toLowerCase();
 				console.warn('matchPhrase: ', matchPhrase);
@@ -339,18 +341,20 @@ app.get('/alexa/connect', function(req, res) {
 					auth.connected = true;
 					auth.token = uuidv4();
 					_auth = auth;
-					//_authMap[auth.token] = auth;
+					_authMap[auth.token] = auth;
 					req.session.auth = auth;
-					/*
+					
 					for (var a in _authMap) {
 						console.warn('authMap[' + a + ']: ', auth);
 					}
-					*/
+					
 				} else {
 					console.error('no match!!!');
+					res.send({err: 'Phrase does not match.'});
 				}
 			} catch (e) {
 				console.error('Exception: ', e);
+				res.send({err: 'Phrase does not match.'});
 			}
 		//}
 	}	
