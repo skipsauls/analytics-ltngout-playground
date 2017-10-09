@@ -201,7 +201,11 @@ var colors = [
 function generatePassphrase() {
 	var rand1 = Math.floor(Math.random() * daysOfWeek.length);
 	var rand2 = Math.floor(Math.random() * colors.length);
-	return [colors[rand2], daysOfWeek[rand1]];
+	var str = Math.floor(Math.random() * 10000);
+	//str += Math.floor(Math.random() * 10);
+	//str += Math.floor(Math.random() * 10);
+	//str += Math.floor(Math.random() * 10);
+	return [colors[rand2], daysOfWeek[rand1], str];
 }
 
 app.get('/alexa/auth', function(req, res) {
@@ -267,7 +271,7 @@ app.get('/alexa/auth', function(req, res) {
     	phrase: req.session.phrase,
     	phrase1: req.session.phrase ? req.session.phrase.phrase[0] : null,
     	phrase2: req.session.phrase ? req.session.phrase.phrase[1] : null,    	
-    	//domain: domain
+    	phrase3: req.session.phrase ? req.session.phrase.phrase[2] : null
     });
 
     //res.render('pages/alexaauth', {title: 'Amazon Alexa - Salesforce Authorization', appId: ""});
@@ -318,10 +322,6 @@ app.get('/alexa/connect', function(req, res) {
 		header = req.headers[h];
 		console.warn('header: ', h, header);
 	}
-	if (req.headers['SFDC-SECRET'] && req.headers['SFDC-SECRET'] !== 'ALEXA-ECHO-SHOW-DEMO') {
-		res.send({err: 'Incorrect Secret'});
-		return;
-	}
 	var _auth = null;
 	if (req.query.phrase) {
 		var phrase = req.query.phrase;
@@ -333,9 +333,7 @@ app.get('/alexa/connect', function(req, res) {
 		//for (var phrase in _authMap) {			
 			auth = _authMap[phrase];
 			//auth = req.session.auth;
-			console.warn('------------------------------------------------------------');
 			console.warn('auth: ', auth);
-			console.warn('------------------------------------------------------------');
 
 			//}
 			try {
@@ -354,26 +352,18 @@ app.get('/alexa/connect', function(req, res) {
 					}
 					
 				} else {
-					console.warn('------------------------------------------------------------');
 					console.error('no match!!!');
-					console.warn('------------------------------------------------------------');
 					res.send({err: 'Phrase does not match.'});
 
 				}
 			} catch (e) {
-				console.warn('------------------------------------------------------------');
 				console.error('Exception: ', e);
-				console.warn('------------------------------------------------------------');
 				res.send({err: 'Phrase does not match.'});
 			}
 		//}
 	}	
 
 	// Only return the token to the remote client (Alexa)
-	console.warn('------------------------------------------------------------');
-	console.warn('------------------------------------------------------------');
-	console.warn('------------------------------------------------------------');
-	console.warn('------------------------------------------------------------');
 	console.warn('sending token - _auth: ', _auth);
 	res.send({token: _auth ? _auth.token : null});
 });
