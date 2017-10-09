@@ -14,11 +14,12 @@ var proxy = require('http-proxy-middleware');
 var sslRedirect = require('heroku-ssl-redirect')
 var Alexa = require('alexa-sdk');
 var randomWords = require('random-words');
+var WebSocket = require('ws');
 
 var port = process.env.PORT || 3000;
 var https_port = process.env.HTTPS_PORT || parseInt(port) + 1;
 
-console.warn('process.env: ', process.env);
+//console.warn('process.env: ', process.env);
 
 // Localhost appId
 var appId = '3MVG9SemV5D80oBcff3jWxxK32b.valGtNTj90WK4mj5IAn1LOmdrz1ObgypNEnd9JRtxfhKpuE.iX7vv0WSy';
@@ -79,6 +80,29 @@ app.use(express.static(__dirname + '/public'));
 
 // enable ssl redirect
 app.use(sslRedirect());
+
+//var expressWs = require('express-ws')(app);
+
+
+
+/*
+var cometdServer = cometd.createCometDServer();
+var channel = cometdServer.createServerChannel('/service/auth');
+channel.addListener('message', function(session, channel, message, callback) {
+	console.warn('/service/approve: ', session, channel, message);
+
+    // Invoke the callback to signal that handling is complete.
+    callback();
+});
+*/
+/*
+app.get('/cometd/test', function(req, res) {
+	
+	channel.publish(session, message.data);
+
+	res.send({msg: 'test'});
+});
+*/
 
 var stubOAuthResult = {
 	accessToken: undefined,
@@ -931,8 +955,29 @@ app.post('/appid', function(req, res) {
 });
 
 // Create an HTTP service
-http.createServer(app).listen(port);
+var server = http.createServer(app).listen(port);
 console.log("Server listening for HTTP connections on port " + port);
+
+
+var wss = new WebSocket.Server({ server });
+wss.on('connection', function connection(ws, req) {
+  const location = url.parse(req.url, true);
+  // You might use location.query.access_token to authenticate or share sessions
+  // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
+
+  ws.on('message', function incoming(message) {
+    console.log('received: %s', message);
+  });
+
+  ws.send('something');
+});
+
+server.on('upgrade', function() {
+	console.warn('server upgrade: ', arguments);
+	wss.handleUpgrade(arguments);
+});
+
+var secureWss = null;
 
 // Create an HTTPS service if the certs are present
 try {
@@ -940,8 +985,39 @@ try {
       key: fs.readFileSync('key.pem'),
       cert: fs.readFileSync('key-cert.pem')
     };
-    https.createServer(options, app).listen(https_port);
+    var secureServer = https.createServer(options, app).listen(https_port);
     console.log("Server listening for HTTPS connections on port " + https_port);
+    
+
+	//secureWss = new WebSocket.Server({ secureServer });
+	secureWss = new WebSocket.Server({ secureServer });
+
+	secureServer.on('upgrade', function() {
+		console.warn('secureServer upgrade: ', arguments);
+		secureWss.handleUpgrade(arguments);
+	});
+
+	secureWss.on('connection', function connection(ws, req) {
+	  const location = url.parse(req.url, true);
+	  // You might use location.query.access_token to authenticate or share sessions
+	  // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
+
+	  ws.on('message', function incoming(message) {
+	    console.log('received: %s', message);
+	  });
+
+	  ws.send('something');
+	});	
+
 } catch (e) {
     console.error(e + " - Security certs not found, HTTPS not available");
 }
+
+/*
+app.ws('/echo', function(ws, req) {
+	console.warn('ws: ', ws);
+	ws.on('message', function(msg) {
+		ws.send(msg);
+	});
+});
+*/
