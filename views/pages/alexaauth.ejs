@@ -2,6 +2,7 @@
 <html>
   <head>
     <title><%= title %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <link rel="stylesheet" type="text/css" href="/assets/styles/index.css" />
     <style>
       .main-content {
@@ -25,6 +26,40 @@
       .hide {
         display: none;
       }
+
+      .progress-circle {
+          transform: rotate(-90deg);
+      }
+
+      .progress-circle__circle {
+          stroke: #0D8851;
+      }
+
+      .progress-circle__circle.progress-circle_25_percent {
+          stroke: #AB4237;
+      }
+
+      .progress-circle__circle.progress-circle_15_percent {
+          stroke: #DA5448;
+      }
+
+      .progress-circle__circle.progress-circle_5_percent {
+          stroke: #FF0000;
+      }
+
+      .progress-circle__indicator, .progress-circle__indicator--empty, .progress-circle__indicator--filled, .progress-circle__indicator--invalid {
+          stroke: #CDCDCD;
+         
+      }
+
+      circle[Attributes Style] {
+          r: 35;
+          cy: 45;
+          cx: 45;
+          stroke-width: 10;
+          fill: none;
+      }
+
     </style>
   </head>
   <body>
@@ -38,7 +73,7 @@
           </div>
         </div>
         <div class="slds-align_absolute-center">
-          <div class="slds-text-heading_medium"><%= title %></div>
+          <div class="slds-text-heading_small"><%= title %></div>
         </div>
         <div class="slds-global-header__item">
           <div class="slds-global-header__logo">
@@ -47,95 +82,112 @@
         </div>
       </div>
     </header>
-
-
     <section class="main-content">
-        <div class="slds-align_absolute-center slds-m-around--large">
+      <div class="slds-align_absolute-center slds-m-around--small">
+        <div id="phrase_container" class="hide">
           <div class="slds-text-heading_large">
               <%= phrase1 %>&nbsp;<%= phrase2 %>
           </div>
-        </div>
-
-        <div class="slds-align_absolute-center slds-m-around--large">
-          <div id="oauth_result">
-              oauthResult: <%= oauthResult %>
+          <div class="progress-circle">
+            <div class="slds-align_absolute-center slds-m-around--small">
+              <svg width="90" height="90" xmlns="http://www.w3.org/2000/svg" class="progress-circle__svg">
+                <circle id="circle_outer" r="35" cy="45" cx="45" stroke-width="10" fill="none" class="progress-circle__circle "></circle>
+                <circle id="circle_inner" r="35" cy="45" cx="45" stroke-width="10" fill="none" stroke-dasharray="219" stroke-dashoffset="219" class="progress-circle__indicator--filled">
+                </circle>
+                  <text x="45" y="-40" font-size="16" transform="rotate(90)" text-anchor="middle">
+                </text>
+              </svg>                      
+            </div>
           </div>
         </div>
-
+      </div>
+      <div class="slds-align_absolute-center slds-m-around--small">
         <form name="login_form" action="/alexa/login" method="POST">
           <div class="slds-form slds-form_compound form-content">
             <fieldset class="slds-form-element">
-              <legend class="slds-form-element__label slds-text-title_caps">Login to Salesforcce</legend>
               <div class="slds-form-element__group">
-                <div class="slds-form-element__row">
-
-                  <div class="slds-form-element slds-p-around--x-small">
-                    <label class="slds-form-element__label" for="username">Username</label>
-                    <div class="slds-form-element__control">
-                      <input type="text" class="slds-input form-input" name="username" value="skip@eadx.com" placeholder="Enter your Salesforce org username"/>
+                <div id="login_form">
+                  <div class="slds-form-element__row">
+                    <div class="slds-form-element slds-p-around--x-small">
+                      <label class="slds-form-element__label" for="username">Username</label>
+                      <div class="slds-form-element__control">
+                        <input type="text" class="slds-input form-input" name="username" value="skip@eadx.com" placeholder="Enter your Salesforce org username"/>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="slds-form-element__row">
+                    <div class="slds-form-element slds-p-around--x-small">
+                      <label class="slds-form-element__label" for="password">Password</label>
+                      <div class="slds-form-element__control">
+                        <input type="password" class="slds-input form-input" name="password" value="waveout1!" placeholder="Enter your Salesforce org Password"/>
+                      </div>
                     </div>
                   </div>
                 </div>
-
-                <div class="slds-form-element__row">
-                  <div class="slds-form-element slds-p-around--x-small">
-                    <label class="slds-form-element__label" for="password">Password</label>
-                    <div class="slds-form-element__control">
-                      <input type="password" class="slds-input form-input" name="password" value="waveout1!" placeholder="Enter your Salesforce org Password"/>
-                    </div>
-                  </div>
-                </div>
-
               </div>
-
               <div class="slds-form-element__row">
                   <div class="slds-form-element slds-p-around--x-small">
-                    <div class="slds-align_absolute-center slds-m-around--xx-large">
+                    <div class="slds-align_absolute-center slds-m-around---medium">
                       <input type="submit" class="slds-button slds-button_neutral" id="login_button" name="login_button" value="Login"/>
                   </div>
               </div>
-
             </fieldset>
           </div>
         </form>
+      </div>
     </section>
 
     <script>
-      var _sandbox = <%= JSON.stringify(sandbox) %> || false;;      
-      var _phrase = <%- JSON.stringify(phrase) %> || null;
-      var _oauthResult = <%- JSON.stringify(oauthResult) %> || null;
+      function animateTimer(timeout, expires) {
+        var itime = 100;
+        var timeleft = timeout - Date.now();
+        var percent = 0;
+        var offset = 0;
 
-      console.warn("_phrase: ", _phrase);
-      console.warn("_sandbox: ", _sandbox);
-      console.warn("_oauthResult: ", _oauthResult);
-      
-      function animateTimer(timeout) {
+        var interval = setInterval(function() {
           var timeleft = timeout - Date.now();
-          console.warn('timeleft: ', timeleft);
+          var circleInner = document.querySelector("#circle_inner");
+          var circleOuter = document.querySelector("#circle_outer.progress-circle__circle");
+          percent = (timeleft / expires);
+          offset = percent * 219;
+          circleInner.setAttribute("stroke-dashoffset", offset);
+          if (percent <= .05) {
+            circleOuter.classList.add("progress-circle_5_percent");
+          } else if (percent <= .15) {
+            circleOuter.classList.add("progress-circle_15_percent");
+          } else if (percent <= .25) {
+            circleOuter.classList.add("progress-circle_25_percent");
+          }
 
-          var interval = setInterval(function() {
-            
-            var timeleft = timeout - Date.now();
-            console.warn('timeleft: ', timeleft);
-
-            if (timeleft <= 0) {
-              clearInterval(interval);
-              window.location.reload();
-            }
-          }, 1000);
+          if (timeleft <= 0) {
+            clearInterval(interval);
+            window.location.reload();
+          }
+        }, itime);
 
       }
 
       (function() {
 
+        var _sandbox = <%= JSON.stringify(sandbox) %> || false;;      
+        var _phrase = <%- JSON.stringify(phrase) %> || null;
+
+        console.warn("_phrase: ", _phrase);
+        console.warn("_sandbox: ", _sandbox);
+      
         var button = document.querySelector("#login_button");
+        var loginForm = document.querySelector("#login_form");
+        var phraseContainer = document.querySelector("#phrase_container");
 
         if (_phrase) {
           button.value = "Logout";
-          console.warn("timeout: ", new Date(_phrase.timeout));
-          animateTimer(_phrase.timeout);
+          animateTimer(_phrase.timeout, _phrase.expires);
+          loginForm.classList.add("hide");
+          phraseContainer.classList.remove("hide");
         } else {
           button.value = "Login";
+          loginForm.classList.remove("hide");
+          phraseContainer.classList.add("hide");
         }
         button.classList.remove("hide");
       }());
