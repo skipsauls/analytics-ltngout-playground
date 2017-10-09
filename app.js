@@ -969,13 +969,11 @@ wss.on('connection', function connection(ws, req) {
     console.log('received: %s', message);
   });
 
-  ws.send('something');
+  ws.send('wss sent something');
 });
 
-server.on('upgrade', function() {
-	console.warn('server upgrade: ', arguments);
-	wss.handleUpgrade(arguments);
-});
+//server.on('upgrade', wss.handleUpgrade);
+
 
 var secureWss = null;
 
@@ -1006,7 +1004,7 @@ try {
 	    console.log('received: %s', message);
 	  });
 
-	  ws.send('something');
+	  ws.send('secureWss sent something');
 	});	
 
 } catch (e) {
