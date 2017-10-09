@@ -954,17 +954,24 @@ app.post('/appid', function(req, res) {
 
 });
 
-	function handleWsConnection(ws, req) {
-	  const location = url.parse(req.url, true);
-	  // You might use location.query.access_token to authenticate or share sessions
-	  // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
 
-	  ws.on('message', function incoming(message) {
-	    console.log('received: %s', message);
-	  });
+function handleWsConnection(ws, req) {
+  const location = url.parse(req.url, true);
+  // You might use location.query.access_token to authenticate or share sessions
+  // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
 
-	  ws.send('secureWss sent something');
-	};	
+  ws.on('message', function incoming(message) {
+    console.log('received: %s', message, typeof message);
+    var obj = JSON.parse(message);
+    if (obj.msg && obj.msg.toLowerCase() === 'ping') {
+    	ret = {msg: 'pong'};
+    	ws.send(JSON.stringify(ret));
+    }
+  });
+
+  var ret = {msg: 'success'};
+  ws.send(JSON.stringify(ret));
+};	
 
 
 
