@@ -201,10 +201,10 @@ var colors = [
 function generatePassphrase() {
 	var rand1 = Math.floor(Math.random() * daysOfWeek.length);
 	var rand2 = Math.floor(Math.random() * colors.length);
-	var str = Math.floor(Math.random() * 10000);
-	//str += Math.floor(Math.random() * 10);
-	//str += Math.floor(Math.random() * 10);
-	//str += Math.floor(Math.random() * 10);
+	var str = '' + Math.floor(Math.random() * 10);
+	str += Math.floor(Math.random() * 10);
+	str += Math.floor(Math.random() * 10);
+	str += Math.floor(Math.random() * 10);
 	return [colors[rand2], daysOfWeek[rand1], str];
 }
 
