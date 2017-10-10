@@ -111,6 +111,15 @@
             <fieldset class="slds-form-element">
               <div class="slds-form-element__group">
                 <div id="login_form">
+                <div class="slds-form-element slds-p-around--x-small">
+                  <label class="slds-form-element__label" for="domain-select">Domain</label>
+                  <div class="slds-form-element__control">
+                    <div class="slds-select_container">
+                      <select class="slds-select" id="domain_select" name="domain">
+                      </select>
+                    </div>
+                  </div>
+                </div>                  
                   <div class="slds-form-element__row">
                     <div class="slds-form-element slds-p-around--x-small">
                       <label class="slds-form-element__label" for="username">Username</label>
@@ -177,15 +186,31 @@
 
         var _sandbox = <%= JSON.stringify(sandbox) %> || false;;      
         var _phrase = <%- JSON.stringify(phrase) %> || null;
+        var _domains = <%- domains %> || [];
 
         console.warn("_phrase: ", _phrase);
         console.warn("_sandbox: ", _sandbox);
+        console.warn("_domains: ", _domains);
         
         var msg = document.querySelector("#msg");
 
         var button = document.querySelector("#login_button");
         var loginForm = document.querySelector("#login_form");
         var phraseContainer = document.querySelector("#phrase_container");
+        var select = document.querySelector("#domain_select");
+        select.innerHTML = null;
+
+        var option = null;
+
+        _domains.forEach(function(domain) {
+          option = document.createElement("option");
+          option.value = domain;
+          //option.setAttribute("disabled", "disabled");
+          //option.setAttribute("selected", "selected");
+          //option.setAttribute("hidden", "hidden");
+          option.innerHTML = domain;
+          select.appendChild(option);
+        });
 
         if (_phrase) {
           

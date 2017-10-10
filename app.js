@@ -21,6 +21,7 @@ var https_port = process.env.HTTPS_PORT || parseInt(port) + 1;
 
 //console.warn('process.env: ', process.env);
 
+/*
 // Localhost appId
 var appId = '3MVG9SemV5D80oBcff3jWxxK32b.valGtNTj90WK4mj5IAn1LOmdrz1ObgypNEnd9JRtxfhKpuE.iX7vv0WSy';
 var appSecret = '5138307552141816846';
@@ -33,29 +34,40 @@ if (process.env.HEROKU === 'true') {
 }
 
 console.warn('appId: ', appId);
+*/
+
+var _appAuthMap = {
+    localhost: {
+        oauth: {
+            'adx-dev-ed': {
+                appId: '3MVG9SemV5D80oBcff3jWxxK32b.valGtNTj90WK4mj5IAn1LOmdrz1ObgypNEnd9JRtxfhKpuE.iX7vv0WSy',
+                appSecret: '5138307552141816846'
+            },
+            'wavepm': {
+                appId: '3MVG9SemV5D80oBelr7Nm4Bdjw0IXXBQW4ETMk05KOG5QIhpFLvgkmP37sKVyGIeMsQ7k_zjz3D3DTwg2BHjF',
+                appSecret: '7524867041201854375'
+            }
+        }
+    },
+    heroku: {
+        oauth: {
+            'adx-dev-ed': {
+                appId: '3MVG9SemV5D80oBcff3jWxxK32f4PQBwm702A4fEFlSAEviJg7BsC7PUI_WpupyyBwMfhXypJSkdVqKX7_IXr',
+                appSecret: '6818833808157477050'
+            },
+            'wavepm': {
+                appId: '3MVG9SemV5D80oBelr7Nm4BdjwzSxKBZqRhGm8gzBXJNUsh.9sj0WG2UIhW2grZFy5QQZpBdTGnVaP9qfsT1A',
+                appSecret: '1169122965078990489'
+            }
+        }
+    }
+};
+
+var _appAuth = process.env.HEROKU === 'true' ? _appAuthMap.heroku.oauth : _appAuthMap.localhost.oauth;
+
+
 
 var db = low('db.json');
-
-/*
-db.defaults({ posts: [], user: {} })
-	.write();
-
-db.get('posts')
-	.push({ id: 1, title: 'lowdb is awesome'})
-	.write();
-
-db.set('user.name', 'typicode')
-	.write();
-
-var foo = db.get('foo');
-console.warn('foo: ', foo, foo.push);
-if (!foo) {
-	db.set('foo', ["0"])
-		.write();
-}
-foo.push("1").push("2").write();
-foo.pop().write();
-*/
 
 app.set('view engine', 'ejs');
 
@@ -80,29 +92,6 @@ app.use(express.static(__dirname + '/public'));
 
 // enable ssl redirect
 app.use(sslRedirect());
-
-//var expressWs = require('express-ws')(app);
-
-
-
-/*
-var cometdServer = cometd.createCometDServer();
-var channel = cometdServer.createServerChannel('/service/auth');
-channel.addListener('message', function(session, channel, message, callback) {
-	console.warn('/service/approve: ', session, channel, message);
-
-    // Invoke the callback to signal that handling is complete.
-    callback();
-});
-*/
-/*
-app.get('/cometd/test', function(req, res) {
-	
-	channel.publish(session, message.data);
-
-	res.send({msg: 'test'});
-});
-*/
 
 var stubOAuthResult = {
 	accessToken: undefined,
@@ -520,16 +509,23 @@ app.get('/alexa/auth', function(req, res) {
 
 	var oauthResult = req.session.oauthResult || {};
 
+	var domains = [];
+	for (var domain in _appAuth) {
+		domains.push(domain);
+	}
+	console.warn('domains: ', domains);
 
     res.render('pages/alexaauth', {
     	title: 'Authenticator',
     	//rtoken: req.session.rtoken,
-		oauthResult: JSON.stringify(oauthResult, null, 4),
+		//oauthResult: JSON.stringify(oauthResult, null, 4), // REMOVE!
     	sandbox: req.session.sandbox || null,
     	phrase: req.session.phrase,
     	phrase1: req.session.phrase ? req.session.phrase.phrase[0] : null,
     	phrase2: req.session.phrase ? req.session.phrase.phrase[1] : null,    	
-    	phrase3: req.session.phrase ? req.session.phrase.phrase[2] : null
+    	phrase3: req.session.phrase ? req.session.phrase.phrase[2] : null,
+    	domains: JSON.stringify(domains)
+
     });
 
     //res.render('pages/alexaauth', {title: 'Amazon Alexa - Salesforce Authorization', appId: ""});
@@ -546,9 +542,13 @@ app.post('/alexa/login', function(req, res) {
 
 	} else {
 
+		var domain = req.body.domain;
+		var appAuth = _appAuth[domain];
+		console.warn('appAuth: ', appAuth);
+
 	    var config = {
-	      client_id: appId,
-	      client_secret: appSecret,
+	      client_id: appAuth.appId,
+	      client_secret: appAuth.appSecret,
 	      grant_type: 'password',
 	      username: req.body.username,
 	      password: req.body.password
@@ -964,56 +964,6 @@ app.get('/feed/insights.json', function(req, res) {
 	];
 
 	res.send(content);
-});
-
-/*
- * Apex callout test
- */
-
-app.post('/apexstep', function(req, res) {
-	console.warn("apexstep");
-    console.warn("req.params: ", req.params);
-    console.warn("req.body: ", req.body);
-
-    var body = req.body;
-    var json = JSON.stringify(req.body);
-
-    console.warn("json: ", json);
-
-    var sampleData = 
-	{
-	   "metadata":{
-	      "strings":[
-	         "Name"
-	      ],
-	      "numbers":[
-
-	      ],
-	      "groupings":[
-
-	      ]
-	   },
-	   "data":[
-	      {
-	         "Name":"id"
-	      },
-	      {
-	         "Name":"isdeleted"
-	      },
-	      {
-	         "Name":"masterrecordid"
-	      },
-	      {
-	         "Name":"name"
-	      },
-	      {
-	         "Name":"type"
-	      }
-
-	   ]
-	};
-
-    res.send(sampleData);
 });
 
 
