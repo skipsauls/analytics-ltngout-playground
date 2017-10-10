@@ -194,11 +194,6 @@ app.get('/mock', function(req, res) {
 
 /* NEED A BETTER SECURE STORE FOR MORE THAN DEMOS!!!!! */
 var _authMap = {};
-var _sessionMap = {};
-var _rtokenMap = {};
-
-var _phraseMap = {};
-var _ctokenMap = {};
 
 var daysOfWeek = [
 	"Sunday",
@@ -248,23 +243,6 @@ function handleWsConnection(ws, req) {
 	ws.on('message', function incoming(message) {
     	console.log('received: %s', message, typeof message);
     	var obj = JSON.parse(message);
-    	if (obj.cmd) {
-    		var cmd = obj.cmd.toLowerCase();
-    		console.warn('cmd: ', cmd);
-    		if (cmd === 'init') {
-    			var phraseId = obj.phraseId;
-    			console.warn('phraseId: ', phraseId);
-    			var phrase = _phraseMap[phraseId];
-    			console.warn('phrase: ', phrase);
-    			//var _rtoken = _rtokenMap[rtokenId];
-    			//console.warn('_rtoken: ', _rtoken);
-    			//var _srtoken = _sessionMap[_rtoken.uuid];
-    			//console.warn('session _rtoken: ', _srtoken);
-    		} else if (cmd === '') {
-
-    		}
-    	}
-
     	if (obj.msg && obj.msg.toLowerCase() === 'ping') {
     		ret = {msg: 'pong'};
     		ws.send(JSON.stringify(ret));
@@ -275,170 +253,14 @@ function handleWsConnection(ws, req) {
   	ws.send(JSON.stringify(ret));
 };	
 
-/*
-	Flow
-
-	1. User logs into the Authenticator
-	2. User says "Alexa Connect Salesforce"
-	3. Alexa generates and displays a phrase such as "Blue Monday 1234"
-	4. Alexa sends the phrase to Heroku
-	5. Heroku generates and stores a phrase such as "Red Tuesday 5678" 
-	6. User is asked to enter the phrase from Alexa
-	7. If correct phrase is entered, return phrase is dispalyed on Authenicator screen
-	8. User is instructed to say "Alexa, the phrase is Red Tuesday 5678"
-	9. Alexa sends phrase to Heroku to verify
-	10. If correct, Heroku verifies and sends back access token
-	11. Access token is used to make subsequent SFDC calls
-
-
-*/
-
-/* 
- * Called by Alexa to start the conversation
- * Generates a phrase and returns it
- * Alexa asks the user to say the phrase for verification
- */
-app.get('/alexa/init', function(req, res) {
-	console.warn('/alexa/init req.query: ', req.query);
-
-	var expires = 30000;
-
-	var _phrase = {
-		phrase: generatePassphrase(),
-		timeout: Date.now() + expires,
-		expires: expires,
-		id: uuidv4()
-	};	
-
-
-	// FOR TESTING ONLY
-	_phrase.phrase = ['One', 'Two', '1'];
-
-	console.warn('generated phrase: ', _phrase.phrase);
-	var id = uuidv4();
-
-	// FOR TESTING ONLY
-	id = '1234';
-
-	_phrase.id = id;
-
-	console.warn('phrase id: ', _phrase.id);
-
-
-	_phraseMap[id] = _phrase;
-
-
-	ctoken = uuidv4();
-
-	// FOR TESTING ONLY
-	ctoken = '5555';
-
-	_ctokenMap[ctoken] = true;
-
-	res.send({status: 'success', msg: 'Please say the phrase displayed on the Authenicator app.', ctoken: ctoken});
-
-
-	//res.send({phrase: _phrase.phrase, id: id});
-});
-
-/* 
- * Called by Alexa to verify the connect phrase
- */
-/* REMOVE
-app.get('/alexa/verify', function(req, res) {
-	console.warn('/alexa/verify req.query: ', req.query);
-
-	if (req.query.phrase && req.query.id) {
-		var phrase = req.query.phrase.replace(/\ /g, '_').toLowerCase();
-		console.warn('phrase: ', phrase);
-		var _phrase = _phraseMap[req.query.id];
-		console.warn('_phrase: ', _phrase);
-		var matchPhrase = _phrase.phrase.join('_').toLowerCase();
-		console.warn('matchPhrase: ', matchPhrase);
-		if (matchPhrase === phrase) {
-			console.warn('phrase match');
-			ctoken = uuidv4();
-
-			// FOR TESTING ONLY
-			ctoken = '5555';
-
-			_ctokenMap[ctoken] = true;
-
-
-			res.send({status: 'success', msg: 'Please say the phrase displayed on the Authenicator app.', ctoken: ctoken});
-		} else {
-			console.warn('Phrase does not match');	
-			res.send({err: 'Phrase does not match'});
-		}
-	} else {
-		res.send({err: 'Invalid request'});
-	}
-});
-*/
-
-/* 
- * Called by Alexa to verify the connect phrase
- */
-app.get('/alexa/connect', function(req, res) {
-	console.warn('/alexa/connect req.query: ', req.query);
-
-	if (req.query.phrase && req.query.ctoken) {
-		if (_ctokenMap[req.query.ctoken] !== true) {
-			res.send({err: 'Invalid token'});
-		} else {
-
-			var phrase = req.query.phrase.replace(/\ /g, '_').toLowerCase();
-			console.warn('phrase: ', phrase);
-
-			var _phrase = null;
-			var matchPhrase = null;
-			var auth = null;
-			for (var id in _phraseMap) {
-				console.warn('********************** id: ', id);
-				_phrase = _phraseMap[id];
-				console.warn('id: ', id, ' ----------------- _phrase: ', _phrase);
-				console.warn('_phrase.phrase: ', _phrase.phrase, typeof _phrase.phrase);
-				matchPhrase = _phrase.phrase.join('_').toLowerCase();
-				console.warn('matchPhrase: ', matchPhrase);
-
-				if (phrase === matchPhrase) {
-
-					console.warn('MATCH!!!!!!');
-
-					// Create and store the auth
-					auth = {
-						connected: true,
-						token: uuidv4(),
-						oauthResult: req.session.oauthResult
-					};
-					_authMap[auth.token] = auth;
-				}
-			}
-
-			if (auth !== null) {
-				res.send({msg: 'Connected', token: auth.token});				
-			} else {
-				res.send({err: 'Phrase does not match'});
-			}
-		}
-	} else {
-		res.send({err: 'Invalid request'});
-	}
-});
-
-/*
 app.get('/alexa/phrase', function(req, res) {
 	req.session.uuid = req.session.uuid || uuidv4();
 	if (req.query.phrase) {
 		var phrase = req.query.phrase;
-		console.warn('phrase from Alexa: ', phrase);
-		var msg = {cmd: 'prompt_user'};
-		ws.send(JSON.stringify(msg));
+		console.warn('alexa connect phrase: ', phrase);
 	}
-	res.send({msg: 'success'});
 
 });
-*/
 
 app.get('/alexa/auth', function(req, res) {
 	//var domain = req.session.origin.replace(/^https?\:\/\//i, "");
@@ -449,80 +271,62 @@ app.get('/alexa/auth', function(req, res) {
 	var expires = 30000;
 
 	if (req.session.oauthResult) {
-
 		req.session.phrase = {
-			phrase: generatePassphrase(),
+			phrase: generatePassphrase(), //randomWords(2),
 			timeout: Date.now() + expires,
-			expires: expires,
-			id: uuidv4()
+			expires: expires
 		};
-
-		// FOR TESTING ONLY
-		req.session.phrase.phrase = ['Foo', 'Bar', '5678'];
-
-		req.session.phrase.id = '5678';
-
-		//req.session.phrase = null; // FOR TESTING CHANGES
-
 		console.warn('req.session.phrase: ', req.session.phrase);
-
-		_phraseMap[req.session.phrase.id] = req.session.phrase;
-
-/*
-		var keyPhrase = req.session.phrase && req.session.phrase.phrase ? req.session.phrase.phrase.join('_').toLowerCase() : null;
+		var keyPhrase = req.session.phrase.phrase.join('_').toLowerCase();
 
 		var auth = _authMap[keyPhrase];
+		//var auth = req.session.auth;
+		//console.warn('auth: ', auth);
 		if (auth && auth.connected === true) {
 			console.warn('connected!!!');
+			/*
+			req.session.auth = {
+				oauthResult: req.session.oauthResult,
+				phrase: req.session.phrase,
+				connected: true
+			};
+			*/
 			_authMap[keyPhrase] = {
 				oauthResult: req.session.oauthResult,
 				phrase: req.session.phrase,
 				connected: true
 			};			
 		} else {
+			/*
+			req.session.auth = {
+				oauthResult: req.session.oauthResult,
+				phrase: req.session.phrase,
+				connected: false
+			};
+			*/
 			_authMap[keyPhrase] = {
 				oauthResult: req.session.oauthResult,
 				phrase: req.session.phrase,
 				connected: false
 			};
 		}
-*/
-
-/*
-		var n = Date.now();
-
-		// Generate new token if refresh is less than 5 seconds (make configurable?)
-		if (req.session.rtoken && req.session.rtoken.timeout > (Date.now() + 5000)) {
-
-		} else {
-			req.session.rtoken = {
-				id: uuidv4(),
-				timeout: Date.now() + expires,
-				expires: expires
-			};
-		}
-*/
-/*
-		_rtokenMap[req.session.rtoken.id] = {
-			rtoken: req.session.rtoken,
-			uuid: req.session.uuid
-		}
-*/
-
 	} else {
 		req.session.phrase = null;
-		//req.session.rtoken = null;
 	}
 
 	console.warn('phrase: ', req.session.phrase);
-	//console.warn('rtoken: ', req.session.rtoken);
 
 	var oauthResult = req.session.oauthResult || {};
 
+	req.session.rtoken = {
+		id: uuidv4(),
+		timeout: Date.now() + expires,
+		expires: expires
+	};
 
     res.render('pages/alexaauth', {
     	title: 'Authenticator',
-    	//rtoken: req.session.rtoken,
+    	rtoken: req.session.rtoken,
 		oauthResult: JSON.stringify(oauthResult, null, 4),
     	sandbox: req.session.sandbox || null,
     	phrase: req.session.phrase,
@@ -572,7 +376,6 @@ app.post('/alexa/login', function(req, res) {
 	}
 });
 
-/* OLD CONNECT - REMOVE
 app.get('/alexa/connect', function(req, res) {
 	console.warn('---------------------------> /alexa/connect req.query: ', req.query);
 	var header = null;
@@ -625,7 +428,6 @@ app.get('/alexa/connect', function(req, res) {
 	console.warn('sending token - _auth: ', _auth);
 	res.send({token: _auth ? _auth.token : null});
 });
-*/
 
 /*
 	NOTES

@@ -83,13 +83,10 @@
       </div>
     </header>
     <section class="main-content">
-      <div>
-        <button class="slds-button slds-button_neutral" onclick="testWs();">Test WS</button>
-        <h3 id="msg"></h3>
-      </div>
       <div class="slds-align_absolute-center slds-m-around--small">
+        <button class="slds-button slds-button_neutral" onclick="testWs();">Test WS</button>
         <div id="phrase_container" class="hide">
-          <div class="slds-text-heading_large" id="phrase">
+          <div class="slds-text-heading_large">
               <%= phrase1 %>&nbsp;<%= phrase2 %>&nbsp;<%= phrase3 %>
           </div>
           <div class="progress-circle">
@@ -177,60 +174,17 @@
 
         var _sandbox = <%= JSON.stringify(sandbox) %> || false;;      
         var _phrase = <%- JSON.stringify(phrase) %> || null;
+        var _rtoken = <%- JSON.stringify(rtoken) %> || null;
 
         console.warn("_phrase: ", _phrase);
         console.warn("_sandbox: ", _sandbox);
-        
-        var msg = document.querySelector("#msg");
-
+        console.warn("_rtoken: ", _rtoken);
+      
         var button = document.querySelector("#login_button");
         var loginForm = document.querySelector("#login_form");
         var phraseContainer = document.querySelector("#phrase_container");
 
         if (_phrase) {
-          
-          //msg.innerHTML = _rtoken.id;
-
-          button.value = "Logout";
-          animateTimer(_phrase.timeout, _phrase.expires);
-          loginForm.classList.add("hide");
-          phraseContainer.classList.remove("hide");
-
-          if (location.hostname.indexOf('localhost') >= 0) {
-            connection = new WebSocket('ws://localhost:3000/echo');
-          } else {
-            connection = new WebSocket('wss://' + location.host + '/echo');
-          }
-
-          //var connection = new WebSocket('ws://localhost:3000/echo');
-
-          connection.onopen = function () {
-            connection.send(JSON.stringify({cmd: 'init', phraseId: _phrase.id}));
-          };
-
-          // Log errors
-          connection.onerror = function (error) {
-            console.log('WebSocket Error ' + error);
-          };
-
-          // Log messages from the server
-          connection.onmessage = function (e) {
-            console.log('Server: ' + e.data);
-
-          };
-
-
-        } else {
-          msg.innerHTML = 'NO TOKEN';
-
-          button.value = "Login";
-          loginForm.classList.remove("hide");
-          phraseContainer.classList.add("hide");
-        }
-        button.classList.remove("hide");
-
-/*
-        if (_phrase) {
           button.value = "Logout";
           animateTimer(_phrase.timeout, _phrase.expires);
           loginForm.classList.add("hide");
@@ -241,8 +195,29 @@
           phraseContainer.classList.add("hide");
         }
         button.classList.remove("hide");
-*/
 
+
+        if (location.hostname.indexOf('localhost') >= 0) {
+          connection = new WebSocket('ws://localhost:3000/echo');
+        } else {
+          connection = new WebSocket('wss://' + location.host + '/echo');
+        }
+
+        //var connection = new WebSocket('ws://localhost:3000/echo');
+
+        connection.onopen = function () {
+          connection.send(JSON.stringify({msg: 'init', rtoken: _rtoken.id}));
+        };
+
+        // Log errors
+        connection.onerror = function (error) {
+          console.log('WebSocket Error ' + error);
+        };
+
+        // Log messages from the server
+        connection.onmessage = function (e) {
+          console.log('Server: ' + e.data);
+        };
       }());
 
       function sendMessage(msg) {
