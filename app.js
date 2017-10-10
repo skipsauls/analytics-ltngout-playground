@@ -904,7 +904,7 @@ var _recommendations = {
  */
 function createAlexaListItemFromStoryCard(card) {
 	var item = {};
-	var thumbnailUrl = 'https://analytics-ltngout-playground/assets/images/einstein_160x160.png';
+	var thumbnailUrl = 'https://analytics-ltngout-playground.herokuapp.com/assets/images/einstein_160x160.png';
 	item.token = card.id;
 	item.image = {
 		contentDescription: card.narrativeTitle,
