@@ -409,7 +409,7 @@ app.get('/alexa/connect', function(req, res) {
 					auth = {
 						connected: true,
 						token: uuidv4(),
-						oauthResult: req.session.oauthResult
+						oauthResult: _phrase.oauthResult //req.session.oauthResult
 					};
 					_authMap[auth.token] = auth;
 				}
@@ -454,7 +454,8 @@ app.get('/alexa/auth', function(req, res) {
 			phrase: generatePassphrase(),
 			timeout: Date.now() + expires,
 			expires: expires,
-			id: uuidv4()
+			id: uuidv4(),
+			oauthResult: req.session.oauthResult
 		};
 
 		// FOR TESTING ONLY
