@@ -719,29 +719,28 @@ const _prune = true;
 app.get('/einstein/analytics/list', function(req, res) {
 	console.warn('/einstein/analytics/list req.query: ', req.query);
 
-	//var auth = req.session.auth;
-	//if (auth && req.query.type && req.query.token) {
+	console.warn('req.query.type: ', req.query.type);
+	console.warn('req.query.token: ', req.query.token);
+
+	if (req.query.type && req.query.token) {
 	
-		if (auth.token === req.query.token) {
+		//if (auth.token === req.query.token) {
 			var token = req.query.token;
 			console.warn('token: ', token);
 
-			/*
-			for (var a in _authMap) {
-				console.warn('authMap[' + a + ']: ', auth);
-			}
-			*/
-
-			//var auth = _authMap[token];
+			var auth = _authMap[token];
 
 			console.warn('auth: ', auth);
 			if (auth !== null && typeof auth !== "undefined") {
 
 				var type = req.query.type;
+				type = type.toLowerCase();
+				console.warn('type: ', type);
 
 				type = isPlural(type) ? type : pluralMap[type];
+				console.warn('type: ', type);
 
-				var url = auth.oauthResult.instanceURL + '/services/data/v41.0/wave/' + type.toLowerCase();
+				var url = auth.oauthResult.instanceURL + '/services/data/v41.0/wave/' + type;
 
 				console.warn('auth.oauthResult.accessToken: ', auth.oauthResult.accessToken);
 				console.warn('url: ', url);
@@ -810,10 +809,10 @@ app.get('/einstein/analytics/list', function(req, res) {
 			} else {
 				res.send({err: 'Not Authorized'});
 			}
-		} else {
-			res.send({err: 'No access token'});
-		}
-	//}
+		//} else {
+		//	res.send({err: 'No access token'});
+	//	}
+	}
 });
 
 
