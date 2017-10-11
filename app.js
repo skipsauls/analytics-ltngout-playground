@@ -969,8 +969,8 @@ function transformProjectsForAlexa(req, res, projects) {
                         }
                       ]
                     },
-                  title: 'Einstein Discovery Stories',
-                  listItems: listItems
+                  	title: 'Einstein Discovery Stories',
+                  	listItems: listItems
                 }
             },
             {
@@ -990,13 +990,86 @@ function transformProjectsForAlexa(req, res, projects) {
 
 }
 
-app.get('/einstein/discovery/stories/:id?', function(req, res) {
+function transformStoryCardForAlexa(req, res, card) {
+	var tcard =  {};
+
+	var shouldEndSession = false;
+
+	var thumbnailUrl = 'https://analytics-ltngout-playground.herokuapp.com/assets/images/einstein_discovery_test_340x340.png';
+
+    let cardDef =  {
+        outputSpeech: {
+            type: 'PlainText',
+            text: card.name,
+        },
+        card: {
+            type: 'Simple',
+            title: card.name,
+            content: card.narrativeTitle,
+        },
+        reprompt: {
+            outputSpeech: {
+                type: 'PlainText',
+                text: 'Try asking what Einstein Analytics can tell you about.',
+            },
+        },
+        directives: [
+            {
+                type: "Display.RenderTemplate",
+                template: {
+                    type: "BodyTemplate2",
+                    token: card.id,
+                    backButton: "VISIBLE",
+                    backgroundImage: {
+                      	contentDescription: 'Salesforce Trailhead Hero Background',
+                      	sources: [
+                        	{
+                          		url: 'https://developer.salesforce.com/resources2/force_com-resources/force_com-hero-bg.png'
+                        	}
+                      	]
+                    },
+                    image: {
+						contentDescription: card.name,
+						sources: [
+						    {
+						        url: thumbnailUrl,
+						        size: "X_SMALL",
+						        widthPixels: 340,
+						        heightPixels: 340
+						    }
+						]
+					},
+					title: card.name
+                }
+            },
+            {
+                type: "Hint",
+                hint: {
+                    type: "PlainText",
+                    text: "Show What Changed Over Time"
+                }
+            }
+        ],        
+        shouldEndSession: shouldEndSession
+    };
+	
+    tcard.cardDef = cardDef;
+
+	res.send({card: tcard});
+
+}
+
+app.get('/einstein/discovery/stories/:id?/:cardId?', function(req, res) {
 	console.warn('/einstein/discovery/stories');
 	
 	var id = req.params.id;
     console.warn('id: ', id);
+	var cardId = req.params.id;
+    console.warn('cardId: ', cardId);
     var name = req.query.name;
     console.warn('name: ', name);
+    var cardName = req.query.card;
+    console.warn('cardName: ', cardName);
 	var transform = req.query.transform;	
     console.warn('transform: ', transform);
 
@@ -1014,16 +1087,38 @@ app.get('/einstein/discovery/stories/:id?', function(req, res) {
     } else if (name !== null && typeof name !== 'undefined') {
     	for (var key in _stories) {
     		story = _stories[key];
-    		if (story.name === name) {
+    		if (story.storyTree.card.name.toLowerCase() === name.toLowerCase()) {
     			break;
     		}
     	}
     	if (story !== null && typeof story !== 'undefined') {
-    		if (transform === 'alexa') {
-    			transformStoryForAlexa(req, res, story);
+
+    		if (cardName !== null && typeof cardName !== 'undefined') {
+    			var child = null;
+    			for (var i = 0; i < story.storyTree.children.length; i++) {
+    				child = story.storyTree.children[i];
+    				if (child.card.name === cardName) {
+    					break;
+    				}
+    			}
+
+    			if (child !== null && typeof child !== 'undefined') {
+		    		if (transform === 'alexa') {
+		    			transformStoryCardForAlexa(req, res, child.card);
+		    		} else {
+			    		res.send({card: child.card});
+		    		}    			
+    			} else {
+    				res.send({msg: "Card " + cardName + " not found."});
+    			}
     		} else {
-	    		res.send({story: story});
+	    		if (transform === 'alexa') {
+	    			transformStoryForAlexa(req, res, story);
+	    		} else {
+		    		res.send({story: story});
+	    		}    			
     		}
+
     	} else {
     		res.send({msg: "Story " + name + " not found."});
     	}
