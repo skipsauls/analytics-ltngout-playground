@@ -892,6 +892,7 @@ function createAlexaListItemFromProject(project) {
 
 	var thumbnailUrl = 'https://analytics-ltngout-playground.herokuapp.com/assets/images/einstein_discovery_test_340x340.png';
 
+
 	item.token = '' + project.storyId;
 	item.image = {
 		contentDescription: project.name,
