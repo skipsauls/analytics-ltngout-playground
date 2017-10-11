@@ -911,11 +911,11 @@ function createAlexaListItemFromProject(project) {
 			type: 'RichText'
 		},
 		secondaryText: {
-			text: createAlexaSizedText('Outcome: ' + project.outcome, 2),
+			text: createAlexaSizedText('Created: ' +  new Date(project.creation).toLocaleString(), 2),
 			type: 'RichText'
 		},
 		tertiaryText: {			
-			text: createAlexaSizedText('Dataset: ' + project.datasetName, 2),
+			text: createAlexaSizedText('Dataset: ' + project.datasetName + '<br/>' + 'Outcome: ' + project.outcome, 2),
 			type: 'RichText'
 		}
 	};
