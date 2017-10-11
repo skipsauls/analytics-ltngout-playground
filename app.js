@@ -726,7 +726,7 @@ function createAlexaSizedText(text, size) {
 }
 
 function createAlexaBoldText(text) {
-	return '<b>;' + text + '</b>';
+	return '<b>' + text + '</b>';
 }
 
 function createAlexaItalicText(text) {
