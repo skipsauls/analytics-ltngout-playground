@@ -272,7 +272,7 @@ function handleWsConnection(ws, req) {
  */
 app.get('/alexa/init', function(req, res) {
 	console.warn('/alexa/init req.query: ', req.query);
-/*
+
 	var expires = 30000;
 
 	var _phrase = {
@@ -299,7 +299,7 @@ app.get('/alexa/init', function(req, res) {
 
 	_phraseMap[id] = _phrase;
 
-*/
+
 	var ctoken = uuidv4();
 
 	// FOR TESTING ONLY
@@ -320,10 +320,7 @@ app.get('/alexa/connect', function(req, res) {
 	console.warn('/alexa/connect req.query: ', req.query);
 
 	if (req.query.phrase && req.query.ctoken) {
-		if (_ctokenMap[req.query.ctoken] !== true) {
-			res.send({err: 'Invalid token'});
-		} else {
-
+		if (req.query.token !== 'SUPER_SECRET_SHHHHHH_8675309' || _ctokenMap[req.query.ctoken] !== true) {
 			var phrase = req.query.phrase.replace(/\ /g, '_').toLowerCase();
 			console.warn('phrase: ', phrase);
 
@@ -357,6 +354,8 @@ app.get('/alexa/connect', function(req, res) {
 			} else {
 				res.send({err: 'Phrase does not match'});
 			}
+		} else {
+			res.send({err: 'Invalid token'});			
 		}
 	} else {
 		res.send({err: 'Invalid request'});
