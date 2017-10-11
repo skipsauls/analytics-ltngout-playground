@@ -907,15 +907,15 @@ function createAlexaListItemFromProject(project) {
 	};
 	item.textContent = {
 		primaryText: {
-			text: project.name,
+			text: createAlexaSizedText(createAlexaBoldText(project.name), 3),
 			type: 'RichText'
 		},
 		secondaryText: {
-			text: 'Outcome: ' + project.outcome,
+			text: createAlexaSizedText('Outcome: ' + project.outcome, 2),
 			type: 'RichText'
 		},
 		tertiaryText: {			
-			text: 'Dataset: ' + project.datasetName,
+			text: createAlexaSizedText('Dataset: ' + project.datasetName, 2),
 			type: 'RichText'
 		}
 	};
@@ -956,7 +956,7 @@ function transformProjectsForAlexa(req, res, projects) {
             {
                 type: "Display.RenderTemplate",
                 template: {
-                    type: "ListTemplate2",
+                    type: "ListTemplate1",
                     token: 'STORIES',
                     backButton: "VISIBLE",
                     backgroundImage: {
