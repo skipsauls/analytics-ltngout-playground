@@ -911,13 +911,15 @@ function createAlexaListItemFromProject(project) {
 			type: 'RichText'
 		},
 		secondaryText: {
-			text: createAlexaSizedText('Created: ' +  new Date(project.creation).toLocaleString(), 2),
+			text: createAlexaSizedText('Created: ' +  new Date(project.creation).toLocaleDateString(), 2),
 			type: 'RichText'
-		},
+		}
+		/*,
 		tertiaryText: {			
 			text: createAlexaSizedText('Dataset: ' + project.datasetName + '<br/>' + 'Outcome: ' + project.outcome, 2),
 			type: 'RichText'
 		}
+		*/
 	};
 
 	return item;
@@ -956,7 +958,7 @@ function transformProjectsForAlexa(req, res, projects) {
             {
                 type: "Display.RenderTemplate",
                 template: {
-                    type: "ListTemplate1",
+                    type: "ListTemplate2",
                     token: 'STORIES',
                     backButton: "VISIBLE",
                     backgroundImage: {
