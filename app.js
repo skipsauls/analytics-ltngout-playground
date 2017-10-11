@@ -907,7 +907,7 @@ function createAlexaListItemFromProject(project) {
 	};
 	item.textContent = {
 		primaryText: {
-\			text: project.name,
+			text: project.name,
 			type: 'RichText'
 		},
 		secondaryText: {
