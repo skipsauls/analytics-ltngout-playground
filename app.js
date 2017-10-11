@@ -755,11 +755,11 @@ function createAlexaListItemFromStoryCard(card) {
 	item.textContent = {
 		primaryText: {
 			text: createAlexaBoldText(card.name),
-			type: 'PlainText'
+			type: 'RichText'
 		},
 		secondaryText: {
 			text: createAlexaItalicText(card.narrativeTitle),
-			type: 'PlainText'
+			type: 'RichText'
 		}
 	};
 
