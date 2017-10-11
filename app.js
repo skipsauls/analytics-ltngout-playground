@@ -997,6 +997,7 @@ function transformStoryCardForAlexa(req, res, card) {
 
 	var thumbnailUrl = 'https://analytics-ltngout-playground.herokuapp.com/assets/images/einstein_discovery_test_340x340.png';
 
+	// The unclosed <br> seems to cause problems on Alexa
 	var narrative = card.narrative.replace(/\<br\>/g, '<br/>');
 
     let cardDef =  {
@@ -1044,7 +1045,7 @@ function transformStoryCardForAlexa(req, res, card) {
 					title: card.name,
 					textContent: {
 						primaryText: {
-							text: createAlexaSizedText(createAlexaBoldText(card.name), 5),
+							text: createAlexaSizedText(createAlexaBoldText(card.name), 3),
 							type: 'RichText'
 						},
 						secondaryText: {
