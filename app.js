@@ -911,8 +911,8 @@ function createAlexaListItemFromProject(project) {
 			type: 'RichText'
 		},
 		secondaryText: {
-			//text: createAlexaSizedText(new Date(project.creation).toLocaleString(), 2),
-			text: project.creation,
+			text: createAlexaSizedText(new Date(project.creation).toLocaleString(), 2),
+			//text: project.creation,
 			type: 'RichText'
 		},
 		tertiaryText: {			
