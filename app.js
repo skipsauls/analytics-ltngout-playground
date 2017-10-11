@@ -319,7 +319,7 @@ app.get('/alexa/init', function(req, res) {
 app.get('/alexa/connect', function(req, res) {
 	console.warn('/alexa/connect req.query: ', req.query);
 
-	if (req.query.phrase && req.query.ctoken) {
+	if (req.query.phrase && req.query.token) {
 		if (req.query.token !== 'SUPER_SECRET_SHHHHHH_8675309' || _ctokenMap[req.query.ctoken] !== true) {
 			var phrase = req.query.phrase.replace(/\ /g, '_').toLowerCase();
 			console.warn('phrase: ', phrase);
@@ -544,96 +544,95 @@ app.get('/einstein/analytics/list', function(req, res) {
 	console.warn('req.query.type: ', req.query.type);
 	console.warn('req.query.token: ', req.query.token);
 
-	if (req.query.type && req.query.token) {
+	if (req.query.type === null || typeof req.query.type === 'undefined') {
+		res.send({err: "Type must be specified"});
+	} else if (req.query.token === null || typeof req.query.token === 'undefined') {
+		res.send({err: "No access token"});		
+	} else {
 	
-		//if (auth.token === req.query.token) {
-			var token = req.query.token;
-			console.warn('token: ', token);
+		var token = req.query.token;
+		console.warn('token: ', token);
 
-			var auth = _authMap[token];
+		var auth = _authMap[token];
 
-			console.warn('auth: ', auth);
-			if (auth !== null && typeof auth !== "undefined") {
+		console.warn('auth: ', auth);
+		if (auth !== null && typeof auth !== "undefined") {
 
-				var type = req.query.type;
-				type = type.toLowerCase();
-				console.warn('type: ', type);
+			var type = req.query.type;
+			type = type.toLowerCase();
+			console.warn('type: ', type);
 
-				type = isPlural(type) ? type : pluralMap[type];
-				console.warn('type: ', type);
+			type = isPlural(type) ? type : pluralMap[type];
+			console.warn('type: ', type);
 
-				var url = auth.oauthResult.instanceURL + '/services/data/v41.0/wave/' + type;
+			var url = auth.oauthResult.instanceURL + '/services/data/v41.0/wave/' + type;
 
-				console.warn('auth.oauthResult.accessToken: ', auth.oauthResult.accessToken);
-				console.warn('url: ', url);
+			console.warn('auth.oauthResult.accessToken: ', auth.oauthResult.accessToken);
+			console.warn('url: ', url);
 
-				request({
-					url: url,
-					headers: {
-						'Authorization': 'Bearer ' + auth.oauthResult.accessToken,
-						'Content-Type': 'application/json'
+			request({
+				url: url,
+				headers: {
+					'Authorization': 'Bearer ' + auth.oauthResult.accessToken,
+					'Content-Type': 'application/json'
+				}
+			}, function(error, response, body) {
+				if (error) {
+					console.error('error: ', error);
+					res.send({error: error});
+				} else {
+					console.log('body: ', body);
+					var obj = JSON.parse(body);
+					if (obj.errorCode = 'INVALID_SESSION_ID') {
+
 					}
-				}, function(error, response, body) {
-					if (error) {
-						console.error('error: ', error);
-						res.send({error: error});
-					} else {
-						console.log('body: ', body);
-						var obj = JSON.parse(body);
-						if (obj.errorCode = 'INVALID_SESSION_ID') {
 
-						}
+					var obj2 = {};
+					obj2[type] = [];
+					asset2 = null;
+					if (obj[type]) {
+						obj[type].forEach(function(asset) {
+							console.warn('asset: ', asset);
 
-						var obj2 = {};
-						obj2[type] = [];
-						asset2 = null;
-						if (obj[type]) {
-							obj[type].forEach(function(asset) {
-								console.warn('asset: ', asset);
+							if (asset.icon && asset.icon.url) {
+								asset.thumbnailUrl = fullUrl(req, asset.icon.url);
+							} else {
 
-								if (asset.icon && asset.icon.url) {
-									asset.thumbnailUrl = fullUrl(req, asset.icon.url);
-								} else {
+								// Call without callback
+								_getImages(auth, asset);
 
-									// Call without callback
-									_getImages(auth, asset);
+								// Set the thumbnailUrl to point to the service
+								asset.thumbnailUrl = fullUrl(req, '/einstein/analytics/thumb/' + asset.type + '/' + asset.id);
+							}
 
-									// Set the thumbnailUrl to point to the service
-									asset.thumbnailUrl = fullUrl(req, '/einstein/analytics/thumb/' + asset.type + '/' + asset.id);
-								}
-
-								if (_prune === false) {
-									asset2 = asset;
-								} else {
-									asset2 = {
-										id: asset.id,
-										name: asset.name,
-										namespace: asset.namespace,
-										label: asset.label,
-										type: asset.type,
-										thumbnailUrl: asset.thumbnailUrl,
-										assetSharingUrl: asset.assetSharingUrl,
-										createdBy: asset.createdBy.name,
-										createdDate: asset.createdDate,
-										lastModifiedBy: asset.lastModifiedBy.name,
-										lastModifiedDate: asset.lastModifiedDate
-									};
-								}
-								
-								obj2[type].push(asset2);
-							});
-						}
-
-						//var json = JSON.stringify(obj2);
-						res.send(obj2); //json);
+							if (_prune === false) {
+								asset2 = asset;
+							} else {
+								asset2 = {
+									id: asset.id,
+									name: asset.name,
+									namespace: asset.namespace,
+									label: asset.label,
+									type: asset.type,
+									thumbnailUrl: asset.thumbnailUrl,
+									assetSharingUrl: asset.assetSharingUrl,
+									createdBy: asset.createdBy.name,
+									createdDate: asset.createdDate,
+									lastModifiedBy: asset.lastModifiedBy.name,
+									lastModifiedDate: asset.lastModifiedDate
+								};
+							}
+							
+							obj2[type].push(asset2);
+						});
 					}
-				});
-			} else {
-				res.send({err: 'Not Authorized'});
-			}
-		//} else {
-		//	res.send({err: 'No access token'});
-	//	}
+
+					res.send(obj2);
+				}
+			});
+		} else {
+			res.send({err: 'Invalid access token'});
+		}
 	}
 });
 
