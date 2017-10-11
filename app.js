@@ -228,9 +228,9 @@ function generatePassphrase() {
 
 /* Websocket handler */
 function handleWsConnection(ws, req) {
-	console.warn('handleWsConnection');
+	//console.warn('handleWsConnection');
   	const location = url.parse(req.url, true);
-  	console.warn('location: ', location);
+  	//console.warn('location: ', location);
   	// You might use location.query.access_token to authenticate or share sessions
   	// or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
 
@@ -239,12 +239,12 @@ function handleWsConnection(ws, req) {
     	var obj = JSON.parse(message);
     	if (obj.cmd) {
     		var cmd = obj.cmd.toLowerCase();
-    		console.warn('cmd: ', cmd);
+    		//console.warn('cmd: ', cmd);
     		if (cmd === 'init') {
     			var phraseId = obj.phraseId;
-    			console.warn('phraseId: ', phraseId);
+    			//console.warn('phraseId: ', phraseId);
     			var phrase = _phraseMap[phraseId];
-    			console.warn('phrase: ', phrase);
+    			//console.warn('phrase: ', phrase);
     			//var _rtoken = _rtokenMap[rtokenId];
     			//console.warn('_rtoken: ', _rtoken);
     			//var _srtoken = _sessionMap[_rtoken.uuid];
@@ -319,8 +319,8 @@ app.get('/alexa/init', function(req, res) {
 app.get('/alexa/connect', function(req, res) {
 	console.warn('/alexa/connect req.query: ', req.query);
 
-	if (req.query.phrase && req.query.token) {
-		if (req.query.token !== 'SUPER_SECRET_SHHHHHH_8675309' || _ctokenMap[req.query.ctoken] !== true) {
+	if (req.query.phrase && req.query.ctoken) {
+		if (req.query.ctoken !== 'SUPER_SECRET_SHHHHHH_8675309' || _ctokenMap[req.query.ctoken] !== true) {
 			var phrase = req.query.phrase.replace(/\ /g, '_').toLowerCase();
 			console.warn('phrase: ', phrase);
 
