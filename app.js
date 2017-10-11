@@ -758,15 +758,15 @@ function createAlexaListItemFromStoryCard(card) {
 	item.textContent = {
 		primaryText: {
 			text: createAlexaSizedText(createAlexaBoldText(card.name), 5),
-			type: 'PlainText'
+			type: 'RichText'
 		},
 		secondaryText: {
 			text: createAlexaSizedText(card.narrativeTitle, 3),
-			type: 'PlainText'
+			type: 'RichText'
 		},
 		tertiaryText: {
 			text: createAlexaSizedText(card.narrative, 2),
-			type: 'PlainText'
+			type: 'RichText'
 		}
 	};
 
