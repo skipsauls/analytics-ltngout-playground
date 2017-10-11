@@ -745,7 +745,7 @@ function createAlexaListItemFromStoryCard(card) {
 	
 	//var thumbnailUrl = 'https://analytics-ltngout-playground.herokuapp.com/assets/images/einstein_160x160.png';
 
-	var thumbnailUrl = 'https://analytics-ltngout-playground.herokuapp.com/assets/images/discovery_test.png';
+	var thumbnailUrl = 'https://analytics-ltngout-playground.herokuapp.com/assets/images/einstein_discovery_test_340x340.png';
 
 	item.token = card.id;
 	item.image = {
