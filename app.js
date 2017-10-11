@@ -721,6 +721,19 @@ var _recommendations = {
 
 */
 
+/* A few text utils */
+function createAlexaBoldText(text) {
+	return '&lt;b&gt;' + text + '&lt;/b&gt;';
+}
+
+function createAlexaItalicText(text) {
+	return '&lt;i&gt;' + text + '&lt;/i&gt;';
+}
+
+function createAlexaUnderlineText(text) {
+	return '&lt;u&gt;' + text + '&lt;/u&gt;';
+}
+
 /*
  * Creates an Alexa list item from a Story card
  */
@@ -741,11 +754,11 @@ function createAlexaListItemFromStoryCard(card) {
 	};
 	item.textContent = {
 		primaryText: {
-			text: '<b>' + card.name + '</b>',
+			text: createAlexaBoldText(card.name),
 			type: 'PlainText'
 		},
 		secondaryText: {
-			text: '<i>' + card.narrativeTitle + '</i>',
+			text: createAlexaItalicText(card.narrativeTitle),
 			type: 'PlainText'
 		}
 	};
