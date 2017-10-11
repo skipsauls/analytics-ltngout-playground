@@ -272,7 +272,7 @@ function handleWsConnection(ws, req) {
  */
 app.get('/alexa/init', function(req, res) {
 	console.warn('/alexa/init req.query: ', req.query);
-
+/*
 	var expires = 30000;
 
 	var _phrase = {
@@ -299,8 +299,8 @@ app.get('/alexa/init', function(req, res) {
 
 	_phraseMap[id] = _phrase;
 
-
-	ctoken = uuidv4();
+*/
+	var ctoken = uuidv4();
 
 	// FOR TESTING ONLY
 	ctoken = '5555';
@@ -625,8 +625,8 @@ app.get('/einstein/analytics/list', function(req, res) {
 							});
 						}
 
-						var json = JSON.stringify(obj2);
-						res.send(json);
+						//var json = JSON.stringify(obj2);
+						res.send(obj2); //json);
 					}
 				});
 			} else {
@@ -778,6 +778,7 @@ function transformStoryForAlexa(req, res, story) {
 	var item = null;
 	for (var i = 0; i < storyTree.children.length; i++) {
 		child = storyTree.children[i];
+		/*
 		console.warn('\n---------------------------------------------------------');
 		console.warn('child.card.id: ', child.card.id);
 		console.warn('card.type: ', child.card.type);
@@ -785,7 +786,7 @@ function transformStoryForAlexa(req, res, story) {
 		console.warn('card.narrativeTitle: ', child.card.narrativeTitle);
 		console.warn('card.narrative: ', child.card.narrative);
 		console.warn('children: ', child.children.length);
-
+		*/
 		item = createAlexaListItemFromStoryCard(child.card);
 		listItems.push(item);
 	}
@@ -812,8 +813,8 @@ function transformStoryForAlexa(req, res, story) {
             {
                 type: "Display.RenderTemplate",
                 template: {
-                    type: "ListTemplate2",
-                    token: "TEST123",
+                    type: "ListTemplate1",
+                    token: rootCard.id,
                     backButton: "VISIBLE",
                     backgroundImage: {
                       contentDescription: 'Salesforce Trailhead Hero Background',
