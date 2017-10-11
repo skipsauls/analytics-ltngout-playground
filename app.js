@@ -264,23 +264,6 @@ function handleWsConnection(ws, req) {
   	ws.send(JSON.stringify(ret));
 };	
 
-/*
-	Flow
-
-	1. User logs into the Authenticator
-	2. User says "Alexa Connect Salesforce"
-	3. Alexa generates and displays a phrase such as "Blue Monday 1234"
-	4. Alexa sends the phrase to Heroku
-	5. Heroku generates and stores a phrase such as "Red Tuesday 5678" 
-	6. User is asked to enter the phrase from Alexa
-	7. If correct phrase is entered, return phrase is dispalyed on Authenicator screen
-	8. User is instructed to say "Alexa, the phrase is Red Tuesday 5678"
-	9. Alexa sends phrase to Heroku to verify
-	10. If correct, Heroku verifies and sends back access token
-	11. Access token is used to make subsequent SFDC calls
-
-
-*/
 
 /* 
  * Called by Alexa to start the conversation
@@ -333,41 +316,6 @@ app.get('/alexa/init', function(req, res) {
 /* 
  * Called by Alexa to verify the connect phrase
  */
-/* REMOVE
-app.get('/alexa/verify', function(req, res) {
-	console.warn('/alexa/verify req.query: ', req.query);
-
-	if (req.query.phrase && req.query.id) {
-		var phrase = req.query.phrase.replace(/\ /g, '_').toLowerCase();
-		console.warn('phrase: ', phrase);
-		var _phrase = _phraseMap[req.query.id];
-		console.warn('_phrase: ', _phrase);
-		var matchPhrase = _phrase.phrase.join('_').toLowerCase();
-		console.warn('matchPhrase: ', matchPhrase);
-		if (matchPhrase === phrase) {
-			console.warn('phrase match');
-			ctoken = uuidv4();
-
-			// FOR TESTING ONLY
-			ctoken = '5555';
-
-			_ctokenMap[ctoken] = true;
-
-
-			res.send({status: 'success', msg: 'Please say the phrase displayed on the Authenicator app.', ctoken: ctoken});
-		} else {
-			console.warn('Phrase does not match');	
-			res.send({err: 'Phrase does not match'});
-		}
-	} else {
-		res.send({err: 'Invalid request'});
-	}
-});
-*/
-
-/* 
- * Called by Alexa to verify the connect phrase
- */
 app.get('/alexa/connect', function(req, res) {
 	console.warn('/alexa/connect req.query: ', req.query);
 
@@ -415,20 +363,6 @@ app.get('/alexa/connect', function(req, res) {
 	}
 });
 
-/*
-app.get('/alexa/phrase', function(req, res) {
-	req.session.uuid = req.session.uuid || uuidv4();
-	if (req.query.phrase) {
-		var phrase = req.query.phrase;
-		console.warn('phrase from Alexa: ', phrase);
-		var msg = {cmd: 'prompt_user'};
-		ws.send(JSON.stringify(msg));
-	}
-	res.send({msg: 'success'});
-
-});
-*/
-
 app.get('/alexa/auth', function(req, res) {
 	//var domain = req.session.origin.replace(/^https?\:\/\//i, "");
 	req.session.uuid = req.session.uuid || uuidv4();
@@ -458,46 +392,6 @@ app.get('/alexa/auth', function(req, res) {
 
 		_phraseMap[req.session.phrase.id] = req.session.phrase;
 
-/*
-		var keyPhrase = req.session.phrase && req.session.phrase.phrase ? req.session.phrase.phrase.join('_').toLowerCase() : null;
-
-		var auth = _authMap[keyPhrase];
-		if (auth && auth.connected === true) {
-			console.warn('connected!!!');
-			_authMap[keyPhrase] = {
-				oauthResult: req.session.oauthResult,
-				phrase: req.session.phrase,
-				connected: true
-			};			
-		} else {
-			_authMap[keyPhrase] = {
-				oauthResult: req.session.oauthResult,
-				phrase: req.session.phrase,
-				connected: false
-			};
-		}
-*/
-
-/*
-		var n = Date.now();
-
-		// Generate new token if refresh is less than 5 seconds (make configurable?)
-		if (req.session.rtoken && req.session.rtoken.timeout > (Date.now() + 5000)) {
-
-		} else {
-			req.session.rtoken = {
-				id: uuidv4(),
-				timeout: Date.now() + expires,
-				expires: expires
-			};
-		}
-*/
-/*
-		_rtokenMap[req.session.rtoken.id] = {
-			rtoken: req.session.rtoken,
-			uuid: req.session.uuid
-		}
-*/
 
 	} else {
 		req.session.phrase = null;
@@ -573,78 +467,6 @@ app.post('/alexa/login', function(req, res) {
 	}
 });
 
-/* OLD CONNECT - REMOVE
-app.get('/alexa/connect', function(req, res) {
-	console.warn('---------------------------> /alexa/connect req.query: ', req.query);
-	var header = null;
-	for (var h in req.headers) {
-		header = req.headers[h];
-		console.warn('header: ', h, header);
-	}
-	var _auth = null;
-	if (req.query.phrase) {
-		var phrase = req.query.phrase;
-		console.warn('alexa connect phrase: ', phrase);
-		phrase = phrase.replace(/\ /g, '_');
-		phrase = phrase.toLowerCase();
-		console.warn('phrase: ', phrase);
-		var matchPhrase = null;
-		//for (var phrase in _authMap) {			
-			auth = _authMap[phrase];
-			//auth = req.session.auth;
-			console.warn('auth: ', auth);
-
-			//}
-			try {
-				matchPhrase = auth.phrase.phrase.join('_').toLowerCase();
-				console.warn('matchPhrase: ', matchPhrase);
-				if (phrase === matchPhrase) {
-					console.warn('matched auth: ', auth);
-					auth.connected = true;
-					auth.token = uuidv4();
-					_auth = auth;
-					_authMap[phrase] = auth;
-					req.session.auth = auth;
-					
-					for (var a in _authMap) {
-						console.warn('authMap[' + a + ']: ', auth);
-					}
-					
-				} else {
-					console.error('no match!!!');
-					res.send({err: 'Phrase does not match.'});
-
-				}
-			} catch (e) {
-				console.error('Exception: ', e);
-				res.send({err: 'Phrase does not match.'});
-			}
-		//}
-	}	
-
-	// Only return the token to the remote client (Alexa)
-	console.warn('sending token - _auth: ', _auth);
-	res.send({token: _auth ? _auth.token : null});
-});
-*/
-
-/*
-	NOTES
-
-	On Alexa handle the "two-factor" auth by having user enter 2 word keyphrase
-	If successful, store the token on Alexa side
-	For each request to an Alexa endpoint, check for the token and validate (client spec, etc.?)
-	Add commands on Heroku to access SFDC resources
-
-	User flow/script:
-
-	User: Alexa, open Einstein Analytics
-	Alexa: Blah blah blah, please visit https://foo.bar to login and get your passphrase
-	User: The passphrase is Foo Bar
-	Alexa: Great, I've connnected to your Salesforce org
-	User: Show my Power Insights...
-
-*/
 
 app.post('/oauth-result', function(req, res) {
     console.warn("req.params: ", req.params);
@@ -919,7 +741,11 @@ function createAlexaListItemFromStoryCard(card) {
 	};
 	item.textContent = {
 		primaryText: {
-			text: card.narrativeTitle,
+			text: '<b>' + card.name + '</b>',
+			type: 'PlainText'
+		},
+		secondaryText: {
+			text: '<i>' + card.narrativeTitle + '</i>',
 			type: 'PlainText'
 		}
 	};
@@ -992,7 +818,7 @@ function transformStoryForAlexa(req, res, story) {
                 type: "Hint",
                 hint: {
                     type: "PlainText",
-                    text: "Analytics list asset name"
+                    text: "Show Einstein Discovery Story id"
                 }
             }
         ],        
