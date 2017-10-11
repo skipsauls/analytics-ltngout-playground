@@ -749,7 +749,7 @@ function createAlexaListItemFromStoryCard(card) {
 
 	item.token = card.id;
 	item.image = {
-		contentDescription: card.narrativeTitle,
+		contentDescription: card.name,
 		sources: [
 		    {
 		        url: thumbnailUrl,
@@ -761,11 +761,11 @@ function createAlexaListItemFromStoryCard(card) {
 	};
 	item.textContent = {
 		primaryText: {
-			text: createAlexaSizedText(createAlexaBoldText(card.name), 5),
+			text: createAlexaSizedText(createAlexaBoldText(card.name), 3),
 			type: 'RichText'
 		},
 		secondaryText: {
-			text: createAlexaSizedText(card.narrativeTitle, 3),
+			text: createAlexaSizedText(card.narrativeTitle, 2),
 			type: 'RichText'
 		}
 		/*
@@ -839,7 +839,7 @@ function transformStoryForAlexa(req, res, story) {
                         }
                       ]
                     },
-                  title: rootCard.name,
+                  title: 'Einstein Discovery Story - ' + rootCard.name,
                   listItems: listItems
                 }
             },
