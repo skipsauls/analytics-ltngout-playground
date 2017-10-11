@@ -7,9 +7,13 @@
     <style>
       .main-content {
         position: absolute;
-        top: 90px;
-        height: calc(100% - 90px);
+        top: 50px;
+        height: calc(100% - 50px);
         width: 100%;
+        background-image: url('/assets/images/einstein_160x160.png');
+        background-repeat: no-repeat;
+        background-position: right bottom;
+        background-color: #F0F0F0;
       }
 
       .form-content {
@@ -83,7 +87,7 @@
       </div>
     </header>
     <section class="main-content">
-      <div>
+      <div class="hide">
         <button class="slds-button slds-button_neutral" onclick="testWs();">Test WS</button>
         <h3 id="msg"></h3>
       </div>
