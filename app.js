@@ -765,7 +765,8 @@ function createAlexaListItemFromStoryCard(card) {
 			type: 'RichText'
 		},
 		tertiaryText: {
-			text: createAlexaSizedText(card.narrative, 2),
+			text: createAlexaSizedText('foo bar', 2),
+			//text: createAlexaSizedText(card.narrative, 2),
 			type: 'RichText'
 		}
 	};
