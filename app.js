@@ -763,12 +763,15 @@ function createAlexaListItemFromStoryCard(card) {
 		secondaryText: {
 			text: createAlexaSizedText(card.narrativeTitle, 3),
 			type: 'RichText'
-		},
-		tertiaryText: {
-			text: createAlexaSizedText('foo bar', 2),
-			//text: createAlexaSizedText(card.narrative, 2),
+		}
+		/*
+		 * NOTE: The narrative text contains formatting characters that need to be filtered/transformed/escaped!
+		,
+		tertiaryText: {			
+			text: createAlexaSizedText(card.narrative, 2),
 			type: 'RichText'
 		}
+		*/
 	};
 
 	return item;
