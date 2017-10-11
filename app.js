@@ -721,8 +721,12 @@ var _recommendations = {
 */
 
 /* A few text utils */
+function createAlexaSizedText(text, size) {
+	return '<font size="' + size + '">' + text + '</font>';
+}
+
 function createAlexaBoldText(text) {
-	return '&lt;b&gt;' + text + '&lt;/b&gt;';
+	return '<b>;' + text + '</b>';
 }
 
 function createAlexaItalicText(text) {
@@ -753,15 +757,15 @@ function createAlexaListItemFromStoryCard(card) {
 	};
 	item.textContent = {
 		primaryText: {
-			text: card.name,
+			text: createAlexaSizedText(createAlexaBoldText(card.name), 5),
 			type: 'PlainText'
 		},
 		secondaryText: {
-			text: card.narrativeTitle,
+			text: createAlexaSizedText(card.narrativeTitle, 3),
 			type: 'PlainText'
 		},
 		tertiaryText: {
-			text: card.narrative,
+			text: createAlexaSizedText(card.narrative, 2),
 			type: 'PlainText'
 		}
 	};
