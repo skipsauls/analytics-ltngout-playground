@@ -1004,7 +1004,7 @@ function transformStoryCardForAlexa(req, res, card) {
         outputSpeech: {
             type: 'PlainText',
             text: card.name,
-        },
+        }, 
         card: {
             type: 'Simple',
             title: card.name,
