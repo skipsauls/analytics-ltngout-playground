@@ -907,18 +907,15 @@ function createAlexaListItemFromProject(project) {
 	};
 	item.textContent = {
 		primaryText: {
-			//text: createAlexaSizedText(createAlexaBoldText(project.name), 3),
-			text: project.name,
+\			text: project.name,
 			type: 'RichText'
 		},
 		secondaryText: {
-			text: createAlexaSizedText(new Date(project.creation).toLocaleString(), 2),
-			//text: project.creation,
+			text: 'Outcome: ' + project.outcome,
 			type: 'RichText'
 		},
 		tertiaryText: {			
-			//text: createAlexaSizedText(project.outcome, 2) +'<br>' + createAlexaSizedText(project.datasetName, 2),
-			text: project.outcome + ' ' + project.datasetName,
+			text: 'Dataset: ' + project.datasetName,
 			type: 'RichText'
 		}
 	};
