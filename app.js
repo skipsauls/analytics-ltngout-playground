@@ -983,7 +983,7 @@ function transformProjectsForAlexa(req, res, projects) {
 	
     tprojects.listDef = listDef;
 
-	res.send({projects: projects});
+	res.send({projects: tprojects});
 
 }
 
