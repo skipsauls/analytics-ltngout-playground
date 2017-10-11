@@ -742,7 +742,11 @@ function createAlexaUnderlineText(text) {
  */
 function createAlexaListItemFromStoryCard(card) {
 	var item = {};
-	var thumbnailUrl = 'https://analytics-ltngout-playground.herokuapp.com/assets/images/einstein_160x160.png';
+	
+	//var thumbnailUrl = 'https://analytics-ltngout-playground.herokuapp.com/assets/images/einstein_160x160.png';
+
+	var thumbnailUrl = 'https://analytics-ltngout-playground.herokuapp.com/assets/images/discovery_test.png';
+
 	item.token = card.id;
 	item.image = {
 		contentDescription: card.narrativeTitle,
@@ -750,8 +754,8 @@ function createAlexaListItemFromStoryCard(card) {
 		    {
 		        url: thumbnailUrl,
 		        size: "X_SMALL",
-		        widthPixels: 160,
-		        heightPixels: 160
+		        widthPixels: 88,
+		        heightPixels: 88
 		    }
 		]
 	};
