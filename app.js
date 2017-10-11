@@ -997,6 +997,8 @@ function transformStoryCardForAlexa(req, res, card) {
 
 	var thumbnailUrl = 'https://analytics-ltngout-playground.herokuapp.com/assets/images/einstein_discovery_test_340x340.png';
 
+	var narrative = card.narrative.replace(/\<br\>/g, '<br/>');
+
     let cardDef =  {
         outputSpeech: {
             type: 'PlainText',
@@ -1039,7 +1041,21 @@ function transformStoryCardForAlexa(req, res, card) {
 						    }
 						]
 					},
-					title: card.name
+					title: card.name,
+					textContent: {
+						primaryText: {
+							text: createAlexaSizedText(createAlexaBoldText(card.name), 5),
+							type: 'RichText'
+						},
+						secondaryText: {
+							text: createAlexaSizedText(card.narrativeTitle, 2),
+							type: 'RichText'
+						},
+						tertiaryText: {			
+							text: createAlexaSizedText(narrative, 2),
+							type: 'RichText'
+						}
+					}
                 }
             },
             {
