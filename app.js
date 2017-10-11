@@ -995,6 +995,8 @@ app.get('/einstein/discovery/stories/:id?', function(req, res) {
 	
 	var id = req.params.id;
     console.warn('id: ', id);
+    var name = req.query.name;
+    console.warn('name: ', name);
 	var transform = req.query.transform;	
     console.warn('transform: ', transform);
 
@@ -1009,6 +1011,23 @@ app.get('/einstein/discovery/stories/:id?', function(req, res) {
     	} else {
     		res.send({msg: "Story " + id + " not found."});
     	}
+    } else if (name !== null && typeof name !== 'undefined') {
+    	for (var key in _stories) {
+    		story = _stories[key];
+    		if (story.name === name) {
+    			break;
+    		}
+    	}
+    	if (story !== null && typeof story !== 'undefined') {
+    		if (transform === 'alexa') {
+    			transformStoryForAlexa(req, res, story);
+    		} else {
+	    		res.send({story: story});
+    		}
+    	} else {
+    		res.send({msg: "Story " + name + " not found."});
+    	}
+
     } else {
     	res.send({stories: _stories});
     }
