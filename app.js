@@ -164,6 +164,10 @@ app.get('/lo_ea', function(req, res) {
     res.render('pages/lo_ea', {title: 'Lightning Out - Einstein Analytics', appId: process.env.APPID});
 });
 
+// iFrame test
+app.get('/iframe', function(req, res) {
+    res.render('pages/iframe', {title: 'Einstein Analytics - iFrame Test', appId: _appAuth['wavepm'].appId});
+});
 
 /*
  * MC test
@@ -264,6 +268,15 @@ function handleWsConnection(ws, req) {
   	ws.send(JSON.stringify(ret));
 };	
 
+/* 
+ * Generic command handler
+ */
+app.get('/sfdc/command', function(req, res) {
+	console.warn('/sfdc/command req.query: ', req.query);
+	var cmd = req.query.cmd;
+
+	res.send({msg: "received command '" + cmd + "'"});
+});
 
 /* 
  * Called by Alexa to start the conversation

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head><title>Einstein Analytics - Lightning Out</title></head>
+  <style>
+    .waveframe {
+      width: 100%;
+      height: 500px;
+      border: 0px none;
+    }
+  </style> 
+  <body>
+    <div id="dashboard"></div>
+    <script src="https://mobile2.t.salesforce.com/lightning/lightning.out.js"></script>
+    <script src="/javascripts/force.all.js"></script>
+    <script>
+      var appId = '<%- appId %>';
+      console.warn('appId: ', appId);
+      var loginURL = "https://login.salesforce.com";
+      var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
+      var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+      oauth.login().then(function(oauthResult) {
+        var url = oauthResult.instanceURL + '/analytics/wave/dashboard?tsid=' + oauthResult.accessToken + '#dashboardId/0FKB00000002OMwOAM';
+        console.warn('url: ', url);
+        var iframe = document.createElement('iframe');
+        iframe.classList.add('waveframe');
+        iframe.src = url;
+        document.querySelector("#dashboard").appendChild(iframe);
+      });
+    </script>
+  </body>
+</html>
