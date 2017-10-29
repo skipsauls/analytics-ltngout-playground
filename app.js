@@ -669,9 +669,9 @@ app.get('/alexa/auth', function(req, res) {
 		};
 
 		// FOR TESTING ONLY
-		req.session.phrase.phrase = ['Foo', 'Bar', '5678'];
+		req.session.phrase.phrase = ['Amazon', 'Reinvent', '2017'];
 
-		req.session.phrase.id = '5678';
+		req.session.phrase.id = '2017';
 
 		//req.session.phrase = null; // FOR TESTING CHANGES
 
