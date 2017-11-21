@@ -1376,7 +1376,7 @@ app.get('/einstein/discovery/stories/:id?/:cardId?', function(req, res) {
 	
 	var storyId = req.params.id;
     console.warn('storyId: ', storyId);
-	var storyIndex = req.params.storyIndex;
+	var storyIndex = req.query.storyIndex;
     console.warn('storyIndex: ', storyIndex);
 	var cardId = req.params.id;
     console.warn('cardId: ', cardId);
