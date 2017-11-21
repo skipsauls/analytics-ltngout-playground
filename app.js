@@ -1404,7 +1404,7 @@ app.get('/einstein/discovery/stories/:id?/:cardId?', function(req, res) {
     	var i = 1;
     	for (var key in _stories) {
     		if (i === storyIndex) {
-    			story = _stories[i]
+    			story = _stories[key]
     		}
     	}    	
     	if (story !== null && typeof story !== 'undefined') {
