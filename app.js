@@ -1382,6 +1382,8 @@ app.get('/einstein/discovery/stories/:id?/:cardId?', function(req, res) {
     console.warn('name: ', name);
     var cardName = req.query.card;
     console.warn('cardName: ', cardName);
+    var cardIndex = req.query.cardIndex;
+    console.warn('cardIndex: ', cardIndex);
 	var transform = req.query.transform;	
     console.warn('transform: ', transform);
 
@@ -1405,7 +1407,20 @@ app.get('/einstein/discovery/stories/:id?/:cardId?', function(req, res) {
     	}
     	if (story !== null && typeof story !== 'undefined') {
 
-    		if (cardName !== null && typeof cardName !== 'undefined') {
+    		if (cardIndex !== null && typeof cardIndex !== 'undefined') {
+    			var child = null;
+    			child = story.storyTree.children[cardIndex];
+
+    			if (child !== null && typeof child !== 'undefined') {
+		    		if (transform === 'alexa') {
+		    			transformStoryCardForAlexa(req, res, child.card);
+		    		} else {
+			    		res.send({card: child.card});
+		    		}    			
+    			} else {
+    				res.send({msg: "Card " + cardIndex + " not found."});
+    			}
+    		} else if (cardName !== null && typeof cardName !== 'undefined') {
     			var child = null;
     			for (var i = 0; i < story.storyTree.children.length; i++) {
     				child = story.storyTree.children[i];
