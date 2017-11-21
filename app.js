@@ -1402,11 +1402,14 @@ app.get('/einstein/discovery/stories/:id?/:cardId?', function(req, res) {
     	}
     } else if (storyIndex !== null && typeof storyIndex !== 'undefined') {
     	var i = 1;
+    	var story = null;
     	for (var key in _stories) {
     		if (i === storyIndex) {
     			story = _stories[key]
     		}
-    	}    	
+    		i++;
+    	}
+    	console.warn('}}}}}}}}}}}}}}}}}}}}}}}}}}}}} story: ', story);
     	if (story !== null && typeof story !== 'undefined') {
     		if (transform === 'alexa') {
     			transformStoryForAlexa(req, res, story);
