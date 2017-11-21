@@ -1374,8 +1374,8 @@ function transformStoryCardForAlexa(req, res, card) {
 app.get('/einstein/discovery/stories/:id?/:cardId?', function(req, res) {
 	console.warn('/einstein/discovery/stories');
 	
-	var id = req.params.id;
-    console.warn('id: ', id);
+	var storyId = req.params.id;
+    console.warn('storyId: ', id);
 	var cardId = req.params.id;
     console.warn('cardId: ', cardId);
     var name = req.query.name;
@@ -1387,8 +1387,8 @@ app.get('/einstein/discovery/stories/:id?/:cardId?', function(req, res) {
 	var transform = req.query.transform;	
     console.warn('transform: ', transform);
 
-    if (id !== null && typeof id !== 'undefined') {
-    	var story = _stories[id];
+    if (storyId !== null && typeof storyId !== 'undefined') {
+    	var story = _stories[storyId];
     	if (story !== null && typeof story !== 'undefined') {
     		if (transform === 'alexa') {
     			transformStoryForAlexa(req, res, story);
@@ -1396,7 +1396,23 @@ app.get('/einstein/discovery/stories/:id?/:cardId?', function(req, res) {
 	    		res.send({story: story});
     		}
     	} else {
-    		res.send({msg: "Story " + id + " not found."});
+    		res.send({msg: "Story " + storyId + " not found."});
+    	}
+    } else if (storyIndex !== null && typeof storyIndex !== 'undefined') {
+    	var i = 1;
+    	for (var key in _stories) {
+    		if (i === storyIndex) {
+    			story = _stories[i]
+    		}
+    	}    	
+    	if (story !== null && typeof story !== 'undefined') {
+    		if (transform === 'alexa') {
+    			transformStoryForAlexa(req, res, story);
+    		} else {
+	    		res.send({story: story});
+    		}
+    	} else {
+    		res.send({msg: "Story " + storyId + " not found."});
     	}
     } else if (name !== null && typeof name !== 'undefined') {
     	for (var key in _stories) {
