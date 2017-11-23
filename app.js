@@ -1608,77 +1608,30 @@ function _getImages(id, type, url, token, token_type, next) {
     opts = options;
     opts.url = url;
 
-    console.warn('calling rest.get for ' + url);
     rest.get(url, options).on('complete', function(result, response) {
     	
-    	console.warn('complete: ', result);
-
         var buffer = new Buffer(result, 'binary');
-        //_imageData[item.id] = buffer;
-        _imageData[type + '_' + id] = buffer;
+        //_imageData[type + '_' + id] = buffer;
 
         if (typeof next === 'function') {
             next(buffer);
         }
     });
 
-
 }
 
-//app.get('/einstein/analytics/thumb/:type/:id', function(req, res) {
 app.get('/einstein/analytics/thumb', function(req, res) {
-	/*
-    var id = req.params.id;
-    console.warn('id: ', id);
-    var type = req.params.type;
-    console.warn('type: ', type);
-    type = type === 'apps' ? 'folders' : type;
-    console.warn('type: ', type);
-    */
     var id = req.query.id;
     var type = req.query.type;
     var url = req.query.url;
     var token = req.query.token;
     var token_type = req.query.token_type;
-
-
-    console.warn('id: ', id);
-    console.warn('type: ', type);
-    console.warn('url: ', url);
-    console.warn('token: ', token);
-    console.warn('token_type: ', token_type);
-
-    var data = _imageData[type + '_' + id];
+    //var data = _imageData[type + '_' + id];
 
     _getImages(id, type, url, token, token_type, function(imageData) {
-
 		_sendImage(req, res, type, imageData);
-
     });
-
-
-	return;
-
-    if (!data) {
-        var options = {id: id};
-        console.warn('calling getAsset: ', type, options);
-        getAsset(req, res, type, options, function(result, response) {
-            if (response.statusCode === 200) {
-                var item = result;
-                getImages(req, res, item, function(imageData) {
-                    _imageData[type + '_' + id] = imageData;
-                    _sendImage(req, res, type, imageData);
-                });
-            } else {
-                console.warn('error for: ', type, options);
-            }
-
-        });
-    } else {
-        sendImage(req, res, type, data);
-    }
 });
-
 
 app.get('/feed/insights.json', function(req, res) {
 	console.warn('feed/insights.json');
