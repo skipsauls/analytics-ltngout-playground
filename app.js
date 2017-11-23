@@ -1517,9 +1517,15 @@ var _imageData = {};
 function _sendImage(req, res, type, data) {
 	console.warn('_sendImage: ', type, data);
     if (typeof data == 'undefined' || data === null) {
-        var url = 'https://adx-dev-ed.my.salesforce.com/analytics/wave/web/proto/images/app/icons/16.png';        
+        //var url = 'https://adx-dev-ed.my.salesforce.com/analytics/wave/web/proto/images/app/icons/16.png';        
         //res.writeHead(200, {'Content-Type': 'image/png'});
         //res.send(url);
+        _getImages(auth, item, next);
+		_getImages(auth, item, function(imageData) {
+			_imageData[type + '_' + id] = imageData;
+			//_sendImage(req, res, type, imageData);
+		});        
+
         req.pipe(request(url)).pipe(res);
     } else {
         var imgData = data.toString('base64');
@@ -1535,7 +1541,7 @@ function _sendImage(req, res, type, data) {
  * Get the thumnail for an asset
  * Use the next callback to get the buffer, otherwise leave it out for async loading
  */
-function _getImages(auth, item, next) {
+function old_getImages(auth, item, next) {
 	console.warn('_getImages: ', auth, item);
     if (item) {
 
@@ -1588,19 +1594,68 @@ function _getImages(auth, item, next) {
     }
 }
 
-app.get('/einstein/analytics/thumb/:type/:id', function(req, res) {
+function _getImages(id, type, url, token, token_type, next) {
+
+    var options = {
+        headers: {
+            "Accept": "image/png",
+            "Authorization": token_type + " " + token
+        },
+        decoding: 'binary'
+
+    };
+
+    opts = options;
+    opts.url = url;
+
+    console.warn('calling rest.get for ' + url);
+    rest.get(url, options).on('complete', function(result, response) {
+    	
+    	console.warn('complete: ', result);
+
+        var buffer = new Buffer(result, 'binary');
+        //_imageData[item.id] = buffer;
+        _imageData[item.type + '_' + item.id] = buffer;
+
+        if (typeof next === 'function') {
+            next(buffer);
+        }
+    });
+
+
+}
+
+//app.get('/einstein/analytics/thumb/:type/:id', function(req, res) {
+app.get('/einstein/analytics/thumb', function(req, res) {
+	/*
     var id = req.params.id;
     console.warn('id: ', id);
     var type = req.params.type;
     console.warn('type: ', type);
     type = type === 'apps' ? 'folders' : type;
     console.warn('type: ', type);
+    */
+    var id = req.query.id;
+    var type = req.query.type;
+    var url = req.query.url;
+    var token = req.query.token;
+    var token_type = req.query.token_type;
+
+
+    console.warn('id: ', id);
+    console.warn('type: ', type);
+    console.warn('url: ', url);
+    console.warn('token: ', token);
+    console.warn('token_type: ', token_type);
 
     var data = _imageData[type + '_' + id];
 
-    console.warn('get thumb: ', type, id);
+    _getImages(id, type, url, token, token_type, function(imageData) {
 
-	_sendImage(req, res, type, data);
+		_sendImage(req, res, type, imageData);
+
+    });
+
 
 	return;
 
