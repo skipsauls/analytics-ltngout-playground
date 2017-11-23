@@ -1615,7 +1615,7 @@ function _getImages(id, type, url, token, token_type, next) {
 
         var buffer = new Buffer(result, 'binary');
         //_imageData[item.id] = buffer;
-        _imageData[item.type + '_' + item.id] = buffer;
+        _imageData[type + '_' + id] = buffer;
 
         if (typeof next === 'function') {
             next(buffer);
