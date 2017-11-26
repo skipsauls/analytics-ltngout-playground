@@ -1515,7 +1515,6 @@ app.get('/einstein/discovery/recommendations/:analysis_id?', function(req, res) 
 var _imageData = {};
 
 function _sendImage(req, res, type, data) {
-	console.warn('_sendImage: ', type, data);
     if (typeof data == 'undefined' || data === null) {
         //var url = 'https://adx-dev-ed.my.salesforce.com/analytics/wave/web/proto/images/app/icons/16.png';        
         //res.writeHead(200, {'Content-Type': 'image/png'});
