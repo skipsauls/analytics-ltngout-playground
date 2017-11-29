@@ -17,6 +17,7 @@ var randomWords = require('random-words');
 var WebSocket = require('ws');
 var Twitter = require('twitter');
 var base64 = require('base-64');
+var amazonProductAPI = require('amazon-product-api');
 
 var port = process.env.PORT || 3000;
 var https_port = process.env.HTTPS_PORT || parseInt(port) + 1;
@@ -37,6 +38,14 @@ if (process.env.HEROKU === 'true') {
 
 console.warn('appId: ', appId);
 */
+
+var amazonProductClient = amazonProductAPI.createClient({
+  awsId: "AKIAIQAC2ZVNW4GUCBEA",
+  awsSecret: "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",
+  awsTag: "sfdcdemo-20"
+});
+
+
 
 var _appAuthMap = {
     localhost: {
@@ -170,6 +179,46 @@ app.get('/lo_ea', function(req, res) {
 app.get('/iframe', function(req, res) {
     res.render('pages/iframe', {title: 'Einstein Analytics - iFrame Test', appId: _appAuth['wavepm'].appId});
 });
+
+// Amazon Item Lookup
+app.get('/amazon/item/lookup/:asin?', function(req, res) {	
+	var asin = req.params.asin;
+    console.warn('asin: ', asin);
+	amazonProductClient.itemLookup({
+		idType: 'ASIN',
+		itemId: 'B0766GHWM6',
+		responseGroup: 'Images,Small,Offers'
+	}, function(err, results, response) {
+		if (err) {
+			console.error(err);
+			res.send(err);
+		} else {
+			console.warn(JSON.stringify(results, null, 2));
+			var items = [];
+			var item = null;
+			results.forEach(function(res) {
+				console.warn('res: ', res);
+				item = {
+					ASIN: res.ASIN[0],
+					ParentASIN: res.ParentASIN[0],
+					DetailPageURL: res.DetailPageURL[0],
+					SmallImageURL: res.SmallImage[0].URL,
+					MediumImageURL: res.MediumImage[0].URL,
+					LargeImageURL: res.LargeImage[0].URL,
+					Manufacturer: res.ItemAttributes[0].Manufacturer[0],
+					ProductGroup: res.ItemAttributes[0].ProductGroup[0],
+					Title: res.ItemAttributes[0].Title[0],
+					LowestNewPrice: res.OfferSummary[0].LowestNewPrice[0].FormattedPrice[0]
+				};
+				items.push(item);
+			});
+			console.warn('items: ', items);
+			res.send(items);
+		}
+	});
+
+});
+
 
 
 // Flatten and simplify the tweets
@@ -323,6 +372,7 @@ function twitterSearchTweets(query, callback) {
     	}
     });
 })();
+
 
 // Twitter
 app.get('/twitter', function(req, res) {
