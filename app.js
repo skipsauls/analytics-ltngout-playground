@@ -186,13 +186,12 @@ app.get('/amazon/item/lookup/:asin?', function(req, res) {
     console.warn('asin: ', asin);
 	amazonProductClient.itemLookup({
 		idType: 'ASIN',
-		itemId: 'B0766GHWM6',
+		itemId: asin,
 		responseGroup: 'Images,Small,Offers'
 	}, function(err, results, response) {
 		if (err) {
 			console.error(err);
-			res.send(err);
-		} else {
+			res.send(err);mage
 			console.warn(JSON.stringify(results, null, 2));
 			var items = [];
 			var item = null;
