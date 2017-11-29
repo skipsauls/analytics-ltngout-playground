@@ -184,6 +184,7 @@ app.get('/iframe', function(req, res) {
 app.get('/amazon/item/lookup/:asin?', function(req, res) {	
 	var asin = req.params.asin;
     console.warn('asin: ', asin);
+
 	amazonProductClient.itemLookup({
 		idType: 'ASIN',
 		itemId: asin,
@@ -191,12 +192,13 @@ app.get('/amazon/item/lookup/:asin?', function(req, res) {
 	}, function(err, results, response) {
 		if (err) {
 			console.error(err);
-			res.send(err);mage
+			res.send(err);
+		} else {
 			console.warn(JSON.stringify(results, null, 2));
 			var items = [];
 			var item = null;
 			results.forEach(function(res) {
-				console.warn('res: ', res);
+				//console.warn('res: ', res);
 				item = {
 					ASIN: res.ASIN[0],
 					ParentASIN: res.ParentASIN[0],
@@ -211,11 +213,10 @@ app.get('/amazon/item/lookup/:asin?', function(req, res) {
 				};
 				items.push(item);
 			});
-			console.warn('items: ', items);
+			//console.warn('items: ', items);
 			res.send(items);
 		}
 	});
-
 });
 
 
