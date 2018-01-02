@@ -23,6 +23,7 @@
     "express-session": "^1.15.5",
     "express-ws": "^3.0.0",
     "heroku-ssl-redirect": "0.0.4",
+    "hot-formula-parser": "^2.3.1",
     "http-proxy-middleware": "^0.17.4",
     "lowdb": "^0.16.2",
     "random-words": "0.0.1",

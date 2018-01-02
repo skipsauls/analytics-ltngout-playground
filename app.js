@@ -19,6 +19,9 @@ var Twitter = require('twitter');
 var base64 = require('base-64');
 var amazonProductAPI = require('amazon-product-api');
 
+var FormulaParser = require('hot-formula-parser').Parser;
+var formulaParser = new FormulaParser();
+
 var port = process.env.PORT || 3000;
 var https_port = process.env.HTTPS_PORT || parseInt(port) + 1;
 
@@ -127,6 +130,38 @@ exports.handler = function(event, context, callback){
     alexa.registerHandlers(handlers);
     alexa.execute();
 };
+
+app.get('/formulas', function(req, res) {
+
+	var formulas = require('hot-formula-parser').SUPPORTED_FORMULAS;
+	res.send(formulas);
+});
+
+app.post('/formulas/parse', function(req, res) {
+    console.warn("req.params: ", req.params);
+    console.warn("req.body: ", req.body, typeof req.body);
+
+    var body = req.body;
+
+    let formula = null;
+    let result = null;
+
+    let results = [];
+
+    if (body instanceof Array) {
+    	for (var i = 0; i < body.length; i++) {
+    		formula = body[i];
+    		console.warn('formula: ', formula);
+    		result = formulaParser.parse(formula);
+    		results.push({
+    			forumla: formula,
+    			result: result
+    		});
+    	}
+    }
+
+    res.send(results);
+});
 
 
 
