@@ -155,7 +155,8 @@ app.post('/formulas/parse', function(req, res) {
     		result = formulaParser.parse(formula);
     		results.push({
     			forumla: formula,
-    			result: result
+    			result: result.result,
+    			error: result.error
     		});
     	}
     }
