@@ -160,19 +160,21 @@ app.post('/formulas/parse', function(req, res) {
     		result = {};
     		if (exp.set) {
     			varName = exp.set.name;
-    			result.varname = varName;
+    			//result.varname = varName;
     			if (exp.set.value || exp.set.value) {
     				varVal = exp.set.value || exp.set.val;
     				formulaParser.setVariable(varName, varVal);
-	    			result.varvalue = varVal;
+	    			//result.varvalue = varVal;
+	    			result.formula = "SET(" + varName + "," + varVal + ")";
     			}
     			if (exp.set.formula) {
-    				forumula = exp.set.formula;
+    				formula = exp.set.formula;
     				result.formula = formula;
 		    		formulaResult = formulaParser.parse(formula);
-		    		result.varvalue = formulaResult.result;
+		    		//result.varvalue = formulaResult.result;
+		    		result.result = formulaResult.result;
 		    		result.error = formulaResult.error;
-		    		formulaParser.setVariable(varName, result.varvalue);
+		    		formulaParser.setVariable(varName, formulaResult.result);
     			}
     			/*
     			varVal = exp.set.val || exp.set.value;
@@ -183,15 +185,16 @@ app.post('/formulas/parse', function(req, res) {
     			formula = exp.formula;
 	    		console.warn('formula: ', formula);
 	    		formulaResult = formulaParser.parse(formula);
-	    		result.formula = formulaResult.formula;
+	    		result.formula = formula;
 	    		result.result = formulaResult.result;
 	    		result.error = formulaResult.error;
     		}
     		if (exp.get) {
     			varName = exp.get.name
     			varVal = formulaParser.getVariable(varName);
-    			result.varname = varName;
-    			result.varvalue = varVal;
+    			result.formula = "GET(" + varName + ")";
+    			//result.varname = varName;
+    			//result.varvalue = varVal;
     		}
     		console.warn('result: ', result);
     		results.push(result);
