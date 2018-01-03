@@ -166,6 +166,7 @@ app.post('/formulas/parse', function(req, res) {
     				formulaParser.setVariable(varName, varVal);
 	    			//result.varvalue = varVal;
 	    			result.formula = "SET(" + varName + "," + varVal + ")";
+	    			result.result = varVal;
     			}
     			if (exp.set.formula) {
     				formula = exp.set.formula;
