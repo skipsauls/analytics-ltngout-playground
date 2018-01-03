@@ -163,6 +163,7 @@ app.post('/formulas/parse', function(req, res) {
     			//result.varname = varName;
     			if (exp.set.value || exp.set.value) {
     				varVal = exp.set.value || exp.set.val;
+    				varVal = parseFloat(varVal);
     				formulaParser.setVariable(varName, varVal);
 	    			//result.varvalue = varVal;
 	    			result.formula = "SET(" + varName + "," + varVal + ")";
