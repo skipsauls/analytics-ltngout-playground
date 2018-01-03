@@ -170,8 +170,9 @@ app.post('/formulas/parse', function(req, res) {
     			}
     			if (exp.set.formula) {
     				formula = exp.set.formula;
-    				result.formula = formula;
+    				result.formula = "SET(" + varName + "," + formula + ")";
 		    		formulaResult = formulaParser.parse(formula);
+		    		console.warn('formulaResult: ', formulaResult);
 		    		//result.varvalue = formulaResult.result;
 		    		result.result = formulaResult.result;
 		    		result.error = formulaResult.error;
