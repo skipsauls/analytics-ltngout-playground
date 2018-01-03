@@ -194,6 +194,7 @@ app.post('/formulas/parse', function(req, res) {
     			varName = exp.get.name
     			varVal = formulaParser.getVariable(varName);
     			result.formula = "GET(" + varName + ")";
+    			result.result = varVal;
     			//result.varname = varName;
     			//result.varvalue = varVal;
     		}
