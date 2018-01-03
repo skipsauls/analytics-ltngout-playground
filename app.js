@@ -168,8 +168,10 @@ app.post('/formulas/parse', function(req, res) {
     			}
     			if (exp.set.formula) {
     				forumula = exp.set.formula;
+    				result.formula = formula;
 		    		formulaResult = formulaParser.parse(formula);
-		    		result.varvalue = formulaResult.result || formulaResult.error;
+		    		result.varvalue = formulaResult.result;
+		    		result.error = formulaResult.error;
 		    		formulaParser.setVariable(varName, result.varvalue);
     			}
     			/*
