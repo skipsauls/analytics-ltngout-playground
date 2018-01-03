@@ -143,21 +143,43 @@ app.post('/formulas/parse', function(req, res) {
 
     var body = req.body;
 
+    let exp = null;
     let formula = null;
+    let varName = null;
+    let varVal = null;
     let result = null;
+    let forumlaResult = null;
 
     let results = [];
 
     if (body instanceof Array) {
     	for (var i = 0; i < body.length; i++) {
-    		formula = body[i];
-    		console.warn('formula: ', formula);
-    		result = formulaParser.parse(formula);
-    		results.push({
-    			forumla: formula,
-    			result: result.result,
-    			error: result.error
-    		});
+    		exp = body[i];
+    		console.warn("exp: ", exp, typeof exp);
+    		result = {};
+    		if (exp.set) {
+    			varName = exp.set.name;
+    			varVal = exp.set.val || exp.set.value;
+    			formulaParser.setVariable(varName, varVal);
+    			result.varname = varName;
+    			result.varvalue = varVal;
+    		}
+    		if (exp.formula) {
+    			formula = exp.formula;
+	    		console.warn('formula: ', formula);
+	    		formulaResult = formulaParser.parse(formula);
+	    		result.formula = formulaResult.formula;
+	    		result.result = formulaResult.result;
+	    		result.error = formulaResult.error;
+    		}
+    		if (exp.get) {
+    			varName = exp.get.name
+    			varVal = formulaParser.getVariable(varName);
+    			result.varname = varName;
+    			result.varvalue = varVal;
+    		}
+    		console.warn('result: ', result);
+    		results.push(result);
     	}
     }
 
