@@ -147,8 +147,9 @@ app.post('/formulas/parse', function(req, res) {
     let formula = null;
     let varName = null;
     let varVal = null;
+    let varFormula = null;
     let result = null;
-    let forumlaResult = null;
+    let formulaResult = null;
 
     let results = [];
 
@@ -159,10 +160,22 @@ app.post('/formulas/parse', function(req, res) {
     		result = {};
     		if (exp.set) {
     			varName = exp.set.name;
+    			result.varname = varName;
+    			if (exp.set.value || exp.set.value) {
+    				varVal = exp.set.value || exp.set.val;
+    				formulaParser.setVariable(varName, varVal);
+	    			result.varvalue = varVal;
+    			}
+    			if (exp.set.formula) {
+    				forumula = exp.set.formula;
+		    		formulaResult = formulaParser.parse(formula);
+		    		result.varvalue = formulaResult.result || formulaResult.error;
+		    		formulaParser.setVariable(varName, result.varvalue);
+    			}
+    			/*
     			varVal = exp.set.val || exp.set.value;
     			formulaParser.setVariable(varName, varVal);
-    			result.varname = varName;
-    			result.varvalue = varVal;
+    			*/
     		}
     		if (exp.formula) {
     			formula = exp.formula;
