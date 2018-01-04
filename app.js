@@ -12,15 +12,28 @@ var bodyParser = require('body-parser');
 var uuidv4 = require('uuid/v4');
 var proxy = require('http-proxy-middleware');
 var sslRedirect = require('heroku-ssl-redirect')
+
 var Alexa = require('alexa-sdk');
+
 var randomWords = require('random-words');
 var WebSocket = require('ws');
 var Twitter = require('twitter');
 var base64 = require('base-64');
 var amazonProductAPI = require('amazon-product-api');
 
+/*
+var R = require("r-script");
+*/
+
 var FormulaParser = require('hot-formula-parser').Parser;
 var formulaParser = new FormulaParser();
+
+// Used in the place of standard eval
+var safeEval = require('safe-eval');
+
+// Load libraries for eval here 
+var dateFormat = require('dateformat');
+
 
 var port = process.env.PORT || 3000;
 var https_port = process.env.HTTPS_PORT || parseInt(port) + 1;
@@ -49,6 +62,31 @@ var amazonProductClient = amazonProductAPI.createClient({
 });
 
 
+/*
+// R Test
+var out = R("example/ex-sync.R")
+  .data("hello world", 20)
+  .callSync();
+  
+console.log('\n\nR output: ', out);
+
+
+var attitude = JSON.parse(
+  require("fs").readFileSync("example/attitude.json", "utf8"));
+
+console.warn('attitude: ', attitude);
+
+console.warn('---------------- Starting async R');
+R("example/ex-async.R")
+  .data({df: attitude, nGroups: 3, fxn: "mean" })
+  .call(function(err, d) {
+    console.log(err, d);
+	console.log('---------------- Ending async R');
+    if (err) {
+		console.error('R error: ', err);
+	}
+});
+*/
 
 var _appAuthMap = {
     localhost: {
@@ -183,6 +221,19 @@ app.post('/formulas/parse', function(req, res) {
     			varVal = exp.set.val || exp.set.value;
     			formulaParser.setVariable(varName, varVal);
     			*/
+    		}
+    		if (exp.code) {
+    			let code = exp.code;
+	    		result.code = code;
+	    		let context = {
+	    			dateFormat: dateFormat
+	    		};
+    			try {
+					result.result = safeEval(code, context)
+    			} catch (e) {
+    				console.error('safeEval exception: ', e);
+    				result.error = e.message;
+    			}
     		}
     		if (exp.formula) {
     			formula = exp.formula;
