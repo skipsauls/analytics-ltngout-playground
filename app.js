@@ -217,6 +217,9 @@ app.post('/formulas/parse', function(req, res) {
 		    		result.error = formulaResult.error;
 		    		formulaParser.setVariable(varName, formulaResult.result);
     			}
+    			if (exp.set.code) {
+
+    			}
     			/*
     			varVal = exp.set.val || exp.set.value;
     			formulaParser.setVariable(varName, varVal);
@@ -225,9 +228,27 @@ app.post('/formulas/parse', function(req, res) {
     		if (exp.code) {
     			let code = exp.code;
 	    		result.code = code;
+    			console.warn('original code: ', code);
+
+    			let r = new RegExp('__[a-zA-Z_]*(__)?', 'g');
+    			let m = code.match(r);
+    			if (m && m.length > 0) {
+    				console.warn('found variable: ', m);
+    				m.forEach(function(v) {
+    					varName = v.replace(/\_\_/g, '');
+    					console.warn('varName: ', varName);
+    					varVal = formulaParser.getVariable(varName);
+    					console.warn('varVal: ', varVal);
+    					code = code.replace(v, varVal);
+    				});
+    			}
+
+    			console.warn('modified code: ', code);
+
 	    		let context = {
 	    			dateFormat: dateFormat
 	    		};
+
     			try {
 					result.result = safeEval(code, context)
     			} catch (e) {
