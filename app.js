@@ -169,6 +169,168 @@ exports.handler = function(event, context, callback){
     alexa.execute();
 };
 
+/*
+
+	vars - Variables that are used for computations
+	data - Row data, each one processed sequentially
+	code - Code statements, processed sequentially per row
+
+	The vars are useful for things like totals, previous row values, max, min, etc.
+	The data is typically the dataset row data
+	The code is JavaScript, but must return a value
+
+	// Sample used with CURL
+	{"code":"function(){data.a = data.a + 1;data.b += 100;data.c = data.a * 2;bar += data.a;total++;return {data:data,total:total,bar:bar};}()","data":[{"a":1,"b":2},{"a":5,"b":20}],"vars":{"total":0,"bar":0}}
+
+	{
+		code:
+			function() {
+				data.a = data.a + 1;
+				data.b += 100;
+				data.c = data.a * 2;
+				bar += data.a;total++;
+				return {
+					data: data,
+					total: total,
+					bar:bar
+				};
+			}()
+		data: [
+			{
+				a: 1,
+				b: 2
+			},
+			{
+				a: 5,
+				b: 20
+			}
+		],
+		vars: {
+			total: 0,
+			bar: 0
+		}
+	}
+
+*/
+app.post('/eval', function(req, res) {
+    console.warn("req.params: ", req.params);
+    console.warn("req.body: ", req.body, typeof req.body);
+
+    let body = req.body;
+    let stmt = null;
+    let result = null;
+    let results = [];
+
+    console.warn('body: ', body);
+
+    let code = body.code;
+    console.warn('code: ', code, typeof code);
+    if (!(code instanceof Array)) {
+    	code = [code];
+    }
+    console.warn('code: ', code);
+
+    let vars = body.vars;
+    console.warn('vars: ', vars, typeof vars);
+    /*
+    if (!(vars instanceof Array)) {
+    	vars = [vars];
+    }
+    console.warn('vars: ', vars);
+	*/
+
+    let data = body.data;
+    if (!(data instanceof Array)) {
+    	data = [data];
+    }
+    console.warn('data: ', data);
+
+	let baseContext = {
+		dateFormat: dateFormat
+	};
+	for (var varName in vars) {
+		baseContext[varName] = vars[varName];
+	}
+
+	console.warn('baseContext: ', baseContext);
+
+	let context = null;
+
+	if (code) {
+
+		data.forEach(function(row) {
+			console.warn('row: ', row);
+
+			context = baseContext;
+
+			context.data = {};
+			
+			for (var key in row) {
+				context.data[key] = row[key];
+			}
+
+			code.forEach(function(stmt) {
+				console.warn('stmt: ', stmt);
+				console.warn('context: ', context);
+				try {
+					result = safeEval(stmt, context);
+					results.push(result);
+					console.warn('result: ', result);
+					console.warn('context: ', context);
+
+					// See if any variables are in the result and set them in baseContext
+					for (var key in vars) {
+						if (result[key]) {
+							baseContext[key] = result[key];
+						}
+					}
+				} catch (e) {
+					console.error(e);
+				}
+			});
+		});
+/*
+		for (var i = 0; i < code.length; i++) {
+			stmt = code[i];
+			console.warn("stmt: ", stmt, typeof stmt);
+
+			// Variable to assign results to
+			varName = stmt.var;
+			code = stmt.code;
+
+			// verbose, not useful for EA
+			//result = {
+			//	code: code,
+			//	varName: varName,
+			//	stmt: stmt			
+			//};
+			
+			context = baseContext;
+			data.forEach(function(row) {
+				context[d] = 
+			});
+
+			try {
+				//result.result = safeEval(code, context);
+
+				// Make the result available in the context
+				context[varName] = safeEval(code, context);
+			} catch (e) {
+				console.warn('safeEval exception: ', e);
+				result.error = e.message;
+			}
+			//console.warn('result: ', result);
+			//results.push(result);
+		}
+*/
+	}
+
+	console.warn('results: ', results);
+
+	res.send(results);
+
+});
+
 app.get('/formulas', function(req, res) {
 
 	var formulas = require('hot-formula-parser').SUPPORTED_FORMULAS;
@@ -179,7 +341,7 @@ app.post('/formulas/parse', function(req, res) {
     console.warn("req.params: ", req.params);
     console.warn("req.body: ", req.body, typeof req.body);
 
-    var body = req.body;
+    let body = req.body;
 
     let exp = null;
     let formula = null;
