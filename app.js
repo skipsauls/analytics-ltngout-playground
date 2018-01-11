@@ -280,7 +280,7 @@ app.post('/eval', function(req, res) {
 		baseContext[varName] = vars[varName];
 	}
 
-	console.warn('baseContext: ', baseContext);
+	//console.warn('baseContext: ', baseContext);
 
 	let context = null;
 
@@ -299,12 +299,12 @@ app.post('/eval', function(req, res) {
 
 			code.forEach(function(stmt) {
 				console.warn('stmt: ', stmt);
-				console.warn('context: ', context);
+				//console.warn('context: ', context);
 				try {
 					result = safeEval(stmt, context);
 					results.push(result);
 					console.warn('result: ', result);
-					console.warn('context: ', context);
+					//console.warn('context: ', context);
 
 					// See if any variables are in the result and set them in baseContext
 					for (var key in vars) {
@@ -331,7 +331,7 @@ app.post('/eval', function(req, res) {
 	};
 
 	results.forEach(function(result) {
-		console.warn('result: ', result);
+		console.warn('result: ', result, typeof result);
 		response.data.push(result.data);
 		for (var key in result.data) {
 			let type = typeof result.data[key];
