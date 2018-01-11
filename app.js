@@ -37,6 +37,7 @@ var dateFormat = require('dateformat');
 
 var oxr = require('open-exchange-rates');
 var fx = require('money');
+var accounting = require('accounting-js');
 
 oxr.set({app_id: '0c5501e3012242b591eac7d7a2cda656'});
 
@@ -44,7 +45,6 @@ oxr.latest(function() {
 	// Apply exchange rates and base rate to `fx` library object:
 	fx.rates = oxr.rates;
 	fx.base = oxr.base;	
-	console.warn('100 GBP to USD: ', fx(100).from('GBP').to('USD'));
 });
 
 
@@ -449,7 +449,8 @@ app.post('/formulas/parse', function(req, res) {
 
 	    		let context = {
 	    			dateFormat: dateFormat,
-	    			fx: fx
+	    			fx: fx,
+	    			accounting: accounting
 	    		};
 
     			try {
