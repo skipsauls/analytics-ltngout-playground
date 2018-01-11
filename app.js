@@ -354,7 +354,7 @@ app.post('/eval', function(req, res) {
     ]
   },
 */
-	res.send(JSON.serialize(response);
+	res.send(JSON.stringify(response));
 
 });
 
