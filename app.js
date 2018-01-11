@@ -212,6 +212,34 @@ exports.handler = function(event, context, callback){
 	}
 
 */
+/*
+
+Note that this will return the complete response for the dashboard, e.g.:
+
+{
+  "metadata": {
+    "strings": [
+      "Name",
+      "Type"
+    ],
+    "numbers": [
+      "Value"
+    ],
+    "groupings": [
+      "Type"
+    ]
+  },
+  "data": [
+    {
+      "Name": "Alpha",
+      "Type": "A",
+      "Value": 50.33
+    },
+    ...
+  ]
+}
+*/
+
 app.post('/eval', function(req, res) {
     console.warn("req.params: ", req.params);
     console.warn("req.body: ", req.body, typeof req.body);
@@ -289,45 +317,44 @@ app.post('/eval', function(req, res) {
 				}
 			});
 		});
-/*
-		for (var i = 0; i < code.length; i++) {
-			stmt = code[i];
-			console.warn("stmt: ", stmt, typeof stmt);
-
-			// Variable to assign results to
-			varName = stmt.var;
-			code = stmt.code;
-
-			// verbose, not useful for EA
-			//result = {
-			//	code: code,
-			//	varName: varName,
-			//	stmt: stmt			
-			//};
-			
-			context = baseContext;
-			data.forEach(function(row) {
-				context[d] = 
-			});
-
-			try {
-				//result.result = safeEval(code, context);
-
-				// Make the result available in the context
-				context[varName] = safeEval(code, context);
-			} catch (e) {
-				console.warn('safeEval exception: ', e);
-				result.error = e.message;
-			}
-			//console.warn('result: ', result);
-			//results.push(result);
-		}
-*/
 	}
 
 	console.warn('results: ', results);
 
-	res.send(results);
+	let response = {
+		metadata: {
+			strings: body.strings || [],
+			numbers: body.numbers || [],
+			groupings: body.groupings || []
+		},
+		data: []
+	};
+
+	results.forEach(function(result) {
+		console.warn('result: ', result);
+		response.data.push(result.data);
+		for (var key in result.data) {
+			let type = typeof result.data[key];
+			console.warn('type of ', result.data[key], ' is ', type);
+		}
+	});
+/*
+	if (body.strings) {
+		results.met
+	}
+    "strings": [
+      "Name",
+      "Type"
+    ],
+    "numbers": [
+      "Value"
+    ],
+    "groupings": [
+      "Type"
+    ]
+  },
+*/
+	res.send(response);
 
 });
 
