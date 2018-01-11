@@ -35,6 +35,19 @@ var safeEval = require('safe-eval');
 var dateFormat = require('dateformat');
 
 
+var oxr = require('open-exchange-rates');
+var fx = require('money');
+
+oxr.set({app_id: '0c5501e3012242b591eac7d7a2cda656'});
+
+oxr.latest(function() {
+	// Apply exchange rates and base rate to `fx` library object:
+	fx.rates = oxr.rates;
+	fx.base = oxr.base;	
+	console.warn('100 GBP to USD: ', fx(100).from('GBP').to('USD'));
+});
+
+
 var port = process.env.PORT || 3000;
 var https_port = process.env.HTTPS_PORT || parseInt(port) + 1;
 
@@ -435,7 +448,8 @@ app.post('/formulas/parse', function(req, res) {
     			console.warn('modified code: ', code);
 
 	    		let context = {
-	    			dateFormat: dateFormat
+	    			dateFormat: dateFormat,
+	    			fx: fx
 	    		};
 
     			try {
