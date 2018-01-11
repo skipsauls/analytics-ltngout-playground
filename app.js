@@ -37,7 +37,7 @@ var dateFormat = require('dateformat');
 
 var oxr = require('open-exchange-rates');
 var fx = require('money');
-var accounting = require('accounting-js');
+var accounting = require('accounting');
 
 oxr.set({app_id: '0c5501e3012242b591eac7d7a2cda656'});
 
