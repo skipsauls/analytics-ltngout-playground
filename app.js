@@ -271,7 +271,7 @@ app.post('/eval', function(req, res) {
     }
     console.warn('code: ', code);
 
-    let vars = body.vars;
+    let vars = JSON.parse(body.vars);
     console.warn('vars: ', vars, typeof vars);
     /*
     if (!(vars instanceof Array)) {
