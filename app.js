@@ -340,9 +340,9 @@ app.post('/eval', function(req, res) {
 			numbers: body.numbers || [],
 			groupings: body.groupings || []
 		},
-		data: []
+		data: results
 	};
-
+/*
 	results.forEach(function(result) {
 		console.warn('result: ', result, typeof result);
 		response.data.push(result.data);
@@ -351,7 +351,7 @@ app.post('/eval', function(req, res) {
 			console.warn('type of ', result.data[key], ' is ', type);
 		}
 	});
-
+*/
 	console.warn('response: ', response);
 	console.warn('response json: ', JSON.stringify(response, null, 2));
 /*
