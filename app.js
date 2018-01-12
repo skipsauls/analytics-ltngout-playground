@@ -280,7 +280,7 @@ app.post('/eval', function(req, res) {
     console.warn('vars: ', vars);
 	*/
 
-    let data = body.data;
+    let data = JSON.parse(body.data);
     if (!(data instanceof Array)) {
     	data = [data];
     }
