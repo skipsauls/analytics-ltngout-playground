@@ -351,6 +351,9 @@ app.post('/eval', function(req, res) {
 			console.warn('type of ', result.data[key], ' is ', type);
 		}
 	});
+
+	console.warn('response: ', response);
+	console.warn('response json: ', JSON.stringify(response, null, 2));
 /*
 	if (body.strings) {
 		results.met
