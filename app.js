@@ -336,9 +336,9 @@ app.post('/eval', function(req, res) {
 
 	let response = {
 		metadata: {
-			strings: body.strings || [],
-			numbers: body.numbers || [],
-			groupings: body.groupings || []
+			strings: body.strings ? body.strings.split(',') : [],
+			numbers: body.numbers ? body.numbers.split(',') : [],
+			groupings: body.groupings ? body.groupings.split(',') : []
 		},
 		data: results
 	};
