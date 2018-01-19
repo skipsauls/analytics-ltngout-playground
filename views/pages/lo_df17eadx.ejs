@@ -2,12 +2,13 @@
 <html>
   <head><title>Einstein Analytics - Lightning Out</title></head>
   <body>
+    <div id="eaPlatformEventTab"></div>
     <div id="dashboard"></div>
     <div id="filterTest"></div>
-    <script src="https://mobile2.t.salesforce.com/lightning/lightning.out.js"></script>
+    <script src="https://df17eadx-dev-ed.my.salesforce.com/lightning/lightning.out.js"></script>
     <script src="/javascripts/force.all.js"></script>
     <script>
-      var appId = '3MVG9SemV5D80oBcff3jWxxK32RKEGuV4rwCe0au2N57DF5JLbaPRJq_vbfAR43i60NyBEUSd_SnRtKMHnPcR';
+      var appId = '3MVG9g9rbsTkKnAXTRjLb_HJvrzsMe5ne87cjIO_8sE7RAM.6C5q0YcbK_pmlCEcFqWRSudAFFzIJFuthJp.X';
       var loginURL = "https://login.salesforce.com";
       var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
       var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
@@ -16,13 +17,14 @@
         var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
         $Lightning.use(loAppName, function(evt) {
           var config = {
-            dashboardId: "0FKB0000000DIpNOAW",
+            dashboardId: "0FK1I000000Du0wWAC",
             height: "600",
             showTitle: false,
             showHeader: false
           };
           $Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {});
           $Lightning.createComponent("c:filterTest", config, "filterTest", function(cmp, msg, err) {});
+          $Lightning.createComponent("c:eaPlatformEventTab", {}, "eaPlatformEventTab", function(cmp, msg, err) {});
         }, ltngURL, oauthResult.accessToken);        
       });
     </script>

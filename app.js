@@ -534,6 +534,11 @@ app.get('/lo_ea', function(req, res) {
     res.render('pages/lo_ea', {title: 'Lightning Out - Einstein Analytics', appId: process.env.APPID});
 });
 
+// df17eadx
+app.get('/lo_df17eadx', function(req, res) {
+    res.render('pages/lo_df17eadx', {title: 'Lightning Out - Einstein Analytics', appId: process.env.APPID});
+});
+
 // iFrame test
 app.get('/iframe', function(req, res) {
     res.render('pages/iframe', {title: 'Einstein Analytics - iFrame Test', appId: _appAuth['wavepm'].appId});
