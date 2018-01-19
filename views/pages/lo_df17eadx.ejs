@@ -8,7 +8,16 @@
     <script src="https://df17eadx-dev-ed.my.salesforce.com/lightning/lightning.out.js"></script>
     <script src="/javascripts/force.all.js"></script>
     <script>
-      var appId = '3MVG9g9rbsTkKnAXTRjLb_HJvrzsMe5ne87cjIO_8sE7RAM.6C5q0YcbK_pmlCEcFqWRSudAFFzIJFuthJp.X';
+      // localhost:3001
+      //var appId = '3MVG9g9rbsTkKnAXTRjLb_HJvrzsMe5ne87cjIO_8sE7RAM.6C5q0YcbK_pmlCEcFqWRSudAFFzIJFuthJp.X';
+
+      /// ssauls-ltm2.internal.salesforce.com:3001
+      var appId = '3MVG9g9rbsTkKnAXTRjLb_HJvr.G6y3jcBxAOjsitC05Q7XpZNrhQL7tRsKA973SHcv1vlNEts3fhv.5ZjPlK';
+
+      // analytics-ltngout-playground.herokuapp.com
+      var appId = '3MVG9g9rbsTkKnAXTRjLb_HJvr0vSrovGJMtkWWKJEEuFPAcxj5eLP3E5am.KowfnHQF375auqBXi01TQdNON';
+
+
       var loginURL = "https://login.salesforce.com";
       var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
       var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
