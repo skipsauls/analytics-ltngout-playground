@@ -2,13 +2,39 @@
 <html>
   <head><title>Einstein Analytics - Lightning Out</title></head>
   <body>
+    <h1>accessToken: <%= oauthResult.accessToken %>
     <div id="eaPlatformEventTab"></div>
     <div id="dashboard"></div>
     <div id="filterTest"></div>
     <div id="lframe"></div>
     <script src="https://df17eadx-dev-ed.my.salesforce.com/lightning/lightning.out.js"></script>
-    <script src="/javascripts/force.all.js"></script>
     <script>
+      var oauthResult = JSON.parse('<%- JSON.stringify(oauthResult) %>');
+      var loAppName = "c:loApp";
+      var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
+
+      $Lightning.use(loAppName, function(evt) {
+        var config = {
+          dashboardId: "0FK1I000000Du0wWAC",
+          height: "600",
+          showTitle: false,
+          showHeader: false,
+          accessToken: oauthResult.accessToken
+        };
+
+        console.warn('config: ', config);
+
+        $Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {});
+
+        //$Lightning.createComponent("c:filterTest", config, "filterTest", function(cmp, msg, err) {});
+        //$Lightning.createComponent("c:eaPlatformEventTab", {}, "eaPlatformEventTab", function(cmp, msg, err) {});
+        
+        //$Lightning.createComponent("c:lframe", {}, "lframe", function(cmp, msg, err) {});
+
+      }, ltngURL, oauthResult.accessToken);        
+
+
+
       // localhost:3001
       var appId = '3MVG9g9rbsTkKnAXTRjLb_HJvrzsMe5ne87cjIO_8sE7RAM.6C5q0YcbK_pmlCEcFqWRSudAFFzIJFuthJp.X';
 
@@ -18,7 +44,7 @@
       // analytics-ltngout-playground.herokuapp.com
       //var appId = '3MVG9g9rbsTkKnAXTRjLb_HJvr0vSrovGJMtkWWKJEEuFPAcxj5eLP3E5am.KowfnHQF375auqBXi01TQdNON';
 
-
+/*
       var loginURL = "https://login.salesforce.com";
       var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
       var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
@@ -32,14 +58,14 @@
             showTitle: false,
             showHeader: false
           };
-          /*
-          $Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {});
-          $Lightning.createComponent("c:filterTest", config, "filterTest", function(cmp, msg, err) {});
-          $Lightning.createComponent("c:eaPlatformEventTab", {}, "eaPlatformEventTab", function(cmp, msg, err) {});
-          */
+          //$Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {});
+          //$Lightning.createComponent("c:filterTest", config, "filterTest", function(cmp, msg, err) {});
+          //$Lightning.createComponent("c:eaPlatformEventTab", {}, "eaPlatformEventTab", function(cmp, msg, err) {});
+          
           $Lightning.createComponent("c:lframe", {}, "lframe", function(cmp, msg, err) {});
         }, ltngURL, oauthResult.accessToken);        
       });
+*/      
     </script>
   </body>
 </html>

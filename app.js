@@ -111,7 +111,11 @@ var _appAuthMap = {
             'wavepm': {
                 appId: '3MVG9SemV5D80oBelr7Nm4Bdjw0IXXBQW4ETMk05KOG5QIhpFLvgkmP37sKVyGIeMsQ7k_zjz3D3DTwg2BHjF',
                 appSecret: '7524867041201854375'
-            }
+            },
+            'df17eadx': {
+                appId: '3MVG9g9rbsTkKnAXTRjLb_HJvrzsMe5ne87cjIO_8sE7RAM.6C5q0YcbK_pmlCEcFqWRSudAFFzIJFuthJp.X',
+                appSecret: '6576199763315337959'
+            }            
         }
     },
     heroku: {
@@ -123,7 +127,11 @@ var _appAuthMap = {
             'wavepm': {
                 appId: '3MVG9SemV5D80oBelr7Nm4BdjwzSxKBZqRhGm8gzBXJNUsh.9sj0WG2UIhW2grZFy5QQZpBdTGnVaP9qfsT1A',
                 appSecret: '1169122965078990489'
-            }
+            },
+            'df17eadx': {
+                appId: '3MVG9g9rbsTkKnAXTRjLb_HJvr0vSrovGJMtkWWKJEEuFPAcxj5eLP3E5am.KowfnHQF375auqBXi01TQdNON',
+                appSecret: '77518935725482072'
+            }                        
         }
     }
 };
@@ -252,6 +260,45 @@ Note that this will return the complete response for the dashboard, e.g.:
   ]
 }
 */
+
+var _oauthResult = null;
+
+(function getSFDCPasswordToken() {
+	var hostname = 'df17eadx';
+
+	var domain = hostname;
+	var appAuth = _appAuth[domain];
+	console.warn('appAuth: ', appAuth);
+
+	var config = {
+	  client_id: appAuth.appId,
+	  client_secret: appAuth.appSecret,
+	  grant_type: 'password',
+	  username: 'skip@df17eadx.com',
+	  password: 'waveout2@' // + '7hjL2VWKAodCaNOYMdfQGHSU'
+	};
+
+	console.warn('config: ', config);
+
+
+	rest.post('https://login.salesforce.com/services/oauth2/token', {data: config}).on('complete', function(data, response) {
+		console.warn('token call data: ', data);
+
+	    if (response.statusCode === 200) {
+	        _oauthResult = {
+	        	instanceURL: data.instance_url,
+	        	accessToken: data.access_token,
+	        	id: data.id,
+	        	tokenType: data.token_type,
+	        	issuedAt: data.issued_at,
+	        	signature: data.signature
+	        };
+	    }
+	});
+
+	console.warn('_oauthResult: ', _oauthResult);
+})();
+
 
 app.post('/eval', function(req, res) {
     console.warn("req.params: ", req.params);
@@ -534,6 +581,11 @@ app.get('/lo_ea', function(req, res) {
     res.render('pages/lo_ea', {title: 'Lightning Out - Einstein Analytics', appId: process.env.APPID});
 });
 
+app.get('/lo_pw', function(req, res) {
+	console.warn('_oauthResult: ', _oauthResult);
+    res.render('pages/lo_pw', {title: 'Lightning Out - Einstein Analytics', appId: process.env.APPID, oauthResult: _oauthResult});
+});
+
 // df17eadx
 app.get('/lo_df17eadx', function(req, res) {
     res.render('pages/lo_df17eadx', {title: 'Lightning Out - Einstein Analytics', appId: process.env.APPID});
@@ -722,7 +774,7 @@ function twitterSearchTweets(query, callback) {
 
 	
 	rest.post('https://api.twitter.com/oauth2/token', config).on('complete', function(data, response) {
-    	console.warn('data: ', data);
+    	console.warn('twitter data: ', data);
     	if (data && data.token_type === 'bearer' && data.access_token) {
     		twitterBearerToken = data;
     		twitterClient = new Twitter({
