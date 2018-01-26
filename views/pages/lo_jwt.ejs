@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head><title>Einstein Analytics - Lightning Out</title></head>
+  <body>
+    <div id="button"></div>
+    <div id="eaPlatformEventTab"></div>
+    <div id="dashboard"></div>
+    <div id="filterTest"></div>
+    <div id="lframe"></div>
+    <script src="https://df17eadx-dev-ed.my.salesforce.com/lightning/lightning.out.js"></script>
+    <script src="/javascripts/force.all.js"></script>
+    <script>
+      // localhost:3001
+      var appId = '3MVG9g9rbsTkKnAXTRjLb_HJvrzsMe5ne87cjIO_8sE7RAM.6C5q0YcbK_pmlCEcFqWRSudAFFzIJFuthJp.X';
+
+      /// ssauls-ltm2.internal.salesforce.com:3001
+      //var appId = '3MVG9g9rbsTkKnAXTRjLb_HJvr.G6y3jcBxAOjsitC05Q7XpZNrhQL7tRsKA973SHcv1vlNEts3fhv.5ZjPlK';
+
+      // analytics-ltngout-playground.herokuapp.com
+      //var appId = '3MVG9g9rbsTkKnAXTRjLb_HJvr0vSrovGJMtkWWKJEEuFPAcxj5eLP3E5am.KowfnHQF375auqBXi01TQdNON';
+
+
+      var loginURL = "https://login.salesforce.com";
+      var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
+      var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+
+      var loAppName = "c:loApp";
+
+      var accessToken = "00Dxx0000001gEH!AQEAQNOUwKT9zq7I6SzVXuPKbTeoalEJ1OMX5259adv8f6gqcxR7WLZQ8xVJc1FGify81z25pnNg8YCnRRVUxN39sTwWKHZg";
+
+      var ltngURL = "https://df17eadx-dev-ed.lightning.force.com";
+
+      $Lightning.use(loAppName, function(evt) {
+        var config = {
+          dashboardId: "0FK1I000000Du0wWAC",
+          height: "600",
+          showTitle: false,
+          showHeader: false//,
+          //accessToken: accessToken
+        };
+
+        $Lightning.createComponent("ui:button", {label: 'Test'}, "button", function(cmp, msg, err) {});        
+        
+        $Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {});
+
+        //$Lightning.createComponent("c:filterTest", config, "filterTest", function(cmp, msg, err) {});
+        //$Lightning.createComponent("c:eaPlatformEventTab", {}, "eaPlatformEventTab", function(cmp, msg, err) {});          
+        //$Lightning.createComponent("c:lframe", {}, "lframe", function(cmp, msg, err) {});
+
+      }, ltngURL, accessToken);
+
+    </script>
+  </body>
+</html>
