@@ -33,6 +33,7 @@
     "money": "^0.2.0",
     "notevil": "^1.1.0",
     "open-exchange-rates": "^0.3.0",
+    "osmosis": "^1.1.6",
     "r-script": "0.0.3",
     "random-words": "0.0.1",
     "request": "^2.81.0",

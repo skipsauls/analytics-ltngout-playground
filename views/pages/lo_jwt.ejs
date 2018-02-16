@@ -28,6 +28,27 @@
 
       var accessToken = "00Dxx0000001gEH!AQEAQNOUwKT9zq7I6SzVXuPKbTeoalEJ1OMX5259adv8f6gqcxR7WLZQ8xVJc1FGify81z25pnNg8YCnRRVUxN39sTwWKHZg";
 
+      var req = new XMLHttpRequest();     
+      req.onreadystatechange = function(event) {
+          // XMLHttpRequest.HEADERS_RECEIVED
+          if (req.readyState == 2) {
+          } else if (req.readyState == 4) {
+              if (req.status === 200) {                    
+                  console.log('response: ', req.response);
+              } else {
+                  // Something went wrong.
+              }
+          }
+      };
+
+      req.open('GET', 'https://df17eadx-dev-ed.my.salesforce.com/services/data/v41.0/chatter/users/me');
+
+      req.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+      req.setRequestHeader('Content-Type', 'application/json');
+
+      req.send(null);
+
+
       var ltngURL = "https://df17eadx-dev-ed.lightning.force.com";
 
       $Lightning.use(loAppName, function(evt) {
@@ -35,8 +56,8 @@
           dashboardId: "0FK1I000000Du0wWAC",
           height: "600",
           showTitle: false,
-          showHeader: false//,
-          //accessToken: accessToken
+          showHeader: false,
+          accessToken: accessToken
         };
 
         $Lightning.createComponent("ui:button", {label: 'Test'}, "button", function(cmp, msg, err) {});        
