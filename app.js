@@ -13,7 +13,7 @@ var uuidv4 = require('uuid/v4');
 var proxy = require('http-proxy-middleware');
 var sslRedirect = require('heroku-ssl-redirect')
 
-var Alexa = require('alexa-sdk');
+//var Alexa = require('alexa-sdk');
 
 var randomWords = require('random-words');
 var WebSocket = require('ws');
