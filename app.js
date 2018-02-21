@@ -26,8 +26,8 @@ var amazonProductAPI = require('amazon-product-api');
 var R = require("r-script");
 */
 
-var FormulaParser = require('hot-formula-parser').Parser;
-var formulaParser = new FormulaParser();
+//var FormulaParser = require('hot-formula-parser').Parser;
+//var formulaParser = new FormulaParser();
 
 // Used in the place of standard eval
 var safeEval = require('safe-eval');
@@ -422,6 +422,7 @@ app.post('/eval', function(req, res) {
 
 });
 
+/*
 app.get('/formulas', function(req, res) {
 
 	var formulas = require('hot-formula-parser').SUPPORTED_FORMULAS;
@@ -473,10 +474,6 @@ app.post('/formulas/parse', function(req, res) {
     			if (exp.set.code) {
 
     			}
-    			/*
-    			varVal = exp.set.val || exp.set.value;
-    			formulaParser.setVariable(varName, varVal);
-    			*/
     		}
     		if (exp.code) {
     			let code = exp.code;
@@ -535,7 +532,7 @@ app.post('/formulas/parse', function(req, res) {
     res.send(results);
 });
 
-
+*/
 
 app.get('/', function(req, res) {
 	var origin = req.session.origin || req.query.origin;
