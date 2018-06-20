@@ -270,6 +270,9 @@
                     console.warn('confidence: ', e.results[0][0].confidence);                    
                     console.warn('isFinal: ', e.results[0].isFinal);
                     
+                    if (e.results[0].isFinal === false) {
+                      return;
+                    }
                     
                     //if (config.interimResults === true || e.results[0].isFinal) {
                     
