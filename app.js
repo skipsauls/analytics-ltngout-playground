@@ -71,12 +71,13 @@ if (process.env.HEROKU === 'true') {
 console.warn('appId: ', appId);
 */
 
+/*
 var amazonProductClient = amazonProductAPI.createClient({
   awsId: "AKIAIQAC2ZVNW4GUCBEA",
   awsSecret: "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",
   awsTag: "sfdcdemo-20"
 });
-
+*/
 
 /*
 // R Test
