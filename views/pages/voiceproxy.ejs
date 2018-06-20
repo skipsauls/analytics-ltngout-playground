@@ -275,7 +275,7 @@
                     }
                     
                     
-                    recognition.stop();
+                    //recognition.stop();
 
 
                     //if (config.interimResults === true || e.results[0].isFinal) {
@@ -308,6 +308,7 @@
                         function postResponse() {
                           console.warn('voiceproxy - sending json using requestAnimationFrame: ', json);
                           window.parent.postMessage(json, ltng_origin);
+                          recognition.stop();
 
                         }
                         window.requestAnimationFrame(postResponse);
