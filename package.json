@@ -15,7 +15,6 @@
   "dependencies": {
     "@salesforce-ux/design-system": "^2.3.1",
     "alexa-sdk": "^1.0.12",
-    "amazon-product-api": "^0.4.4",
     "base-64": "^0.1.0",
     "body-parser": "^1.17.2",
     "cometd-nodejs-server": "^1.0.2",
@@ -26,7 +25,6 @@
     "express-session": "^1.15.5",
     "express-ws": "^3.0.0",
     "heroku-ssl-redirect": "0.0.4",
-    "hot-formula-parser": "^2.3.1",
     "http-proxy-middleware": "^0.17.4",
     "lowdb": "^0.16.2",
     "notevil": "^1.1.0",

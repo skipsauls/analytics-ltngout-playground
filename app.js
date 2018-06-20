@@ -19,7 +19,9 @@ var randomWords = require('random-words');
 var WebSocket = require('ws');
 var Twitter = require('twitter');
 var base64 = require('base-64');
-var amazonProductAPI = require('amazon-product-api');
+
+
+//var amazonProductAPI = require('amazon-product-api');
 
 
 /*
