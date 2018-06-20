@@ -13,8 +13,6 @@
         var ltng_url = params.ltng_url;
         var _uid = params.ltng_uid;
         
-        var _busy = false;
-
         console.warn('voiceProxy ltng_origin: ', ltng_origin);
         console.warn('voiceProxy ltng_url: ', ltng_url);
         console.warn('voiceProxy _uid: ', _uid);
@@ -263,8 +261,6 @@
                       
                 var response = null;
                 
-                var _busy = false;
-
                 recognition.onresult = function(e) {
                     console.warn('voiceproxy - recognition.onresult: ', e.results[0].isFinal, e);
 
@@ -316,17 +312,18 @@
                         }
                         window.requestAnimationFrame(postResponse);
 */                        
-                        _busy = true;
                         console.warn('voiceproxy - sending json: ', json);
                         window.parent.postMessage(json, ltng_origin);            
-                        //recognition.stop();
+                        
+                        recognition.stop();
 
+                        /*
                         setTimeout(function() {
                           console.warn('voiceproxy - onresult called setTimeout, now calling recognition.stop');
                           recognition.stop();
-                          _busy = false;
                         }, 3000);
-                        
+                        */
+
                         /*
                         function stopRecognition() {
                           recognition.stop();
@@ -654,9 +651,7 @@
         }
         
         function getByteTimeDomainData(config) {
-            if (_busy === true) {
-              return;
-            }
+
             //console.warn('voiceProxy.getByteTimeDomainData: ', config);
 
             var visualSetting = config.visualSetting || 'sinewave';
