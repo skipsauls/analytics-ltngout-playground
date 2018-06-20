@@ -262,7 +262,7 @@
                 var response = null;
                 
                 recognition.onresult = function(e) {
-                    console.warn('voiceproxy - recognition.onresult: ', e);
+                    //console.warn('voiceproxy - recognition.onresult: ', e);
 
                     /*                    
                     console.warn('results.length: ', e.results.length);
@@ -286,7 +286,7 @@
                             resultList = [];
                             for (var j = 0; j < e.results[i].length; j++) {
                                 alternative = e.results[i][j];
-                                console.warn('alternative: ', alternative);
+                                //console.warn('alternative: ', alternative);
                                 resultList.push({
                                     transcript: alternative.transcript,
                                     confidence: alternative.confidence,
