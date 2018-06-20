@@ -35,7 +35,7 @@ var safeEval = require('safe-eval');
 // Load libraries for eval here 
 //var dateFormat = require('dateformat');
 
-
+/*
 var oxr = require('open-exchange-rates');
 var fx = require('money');
 var accounting = require('accounting');
@@ -47,7 +47,7 @@ oxr.latest(function() {
 	fx.rates = oxr.rates;
 	fx.base = oxr.base;	
 });
-
+*/
 
 var port = process.env.PORT || 3000;
 var https_port = process.env.HTTPS_PORT || parseInt(port) + 1;
