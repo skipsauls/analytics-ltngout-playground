@@ -316,11 +316,17 @@
                         //console.warn('voiceproxy - sending json: ', json);
                         window.parent.postMessage(json, ltng_origin);            
                         //recognition.stop();
-                        
-                        function stopRecognition() {
+
+                        setTimeout(function() {
+                          console.warn('voiceproxy - onresult called setTimeout, now calling recognition.stop');
                           recognition.stop();
+                        }, 1000);
+
+                        /*
+                        function stopRecognition() {
                         }
                         window.requestAnimationFrame(stopRecognition);
+                        */
 
                     }
                 };
