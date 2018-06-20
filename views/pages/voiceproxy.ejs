@@ -316,7 +316,7 @@
 
                         //console.warn('voiceproxy - sending json: ', json);
                         window.parent.postMessage(json, ltng_origin);            
-                        recognition.stop();
+                        //recognition.stop();
 
                     }
                 };
@@ -325,7 +325,7 @@
                     console.warn('voiceproxy - recognition.onerror: ', e);
                     //console.warn('error: ', e.error);
                     //console.warn('message: ', e.message);
-                    recognition.stop();
+                    //recognition.stop();
                     response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onerror',
