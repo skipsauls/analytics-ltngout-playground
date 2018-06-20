@@ -301,7 +301,11 @@
                                                                             
                         var json = JSON.stringify({type: "response", uid: _uid, response: response});
                         console.warn('voiceproxy - sending json: ', json);
-                        window.parent.postMessage(json, ltng_origin);            
+                        function postResponse() {
+                          window.parent.postMessage(json, ltng_origin);            
+                        }
+                        window.requestAnimationFrame(postResponse);
+                        //window.parent.postMessage(json, ltng_origin);            
                         recognition.stop();
 
                     //}
