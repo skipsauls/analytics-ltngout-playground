@@ -304,7 +304,7 @@
                         };
                                                                             
                         var json = JSON.stringify({type: "response", uid: _uid, response: response});
-
+/*
                         function postResponse() {
                           console.warn('voiceproxy - sending json using requestAnimationFrame: ', json);
                           window.parent.postMessage(json, ltng_origin);
@@ -312,10 +312,11 @@
 
                         }
                         window.requestAnimationFrame(postResponse);
+*/                        
 
-                        //console.warn('voiceproxy - sending json: ', json);
-                        //window.parent.postMessage(json, ltng_origin);            
-                        //recognition.stop();
+                        console.warn('voiceproxy - sending json: ', json);
+                        window.parent.postMessage(json, ltng_origin);            
+                        recognition.stop();
 
                     }
                 };
