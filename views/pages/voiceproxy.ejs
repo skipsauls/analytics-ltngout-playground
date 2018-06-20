@@ -511,7 +511,6 @@
         // window. is needed otherwise Safari explodes
         
         var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        console.warn('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% voiceProxy - audioCtx: ', audioCtx);
         var voiceSelect = null;
         var source;
         var stream;
@@ -527,8 +526,6 @@
         analyser.maxDecibels = -10;
         analyser.smoothingTimeConstant = 0.85;
 
-        console.warn('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% voiceProxy - analyser: ', analyser);
-        
         var distortion = audioCtx.createWaveShaper();
         var gainNode = audioCtx.createGain();
         var biquadFilter = audioCtx.createBiquadFilter();
@@ -552,12 +549,10 @@
         };
                 
         if (navigator.mediaDevices.getUserMedia) {
-           console.log('getUserMedia supported.');
            var constraints = {audio: true}
            navigator.mediaDevices.getUserMedia (constraints)
               .then(
                 function(stream) {
-                   console.warn('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
                    source = audioCtx.createMediaStreamSource(stream);
                    source.connect(analyser);
                    analyser.connect(distortion);
@@ -566,10 +561,7 @@
                    convolver.connect(gainNode);
                    gainNode.connect(audioCtx.destination);
         
-                   console.warn(']]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]] calling analyze');
                    analyze();
-                   //visualize();
-                   //voiceChange();
               })
               .catch( function(err) { console.log('The following gUM error occured: ' + err);})
         } else {
@@ -595,7 +587,6 @@
         
           
         function analyze() {
-            console.warn('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ analyze');
             //var visualSetting = config.visualSetting || 'sinewave';
             var visualSetting = 'sinewave';
             
@@ -617,17 +608,17 @@
                 analyser.getByteFrequencyData(dataArrayAlt);                
             }
         
-            console.warn('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ dataArray: ',typeof dataArray, dataArray);
-            console.warn('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ dataArrayAlt: ',typeof dataArrayAlt, dataArrayAlt);  
+            //console.warn('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ dataArray: ',typeof dataArray, dataArray);
+            //console.warn('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ dataArrayAlt: ',typeof dataArrayAlt, dataArrayAlt);  
         
         }
         
         function getByteTimeDomainData(config) {
-            console.warn('voiceProxy.getByteTimeDomainData: ', config);
+            //console.warn('voiceProxy.getByteTimeDomainData: ', config);
 
             var visualSetting = config.visualSetting || 'sinewave';
             
-            console.warn('dataArray: ',typeof dataArray, dataArray)  
+            //console.warn('dataArray: ',typeof dataArray, dataArray)  
             if (visualSetting === 'sinewave') {
                 /*
                 analyser.fftSize = 2048;
@@ -636,9 +627,7 @@
                 dataArray = new Uint8Array(bufferLength);
                 */
                 
-                console.warn('1 dataArray: ', dataArray);
                 analyser.getByteTimeDomainData(dataArray);                
-                console.warn('2 dataArray: ', dataArray);
                                  
             } else if (visualSetting === 'frequencybars') {    
                 /*
@@ -648,9 +637,7 @@
                 dataArray = new Uint8Array(bufferLength);
                 */
                 
-                console.warn('1 dataArrayAlt: ', dataArrayAlt);
                 analyser.getByteFrequencyData(dataArrayAlt); 
-                console.warn('2 dataArrayAlt: ', dataArrayAlt);
             }
                        
                                     
@@ -662,7 +649,7 @@
             };
                              
             var json = JSON.stringify({type: "response", uid: _uid, response: response});
-            console.warn('voiceProxy sending json: ', json.length, json);
+            //console.warn('voiceProxy sending json: ', json.length, json);
             window.parent.postMessage(json, ltng_origin);        
         }
   
