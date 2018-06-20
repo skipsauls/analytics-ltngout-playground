@@ -274,6 +274,10 @@
                       return;
                     }
                     
+                    
+                    recognition.stop();
+
+
                     //if (config.interimResults === true || e.results[0].isFinal) {
                     
                         var resultsList = [];
@@ -303,13 +307,14 @@
 
                         function postResponse() {
                           console.warn('voiceproxy - sending json using requestAnimationFrame: ', json);
-                          window.parent.postMessage(json, ltng_origin);            
+                          window.parent.postMessage(json, ltng_origin);
+
                         }
                         window.requestAnimationFrame(postResponse);
 
                         //console.warn('voiceproxy - sending json: ', json);
                         //window.parent.postMessage(json, ltng_origin);            
-                        recognition.stop();
+                        //recognition.stop();
 
                     }
                 };
