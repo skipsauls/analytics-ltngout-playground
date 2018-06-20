@@ -599,6 +599,31 @@ app.get('/iframe', function(req, res) {
     res.render('pages/iframe', {title: 'Einstein Analytics - iFrame Test', appId: _appAuth['wavepm'].appId});
 });
 
+var getParams = function(req){
+  let q=req.url.split('?'),result={};
+  if(q.length>=2){
+      q[1].split('&').forEach((item)=>{
+           try {
+             result[item.split('=')[0]]=item.split('=')[1];
+           } catch (e) {
+             result[item.split('=')[0]]='';
+           }
+      })
+  }
+  return result;
+}
+
+// Voice Analyzer
+app.get('/voiceproxy', function(req, res) {
+	req.params = getParams(req);
+	console.warn('req.params: ', req.params);
+	var params = JSON.stringify(req.params);
+	console.warn('params: ', params);
+    res.render('pages/voiceproxy', {title: 'Einstein Analytics - Voice Proxy', params: params});
+});
+
+
+
 // Amazon Item Lookup
 app.get('/amazon/item/lookup/:asin?', function(req, res) {	
 	var asin = req.params.asin;
