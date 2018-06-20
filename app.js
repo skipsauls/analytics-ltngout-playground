@@ -33,7 +33,7 @@ var R = require("r-script");
 var safeEval = require('safe-eval');
 
 // Load libraries for eval here 
-var dateFormat = require('dateformat');
+//var dateFormat = require('dateformat');
 
 
 var oxr = require('open-exchange-rates');
