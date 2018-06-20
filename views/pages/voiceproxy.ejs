@@ -257,7 +257,7 @@
                     recognition.interimResults = config.interimResults;
                     recognition.maxAlternatives = config.maxAlternatives;            
                     recognition.lang = "en-US";
-                }
+                //}
                       
                 var response = null;
                 
@@ -311,7 +311,7 @@
                         //window.parent.postMessage(json, ltng_origin);            
                         recognition.stop();
 
-                    //}
+                    }
                 };
                 
                 recognition.onerror = function(e) {
