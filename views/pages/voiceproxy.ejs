@@ -313,7 +313,7 @@
                         window.requestAnimationFrame(postResponse);
 */                        
 
-                        //console.warn('voiceproxy - sending json: ', json);
+                        console.warn('voiceproxy - sending json: ', json);
                         window.parent.postMessage(json, ltng_origin);            
                         //recognition.stop();
 
@@ -323,7 +323,7 @@
                           recognition.stop();
                         }, 1000);
                         */
-                        
+
                         /*
                         function stopRecognition() {
                         }
