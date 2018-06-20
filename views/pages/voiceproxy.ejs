@@ -264,12 +264,12 @@
                 recognition.onresult = function(e) {
                     console.warn('voiceproxy - recognition.onresult: ', e);
 
-                    /*                    
+                                        
                     console.warn('results.length: ', e.results.length);
                     console.warn('transcript: ', e.results[0][0].transcript);
                     console.warn('confidence: ', e.results[0][0].confidence);                    
                     console.warn('isFinal: ', e.results[0].isFinal);
-                    */
+                    
                     
                     //if (config.interimResults === true || e.results[0].isFinal) {
                     
@@ -297,6 +297,7 @@
                         };
                                                                             
                         var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                        console.warn('voiceproxy - sending json: ', json);
                         window.parent.postMessage(json, ltng_origin);            
                         recognition.stop();
 
