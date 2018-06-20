@@ -654,7 +654,7 @@
         }
         
         function getByteTimeDomainData(config) {
-            if (_busy) {
+            if (_busy === true) {
               return;
             }
             //console.warn('voiceProxy.getByteTimeDomainData: ', config);
