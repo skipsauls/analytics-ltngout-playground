@@ -262,7 +262,7 @@
                 var response = null;
                 
                 recognition.onresult = function(e) {
-                    //console.warn('recognition.onresult: ', e);
+                    console.warn('voiceproxy - recognition.onresult: ', e);
 
                     /*                    
                     console.warn('results.length: ', e.results.length);
@@ -304,7 +304,7 @@
                 };
                 
                 recognition.onerror = function(e) {
-                    //console.warn('recognition.onerror: ', e);
+                    console.warn('rvoiceproxy - ecognition.onerror: ', e);
                     //console.warn('error: ', e.error);
                     //console.warn('message: ', e.message);
                     recognition.stop();
@@ -322,7 +322,7 @@
                 }
         
                 recognition.nomatch = function(e) {
-                    //console.warn('recognition.nomatch: ', e);
+                    console.warn('voiceproxy - recognition.nomatch: ', e);
                     recognition.stop();
                     response = {
                         source: 'SpeechRecognition',                    
@@ -337,7 +337,7 @@
                 }
                 
                 recognition.onstart = function(e) {
-                    //console.warn('recognition.onstart: ', e);
+                    console.warn('voiceproxy - recognition.onstart: ', e);
                     var response = {
                         source: 'SpeechRecognition',                
                         phase: 'onstart',
@@ -348,7 +348,7 @@
                     window.parent.postMessage(json, ltng_origin);            
                 }
                 recognition.onend = function(e) {
-                    //console.warn('recognition.onend: ', e);
+                    console.warn('voiceproxy - recognition.onend: ', e);
                     
                     _recognition = null;
                     
@@ -362,7 +362,7 @@
                     window.parent.postMessage(json, ltng_origin);            
                 }            
                 recognition.onspeechstart = function(e) {
-                    //console.warn('recognition.onspeechstart: ', e);
+                    console.warn('voiceproxy - recognition.onspeechstart: ', e);
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onspeechstart',
@@ -373,7 +373,7 @@
                     window.parent.postMessage(json, ltng_origin);            
                 }
                 recognition.onspeechend = function(e) {
-                    //console.warn('recognition.onspeechend: ', e);
+                    console.warn('voiceproxy - recognition.onspeechend: ', e);
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onspeechend',
@@ -384,7 +384,7 @@
                     window.parent.postMessage(json, ltng_origin);                     
                 }
                 recognition.onsoundstart = function(e) {
-                    //console.warn('recognition.onsoundstart: ', e);
+                    console.warn('rvoiceproxy - ecognition.onsoundstart: ', e);
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onsoundstart',
@@ -395,7 +395,7 @@
                     window.parent.postMessage(json, ltng_origin);                     
                 }
                 recognition.onsoundend = function(e) {
-                    //console.warn('recognition.onsoundend: ', e);
+                    console.warn('voiceproxy - recognition.onsoundend: ', e);
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onsoundend',
@@ -406,7 +406,7 @@
                     window.parent.postMessage(json, ltng_origin);                     
                 }
                 recognition.onaudiostart = function(e) {
-                    //console.warn('recognition.onaudiostart: ', e);
+                    console.warn('voiceproxy - recognition.onaudiostart: ', e);
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onaudiostart',
@@ -417,7 +417,7 @@
                     window.parent.postMessage(json, ltng_origin);                     
                 }
                 recognition.onaudioend = function(e) {
-                    //console.warn('recognition.onaudioend: ', e);
+                    console.warn('voiceproxy - recognition.onaudioend: ', e);
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onaudioend',
@@ -428,7 +428,7 @@
                     window.parent.postMessage(json, ltng_origin);                     
                 }            
                 recognition.onpause = function(e) {
-                    //console.warn('recognition.onpause: ', e);
+                    console.warn('voiceproxy - recognition.onpause: ', e);
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onpause',
@@ -439,7 +439,7 @@
                     window.parent.postMessage(json, ltng_origin);                     
                 }
                 recognition.onresume = function(e) {
-                    //console.warn('recognition.onresume: ', e);
+                    console.warn('voiceproxy - recognition.onresume: ', e);
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onresume',
