@@ -13,9 +13,9 @@
         var ltng_url = params.ltng_url;
         var _uid = params.ltng_uid;
         
-        console.warn('voiceProxy ltng_origin: ', ltng_origin);
-        console.warn('voiceProxy ltng_url: ', ltng_url);
-        console.warn('voiceProxy _uid: ', _uid);
+        console.warn('voiceproxy ltng_origin: ', ltng_origin);
+        console.warn('voiceproxy ltng_url: ', ltng_url);
+        console.warn('voiceproxy _uid: ', _uid);
                 
         window.addEventListener("message", messageHandler, true);
         var json = JSON.stringify({type: "ready", uid: _uid});
@@ -216,7 +216,7 @@
         
         function startDictation(config) {
         
-            console.warn('startDictation: ', config);
+            console.warn('voiceproxy - startDictation: ', config);
             
             //console.warn("window.hasOwnProperty('webkitSpeechRecognition'): ", window.hasOwnProperty('webkitSpeechRecognition'));
             
@@ -257,199 +257,199 @@
                     recognition.interimResults = config.interimResults;
                     recognition.maxAlternatives = config.maxAlternatives;            
                     recognition.lang = "en-US";
-                }
-                      
-                var response = null;
-                
-                recognition.onresult = function(e) {
-                    console.warn('voiceproxy - recognition.onresult: ', e);
+                //}
+                          
+                    var response = null;
+                    
+                    recognition.onresult = function(e) {
+                        console.warn('voiceproxy - recognition.onresult: ', e);
 
-                    console.warn('results.length: ', e.results.length);
-                    console.warn('transcript: ', e.results[0][0].transcript);
-                    console.warn('confidence: ', e.results[0][0].confidence);                    
-                    console.warn('isFinal: ', e.results[0].isFinal);
-                    
-                    //if (config.interimResults === true || e.results[0].isFinal) {
-                    
-                        var resultsList = [];
-                        var alternative = null;
-                        for (var i = 0; i < e.results.length; i++) {
-                            resultList = [];
-                            for (var j = 0; j < e.results[i].length; j++) {
-                                alternative = e.results[i][j];
-                                console.warn('alternative: ', alternative);
-                                resultList.push({
-                                    transcript: alternative.transcript,
-                                    confidence: alternative.confidence,
-                                    isFinal: e.results[i].isFinal //alternative.isFinal === true ? true : false
-                                });
-                            }
-                            resultsList.push(resultList);
-                        }                  
+                        console.warn('results.length: ', e.results.length);
+                        console.warn('transcript: ', e.results[0][0].transcript);
+                        console.warn('confidence: ', e.results[0][0].confidence);                    
+                        console.warn('isFinal: ', e.results[0].isFinal);
                         
+                        //if (config.interimResults === true || e.results[0].isFinal) {
+                        
+                            var resultsList = [];
+                            var alternative = null;
+                            for (var i = 0; i < e.results.length; i++) {
+                                resultList = [];
+                                for (var j = 0; j < e.results[i].length; j++) {
+                                    alternative = e.results[i][j];
+                                    console.warn('alternative: ', alternative);
+                                    resultList.push({
+                                        transcript: alternative.transcript,
+                                        confidence: alternative.confidence,
+                                        isFinal: e.results[i].isFinal //alternative.isFinal === true ? true : false
+                                    });
+                                }
+                                resultsList.push(resultList);
+                            }                  
+                            
+                            response = {
+                                source: 'SpeechRecognition',                        
+                                phase: 'onresult',
+                                results: resultsList,
+                                config: config
+                            };
+                                                                                
+                            var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                            window.parent.postMessage(json, ltng_origin);            
+                            recognition.stop();
+
+                        //}
+                    };
+                    
+                    recognition.onerror = function(e) {
+                        //console.warn('recognition.onerror: ', e);
+                        //console.warn('error: ', e.error);
+                        //console.warn('message: ', e.message);
+                        recognition.stop();
                         response = {
-                            source: 'SpeechRecognition',                        
-                            phase: 'onresult',
-                            results: resultsList,
+                            source: 'SpeechRecognition',                    
+                            phase: 'onerror',
+                            error: {
+                                error: e.error,
+                                message: e.message
+                            },
+                            config: config
+                        };                
+                        var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                        window.parent.postMessage(json, ltng_origin);                
+                    }
+            
+                    recognition.nomatch = function(e) {
+                        //console.warn('recognition.nomatch: ', e);
+                        recognition.stop();
+                        response = {
+                            source: 'SpeechRecognition',                    
+                            phase: 'nomatch',
+                            error: {
+                                error: 'No match'
+                            },
+                            config: config
+                        };                
+                        var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                        window.parent.postMessage(json, ltng_origin);                
+                    }
+                    
+                    recognition.onstart = function(e) {
+                        //console.warn('recognition.onstart: ', e);
+                        var response = {
+                            source: 'SpeechRecognition',                
+                            phase: 'onstart',
                             config: config
                         };
                                                                             
                         var json = JSON.stringify({type: "response", uid: _uid, response: response});
                         window.parent.postMessage(json, ltng_origin);            
-                        recognition.stop();
-
-                    //}
-                };
-                
-                recognition.onerror = function(e) {
-                    //console.warn('recognition.onerror: ', e);
-                    //console.warn('error: ', e.error);
-                    //console.warn('message: ', e.message);
-                    recognition.stop();
-                    response = {
-                        source: 'SpeechRecognition',                    
-                        phase: 'onerror',
-                        error: {
-                            error: e.error,
-                            message: e.message
-                        },
-                        config: config
-                    };                
-                    var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                    window.parent.postMessage(json, ltng_origin);                
-                }
-        
-                recognition.nomatch = function(e) {
-                    //console.warn('recognition.nomatch: ', e);
-                    recognition.stop();
-                    response = {
-                        source: 'SpeechRecognition',                    
-                        phase: 'nomatch',
-                        error: {
-                            error: 'No match'
-                        },
-                        config: config
-                    };                
-                    var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                    window.parent.postMessage(json, ltng_origin);                
-                }
-                
-                recognition.onstart = function(e) {
-                    //console.warn('recognition.onstart: ', e);
-                    var response = {
-                        source: 'SpeechRecognition',                
-                        phase: 'onstart',
-                        config: config
-                    };
-                                                                        
-                    var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                    window.parent.postMessage(json, ltng_origin);            
-                }
-                recognition.onend = function(e) {
-                    //console.warn('recognition.onend: ', e);
+                    }
+                    recognition.onend = function(e) {
+                        //console.warn('recognition.onend: ', e);
+                        
+                        _recognition = null;
+                        
+                        var response = {
+                            source: 'SpeechRecognition',                    
+                            phase: 'onend',
+                            config: config
+                        };
+                                                                            
+                        var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                        window.parent.postMessage(json, ltng_origin);            
+                    }            
+                    recognition.onspeechstart = function(e) {
+                        //console.warn('recognition.onspeechstart: ', e);
+                        var response = {
+                            source: 'SpeechRecognition',                    
+                            phase: 'onspeechstart',
+                            config: config
+                        };
+                                                                            
+                        var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                        window.parent.postMessage(json, ltng_origin);            
+                    }
+                    recognition.onspeechend = function(e) {
+                        //console.warn('recognition.onspeechend: ', e);
+                        var response = {
+                            source: 'SpeechRecognition',                    
+                            phase: 'onspeechend',
+                            config: config
+                        };
+                                                                            
+                        var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                        window.parent.postMessage(json, ltng_origin);                     
+                    }
+                    recognition.onsoundstart = function(e) {
+                        //console.warn('recognition.onsoundstart: ', e);
+                        var response = {
+                            source: 'SpeechRecognition',                    
+                            phase: 'onsoundstart',
+                            config: config
+                        };
+                                                                            
+                        var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                        window.parent.postMessage(json, ltng_origin);                     
+                    }
+                    recognition.onsoundend = function(e) {
+                        //console.warn('recognition.onsoundend: ', e);
+                        var response = {
+                            source: 'SpeechRecognition',                    
+                            phase: 'onsoundend',
+                            config: config
+                        };
+                                                                            
+                        var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                        window.parent.postMessage(json, ltng_origin);                     
+                    }
+                    recognition.onaudiostart = function(e) {
+                        //console.warn('recognition.onaudiostart: ', e);
+                        var response = {
+                            source: 'SpeechRecognition',                    
+                            phase: 'onaudiostart',
+                            config: config
+                        };
+                                                                            
+                        var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                        window.parent.postMessage(json, ltng_origin);                     
+                    }
+                    recognition.onaudioend = function(e) {
+                        //console.warn('recognition.onaudioend: ', e);
+                        var response = {
+                            source: 'SpeechRecognition',                    
+                            phase: 'onaudioend',
+                            config: config
+                        };
+                                                                            
+                        var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                        window.parent.postMessage(json, ltng_origin);                     
+                    }            
+                    recognition.onpause = function(e) {
+                        //console.warn('recognition.onpause: ', e);
+                        var response = {
+                            source: 'SpeechRecognition',                    
+                            phase: 'onpause',
+                            config: config
+                        };
+                                                                            
+                        var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                        window.parent.postMessage(json, ltng_origin);                     
+                    }
+                    recognition.onresume = function(e) {
+                        //console.warn('recognition.onresume: ', e);
+                        var response = {
+                            source: 'SpeechRecognition',                    
+                            phase: 'onresume',
+                            config: config
+                        };
+                                                                            
+                        var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                        window.parent.postMessage(json, ltng_origin);                     
+                    }
                     
-                    _recognition = null;
-                    
-                    var response = {
-                        source: 'SpeechRecognition',                    
-                        phase: 'onend',
-                        config: config
-                    };
-                                                                        
-                    var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                    window.parent.postMessage(json, ltng_origin);            
-                }            
-                recognition.onspeechstart = function(e) {
-                    //console.warn('recognition.onspeechstart: ', e);
-                    var response = {
-                        source: 'SpeechRecognition',                    
-                        phase: 'onspeechstart',
-                        config: config
-                    };
-                                                                        
-                    var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                    window.parent.postMessage(json, ltng_origin);            
+                    recognition.start();
                 }
-                recognition.onspeechend = function(e) {
-                    //console.warn('recognition.onspeechend: ', e);
-                    var response = {
-                        source: 'SpeechRecognition',                    
-                        phase: 'onspeechend',
-                        config: config
-                    };
-                                                                        
-                    var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                    window.parent.postMessage(json, ltng_origin);                     
-                }
-                recognition.onsoundstart = function(e) {
-                    //console.warn('recognition.onsoundstart: ', e);
-                    var response = {
-                        source: 'SpeechRecognition',                    
-                        phase: 'onsoundstart',
-                        config: config
-                    };
-                                                                        
-                    var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                    window.parent.postMessage(json, ltng_origin);                     
-                }
-                recognition.onsoundend = function(e) {
-                    //console.warn('recognition.onsoundend: ', e);
-                    var response = {
-                        source: 'SpeechRecognition',                    
-                        phase: 'onsoundend',
-                        config: config
-                    };
-                                                                        
-                    var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                    window.parent.postMessage(json, ltng_origin);                     
-                }
-                recognition.onaudiostart = function(e) {
-                    //console.warn('recognition.onaudiostart: ', e);
-                    var response = {
-                        source: 'SpeechRecognition',                    
-                        phase: 'onaudiostart',
-                        config: config
-                    };
-                                                                        
-                    var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                    window.parent.postMessage(json, ltng_origin);                     
-                }
-                recognition.onaudioend = function(e) {
-                    //console.warn('recognition.onaudioend: ', e);
-                    var response = {
-                        source: 'SpeechRecognition',                    
-                        phase: 'onaudioend',
-                        config: config
-                    };
-                                                                        
-                    var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                    window.parent.postMessage(json, ltng_origin);                     
-                }            
-                recognition.onpause = function(e) {
-                    //console.warn('recognition.onpause: ', e);
-                    var response = {
-                        source: 'SpeechRecognition',                    
-                        phase: 'onpause',
-                        config: config
-                    };
-                                                                        
-                    var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                    window.parent.postMessage(json, ltng_origin);                     
-                }
-                recognition.onresume = function(e) {
-                    //console.warn('recognition.onresume: ', e);
-                    var response = {
-                        source: 'SpeechRecognition',                    
-                        phase: 'onresume',
-                        config: config
-                    };
-                                                                        
-                    var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                    window.parent.postMessage(json, ltng_origin);                     
-                }
-                
-                recognition.start();
-                //}
             }
         }
         
