@@ -312,12 +312,13 @@
                             //console.warn('voiceproxy - sending json: ', json);
                             window.parent.postMessage(json, ltng_origin);            
                             
-                            //recognition.stop();
-
+                            recognition.stop();
+/*
                             setTimeout(function() {
                               //console.warn('voiceanalysisproxy - onresult called setTimeout, now calling recognition.stop');
                               recognition.stop();
-                            }, 50);                            
+                            }, 50);
+*/                            
 
                         }
                     };
