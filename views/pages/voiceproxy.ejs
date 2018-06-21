@@ -216,7 +216,7 @@
         
         function startDictation(config) {
         
-            //console.warn('startDictation: ', config);
+            console.warn('startDictation: ', config);
             
             //console.warn("window.hasOwnProperty('webkitSpeechRecognition'): ", window.hasOwnProperty('webkitSpeechRecognition'));
             
@@ -257,7 +257,7 @@
                     recognition.interimResults = config.interimResults;
                     recognition.maxAlternatives = config.maxAlternatives;            
                     recognition.lang = "en-US";
-
+                }
                       
                 var response = null;
                 
@@ -449,7 +449,7 @@
                 }
                 
                 recognition.start();
-                }
+                //}
             }
         }
         
