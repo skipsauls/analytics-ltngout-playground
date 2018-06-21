@@ -40,6 +40,8 @@
                 var type = data.type;
                 var uid = data.uid;
                 
+                console.warn('data: ', data.type, data.uid);
+                
                 if (type === 'startDictation' && _uid === uid) {
                     startDictation(data.config);
                 } else if (type === 'stopDictation' && _uid === uid) {
