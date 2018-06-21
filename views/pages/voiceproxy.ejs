@@ -159,6 +159,7 @@
             window.parent.postMessage(json, ltng_origin);                    
         }
         
+        /*
         function _getVoices() {
             //console.warn('voiceproxy - _getVoices');
             setTimeout(function() {
@@ -204,6 +205,7 @@
         } else {
             _getVoices();
         }
+        */
                                             
         function getVoices(config) {
             
@@ -213,7 +215,7 @@
                 config: config
             }; 
 
-            var json = JSON.stringify({type: "response", uid: _uid, response: response});
+            var json = JSON.stringify({type: "response", uid: _uid, response: {voices: _voiceList}});
             window.parent.postMessage(json, ltng_origin);  
 
         }
@@ -400,7 +402,6 @@
                         var json = JSON.stringify({type: "response", uid: _uid, response: response});
                         window.parent.postMessage(json, ltng_origin);                     
                     }
-                    /*
                     recognition.onsoundstart = function(e) {
                         //console.warn('recognition.onsoundstart: ', e);
                         var response = {
@@ -444,8 +445,7 @@
                                                                             
                         var json = JSON.stringify({type: "response", uid: _uid, response: response});
                         window.parent.postMessage(json, ltng_origin);                     
-                    }
-                    */            
+                    }            
                     recognition.onpause = function(e) {
                         //console.warn('recognition.onpause: ', e);
                         var response = {
