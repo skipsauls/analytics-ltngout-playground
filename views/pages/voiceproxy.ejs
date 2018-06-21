@@ -224,7 +224,7 @@
         
         function startDictation(config) {
         
-            //console.warn('voiceproxy - startDictation: ', config);
+            console.warn('voiceproxy - startDictation: ', config);
             
             //console.warn("window.hasOwnProperty('webkitSpeechRecognition'): ", window.hasOwnProperty('webkitSpeechRecognition'));
             
@@ -270,13 +270,11 @@
                     var response = null;
                     
                     recognition.onresult = function(e) {
-                        /*
                         console.warn('voiceproxy - recognition.onresult: ', e);
                         console.warn('results.length: ', e.results.length);
                         console.warn('transcript: ', e.results[0][0].transcript);
                         console.warn('confidence: ', e.results[0][0].confidence);                    
                         console.warn('isFinal: ', e.results[0].isFinal);
-                        */
 
                         if (e.results[0].isFinal) {
                         //if (config.interimResults === true || e.results[0].isFinal) {
@@ -356,7 +354,7 @@
                     }
                     
                     recognition.onstart = function(e) {
-                        //console.warn('recognition.onstart: ', e);
+                        console.warn('recognition.onstart: ', e);
                         var response = {
                             source: 'SpeechRecognition',                
                             phase: 'onstart',
@@ -367,7 +365,7 @@
                         window.parent.postMessage(json, ltng_origin);            
                     }
                     recognition.onend = function(e) {
-                        //console.warn('recognition.onend: ', e);
+                        console.warn('recognition.onend: ', e);
                         
                         _recognition = null;
                         
@@ -381,7 +379,7 @@
                         window.parent.postMessage(json, ltng_origin);            
                     }            
                     recognition.onspeechstart = function(e) {
-                        //console.warn('recognition.onspeechstart: ', e);
+                        console.warn('recognition.onspeechstart: ', e);
                         var response = {
                             source: 'SpeechRecognition',                    
                             phase: 'onspeechstart',
@@ -392,7 +390,7 @@
                         window.parent.postMessage(json, ltng_origin);            
                     }
                     recognition.onspeechend = function(e) {
-                        //console.warn('recognition.onspeechend: ', e);
+                        console.warn('recognition.onspeechend: ', e);
                         var response = {
                             source: 'SpeechRecognition',                    
                             phase: 'onspeechend',
@@ -449,7 +447,7 @@
                     }
                     */            
                     recognition.onpause = function(e) {
-                        //console.warn('recognition.onpause: ', e);
+                        console.warn('recognition.onpause: ', e);
                         var response = {
                             source: 'SpeechRecognition',                    
                             phase: 'onpause',
@@ -460,7 +458,7 @@
                         window.parent.postMessage(json, ltng_origin);                     
                     }
                     recognition.onresume = function(e) {
-                        //console.warn('recognition.onresume: ', e);
+                        console.warn('recognition.onresume: ', e);
                         var response = {
                             source: 'SpeechRecognition',                    
                             phase: 'onresume',
