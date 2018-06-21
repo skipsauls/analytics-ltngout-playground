@@ -201,7 +201,7 @@
 
             //var visualSetting = config.visualSetting || 'sinewave';
 
-            console.warn('voiceanalysisproxy.getByteTimeDomainData - visualSetting: ', visualSetting);
+            //console.warn('voiceanalysisproxy.getByteTimeDomainData - visualSetting: ', visualSetting);
             
             //console.warn('dataArray: ',typeof dataArray, dataArray)  
             if (visualSetting === 'sinewave') {
@@ -220,7 +220,7 @@
             };
                              
             var json = JSON.stringify({type: "response", uid: _uid, response: response});
-            console.warn('voiceanalysisproxy sending json: ', json.length, json);
+            //console.warn('voiceanalysisproxy sending json: ', json.length, json);
             window.parent.postMessage(json, ltng_origin);        
         }
 
