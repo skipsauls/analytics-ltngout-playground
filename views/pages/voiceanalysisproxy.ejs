@@ -21,13 +21,14 @@
         console.warn('voiceanalysisproxy - _uid: ', _uid);
         console.warn('voiceanalysisproxy - visualSetting: ', visualSetting);
 
-        
+        /*        
         window.addEventListener("message", messageHandler, true);
         var json = JSON.stringify({type: "ready", uid: _uid});
         var target = ltng_origin;
         if (window.parent && window.parent.postMessage && target !== null && target !== '') {
             window.parent.postMessage(json, target);
         }
+        */
             
         function messageHandler(event) {
             //console.warn('event.origin: ', event.origin);
@@ -41,7 +42,7 @@
                 var uid = data.uid;
                 
                 console.warn('data: ', data.type, data.uid);
-                
+
                 if (type === 'startDictation' && _uid === uid) {
                     startDictation(data.config);
                 } else if (type === 'stopDictation' && _uid === uid) {
@@ -196,11 +197,11 @@
             if (_busy === true) {
               return;
             }
-            //console.warn('voiceProxy.getByteTimeDomainData: ', config);
+            //console.warn('voiceanalysisproxy.getByteTimeDomainData: ', config);
 
             //var visualSetting = config.visualSetting || 'sinewave';
 
-            console.warn('voiceProxy.getByteTimeDomainData - visualSetting: ', visualSetting);
+            console.warn('voiceanalysisproxy.getByteTimeDomainData - visualSetting: ', visualSetting);
             
             //console.warn('dataArray: ',typeof dataArray, dataArray)  
             if (visualSetting === 'sinewave') {
@@ -219,9 +220,19 @@
             };
                              
             var json = JSON.stringify({type: "response", uid: _uid, response: response});
-            console.warn('voiceProxy sending json: ', json.length, json);
+            console.warn('voiceanalysisproxy sending json: ', json.length, json);
             window.parent.postMessage(json, ltng_origin);        
         }
+
+
+        // Send ready message
+        window.addEventListener("message", messageHandler, true);
+        var json = JSON.stringify({type: "ready", uid: _uid});
+        var target = ltng_origin;
+        if (window.parent && window.parent.postMessage && target !== null && target !== '') {
+            window.parent.postMessage(json, target);
+        }
+
   
     </script>
   </body>
