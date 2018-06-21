@@ -16,17 +16,13 @@
         console.warn('voiceproxy - mltng_origin: ', ltng_origin);
         console.warn('voiceproxy - ltng_url: ', ltng_url);
         console.warn('voiceproxy - _uid: ', _uid);
-
+                
         window.addEventListener("message", messageHandler, true);
-
-
-        /*                
         var json = JSON.stringify({type: "ready", uid: _uid});
         var target = ltng_origin;
         if (window.parent && window.parent.postMessage && target !== null && target !== '') {
             window.parent.postMessage(json, target);
         }
-        */
             
         function messageHandler(event) {
             //console.warn('event.origin: ', event.origin);
@@ -226,7 +222,7 @@
         
         function startDictation(config) {
         
-            console.warn('voiceproxy - startDictation: ', config);
+            //console.warn('voiceproxy - startDictation: ', config);
             
             //console.warn("window.hasOwnProperty('webkitSpeechRecognition'): ", window.hasOwnProperty('webkitSpeechRecognition'));
             
@@ -267,16 +263,18 @@
                     recognition.interimResults = config.interimResults;
                     recognition.maxAlternatives = config.maxAlternatives;            
                     recognition.lang = "en-US";
-                }
+                //}
                           
                     var response = null;
                     
                     recognition.onresult = function(e) {
+                        /*
                         console.warn('voiceproxy - recognition.onresult: ', e);
                         console.warn('results.length: ', e.results.length);
                         console.warn('transcript: ', e.results[0][0].transcript);
                         console.warn('confidence: ', e.results[0][0].confidence);                    
                         console.warn('isFinal: ', e.results[0].isFinal);
+                        */
 
                         if (e.results[0].isFinal) {
                         //if (config.interimResults === true || e.results[0].isFinal) {
@@ -323,10 +321,10 @@
                     };
                     
                     recognition.onerror = function(e) {
-                        console.warn('recognition.onerror: ', e);
-                        console.warn('error: ', e.error);
-                        console.warn('message: ', e.message);
-                        //recognition.stop();
+                        //console.warn('recognition.onerror: ', e);
+                        //console.warn('error: ', e.error);
+                        //console.warn('message: ', e.message);
+                        recognition.stop();
                         response = {
                             source: 'SpeechRecognition',                    
                             phase: 'onerror',
@@ -342,7 +340,7 @@
             
                     recognition.nomatch = function(e) {
                         //console.warn('recognition.nomatch: ', e);
-                        //recognition.stop();
+                        recognition.stop();
                         response = {
                             source: 'SpeechRecognition',                    
                             phase: 'nomatch',
@@ -356,7 +354,7 @@
                     }
                     
                     recognition.onstart = function(e) {
-                        console.warn('recognition.onstart: ', e);
+                        //console.warn('recognition.onstart: ', e);
                         var response = {
                             source: 'SpeechRecognition',                
                             phase: 'onstart',
@@ -367,7 +365,7 @@
                         window.parent.postMessage(json, ltng_origin);            
                     }
                     recognition.onend = function(e) {
-                        console.warn('recognition.onend: ', e);
+                        //console.warn('recognition.onend: ', e);
                         
                         _recognition = null;
                         
@@ -381,7 +379,7 @@
                         window.parent.postMessage(json, ltng_origin);            
                     }            
                     recognition.onspeechstart = function(e) {
-                        console.warn('recognition.onspeechstart: ', e);
+                        //console.warn('recognition.onspeechstart: ', e);
                         var response = {
                             source: 'SpeechRecognition',                    
                             phase: 'onspeechstart',
@@ -392,7 +390,7 @@
                         window.parent.postMessage(json, ltng_origin);            
                     }
                     recognition.onspeechend = function(e) {
-                        console.warn('recognition.onspeechend: ', e);
+                        //console.warn('recognition.onspeechend: ', e);
                         var response = {
                             source: 'SpeechRecognition',                    
                             phase: 'onspeechend',
@@ -449,7 +447,7 @@
                     }
                     */            
                     recognition.onpause = function(e) {
-                        console.warn('recognition.onpause: ', e);
+                        //console.warn('recognition.onpause: ', e);
                         var response = {
                             source: 'SpeechRecognition',                    
                             phase: 'onpause',
@@ -460,7 +458,7 @@
                         window.parent.postMessage(json, ltng_origin);                     
                     }
                     recognition.onresume = function(e) {
-                        console.warn('recognition.onresume: ', e);
+                        //console.warn('recognition.onresume: ', e);
                         var response = {
                             source: 'SpeechRecognition',                    
                             phase: 'onresume',
@@ -472,7 +470,7 @@
                     }
                     
                     recognition.start();
-                //}
+                }
             }
         }
         
@@ -494,44 +492,6 @@
                 window.parent.postMessage(json, ltng_origin);            
             }
         }
-
-        function sendReadyResponse() {
-          // Send ready message
-          console.warn('--------------------------------------------------------------------------------------------------');
-          console.warn('--------------------------------------------------------------------------------------------------');
-          console.warn('--------------------------------------------------------------------------------------------------');
-          console.warn('--------------------------------------------------------------------------------------------------');
-          console.warn('--------------------------------------------------------------------------------------------------');
-          console.warn('voiceproxy');
-          console.warn('--------------------------------------------------------------------------------------------------');
-          var response = {
-              type: 'ready',
-              service_name: 'voiceproxy',
-              remote_url: window.location.href,
-              ltng_origin: ltng_origin,
-              ltng_url: ltng_url,
-              uid: _uid
-          };
-
-          //var json = JSON.stringify({type: "ready", uid: _uid});
-
-          var json = JSON.stringify(response)
-          console.warn('voiceproxy - json: ', json);
-
-          var target = ltng_origin;
-          console.warn('voiceproxy - target: ', target);
-          if (window.parent && window.parent.postMessage && target !== null && target !== '') {
-              console.warn('postMessage: ', json, target);
-              window.parent.postMessage(json, target);
-          }
-          console.warn('--------------------------------------------------------------------------------------------------');
-          console.warn('--------------------------------------------------------------------------------------------------');
-          console.warn('--------------------------------------------------------------------------------------------------');
-          console.warn('--------------------------------------------------------------------------------------------------');
-          console.warn('--------------------------------------------------------------------------------------------------');
-        }
-        
-        window.onload = sendReadyResponse;
   
     </script>
   </body>
