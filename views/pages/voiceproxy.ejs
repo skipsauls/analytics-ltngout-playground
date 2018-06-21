@@ -262,13 +262,15 @@
                     var response = null;
                     
                     recognition.onresult = function(e) {
+                        /*
                         console.warn('voiceproxy - recognition.onresult: ', e);
-
                         console.warn('results.length: ', e.results.length);
                         console.warn('transcript: ', e.results[0][0].transcript);
                         console.warn('confidence: ', e.results[0][0].confidence);                    
                         console.warn('isFinal: ', e.results[0].isFinal);
-                        
+                        */
+
+                        if (e.results[0].isFinal) {
                         //if (config.interimResults === true || e.results[0].isFinal) {
                         
                             var resultsList = [];
@@ -277,7 +279,7 @@
                                 resultList = [];
                                 for (var j = 0; j < e.results[i].length; j++) {
                                     alternative = e.results[i][j];
-                                    console.warn('alternative: ', alternative);
+                                    //console.warn('alternative: ', alternative);
                                     resultList.push({
                                         transcript: alternative.transcript,
                                         confidence: alternative.confidence,
@@ -298,7 +300,7 @@
                             window.parent.postMessage(json, ltng_origin);            
                             recognition.stop();
 
-                        //}
+                        }
                     };
                     
                     recognition.onerror = function(e) {
