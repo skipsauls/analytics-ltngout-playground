@@ -19,7 +19,7 @@
 
         window.addEventListener("message", messageHandler, true);
 
-        
+
         /*                
         var json = JSON.stringify({type: "ready", uid: _uid});
         var target = ltng_origin;
@@ -323,10 +323,10 @@
                     };
                     
                     recognition.onerror = function(e) {
-                        //console.warn('recognition.onerror: ', e);
-                        //console.warn('error: ', e.error);
-                        //console.warn('message: ', e.message);
-                        recognition.stop();
+                        console.warn('recognition.onerror: ', e);
+                        console.warn('error: ', e.error);
+                        console.warn('message: ', e.message);
+                        //recognition.stop();
                         response = {
                             source: 'SpeechRecognition',                    
                             phase: 'onerror',
@@ -342,7 +342,7 @@
             
                     recognition.nomatch = function(e) {
                         //console.warn('recognition.nomatch: ', e);
-                        recognition.stop();
+                        //recognition.stop();
                         response = {
                             source: 'SpeechRecognition',                    
                             phase: 'nomatch',
