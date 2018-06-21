@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>
-      Voice Proxy
+      Voice Analysis Proxy
     </title>
   </head>
   <body>
@@ -13,10 +13,12 @@
         var ltng_url = params.ltng_url;
         var _uid = params.ltng_uid;
         
-        console.warn('voiceProxy ltng_origin: ', ltng_origin);
-        console.warn('voiceProxy ltng_url: ', ltng_url);
-        console.warn('voiceProxy _uid: ', _uid);
-                
+        var _busy = false;
+
+        console.warn('voiceanalysisproxy ltng_origin: ', ltng_origin);
+        console.warn('voiceanalysisproxy ltng_url: ', ltng_url);
+        console.warn('voiceanalysisproxy _uid: ', _uid);
+        
         window.addEventListener("message", messageHandler, true);
         var json = JSON.stringify({type: "ready", uid: _uid});
         var target = ltng_origin;
@@ -257,19 +259,27 @@
                     recognition.interimResults = config.interimResults;
                     recognition.maxAlternatives = config.maxAlternatives;            
                     recognition.lang = "en-US";
-
+                //}
                       
                 var response = null;
                 
                 recognition.onresult = function(e) {
-                    console.warn('voiceproxy - recognition.onresult: ', e);
+                    console.warn('voiceproxy - recognition.onresult: ', e.results[0].isFinal, e);
 
+                    /*                    
                     console.warn('results.length: ', e.results.length);
                     console.warn('transcript: ', e.results[0][0].transcript);
                     console.warn('confidence: ', e.results[0][0].confidence);                    
                     console.warn('isFinal: ', e.results[0].isFinal);
+                    */
+
+                    if (e.results[0].isFinal === false) {
+                      return;
+                    }
                     
-                    //if (config.interimResults === true || e.results[0].isFinal) {
+                    
+
+                    if (config.interimResults === true || e.results[0].isFinal) {
                     
                         var resultsList = [];
                         var alternative = null;
@@ -295,17 +305,46 @@
                         };
                                                                             
                         var json = JSON.stringify({type: "response", uid: _uid, response: response});
+/*
+                        function postResponse() {
+                          console.warn('voiceproxy - sending json using requestAnimationFrame: ', json);
+                          window.parent.postMessage(json, ltng_origin);
+                          recognition.stop();
+
+                        }
+                        window.requestAnimationFrame(postResponse);
+*/                        
+                        _busy = true;
+                        console.warn('voiceproxy - sending json: ', json);
                         window.parent.postMessage(json, ltng_origin);            
+                        
                         recognition.stop();
 
-                    //}
-                };
+                        /*
+                        setTimeout(function() {
+                          console.warn('voiceproxy - onresult called setTimeout, now calling recognition.stop');
+                          recognition.stop();
+                          _busy = false;
+                        }, 3000);
+                        */
+
+                        /*
+                        function stopRecognition() {
+                          recognition.stop();
+                        }
+                        window.requestAnimationFrame(stopRecognition);
+                        */
+
+                    }
+
+                    }
+                }
                 
                 recognition.onerror = function(e) {
-                    //console.warn('recognition.onerror: ', e);
+                    console.warn('voiceproxy - recognition.onerror: ', e);
                     //console.warn('error: ', e.error);
                     //console.warn('message: ', e.message);
-                    recognition.stop();
+                    //recognition.stop();
                     response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onerror',
@@ -320,7 +359,7 @@
                 }
         
                 recognition.nomatch = function(e) {
-                    //console.warn('recognition.nomatch: ', e);
+                    console.warn('voiceproxy - recognition.nomatch: ', e);
                     recognition.stop();
                     response = {
                         source: 'SpeechRecognition',                    
@@ -335,7 +374,7 @@
                 }
                 
                 recognition.onstart = function(e) {
-                    //console.warn('recognition.onstart: ', e);
+                    console.warn('voiceproxy - recognition.onstart: ', e);
                     var response = {
                         source: 'SpeechRecognition',                
                         phase: 'onstart',
@@ -346,10 +385,12 @@
                     window.parent.postMessage(json, ltng_origin);            
                 }
                 recognition.onend = function(e) {
-                    //console.warn('recognition.onend: ', e);
+                    console.warn('voiceproxy - recognition.onend: ', e);
                     
                     _recognition = null;
                     
+                    _busy = false;
+
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onend',
@@ -360,7 +401,7 @@
                     window.parent.postMessage(json, ltng_origin);            
                 }            
                 recognition.onspeechstart = function(e) {
-                    //console.warn('recognition.onspeechstart: ', e);
+                    console.warn('voiceproxy - recognition.onspeechstart: ', e);
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onspeechstart',
@@ -371,7 +412,7 @@
                     window.parent.postMessage(json, ltng_origin);            
                 }
                 recognition.onspeechend = function(e) {
-                    //console.warn('recognition.onspeechend: ', e);
+                    console.warn('voiceproxy - recognition.onspeechend: ', e);
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onspeechend',
@@ -381,8 +422,9 @@
                     var json = JSON.stringify({type: "response", uid: _uid, response: response});
                     window.parent.postMessage(json, ltng_origin);                     
                 }
+                /*
                 recognition.onsoundstart = function(e) {
-                    //console.warn('recognition.onsoundstart: ', e);
+                    console.warn('voiceproxy - recognition.onsoundstart: ', e);
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onsoundstart',
@@ -393,7 +435,7 @@
                     window.parent.postMessage(json, ltng_origin);                     
                 }
                 recognition.onsoundend = function(e) {
-                    //console.warn('recognition.onsoundend: ', e);
+                    console.warn('voiceproxy - recognition.onsoundend: ', e);
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onsoundend',
@@ -403,8 +445,10 @@
                     var json = JSON.stringify({type: "response", uid: _uid, response: response});
                     window.parent.postMessage(json, ltng_origin);                     
                 }
+                */
+                /*
                 recognition.onaudiostart = function(e) {
-                    //console.warn('recognition.onaudiostart: ', e);
+                    console.warn('voiceproxy - recognition.onaudiostart: ', e);
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onaudiostart',
@@ -415,7 +459,7 @@
                     window.parent.postMessage(json, ltng_origin);                     
                 }
                 recognition.onaudioend = function(e) {
-                    //console.warn('recognition.onaudioend: ', e);
+                    console.warn('voiceproxy - recognition.onaudioend: ', e);
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onaudioend',
@@ -424,9 +468,10 @@
                                                                         
                     var json = JSON.stringify({type: "response", uid: _uid, response: response});
                     window.parent.postMessage(json, ltng_origin);                     
-                }            
+                }
+                */            
                 recognition.onpause = function(e) {
-                    //console.warn('recognition.onpause: ', e);
+                    console.warn('voiceproxy - recognition.onpause: ', e);
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onpause',
@@ -437,7 +482,7 @@
                     window.parent.postMessage(json, ltng_origin);                     
                 }
                 recognition.onresume = function(e) {
-                    //console.warn('recognition.onresume: ', e);
+                    console.warn('voiceproxy - recognition.onresume: ', e);
                     var response = {
                         source: 'SpeechRecognition',                    
                         phase: 'onresume',
@@ -449,7 +494,7 @@
                 }
                 
                 recognition.start();
-                }
+                //}
             }
         }
         
@@ -470,6 +515,188 @@
                 console.warn('voiceProxy sending: ', json);
                 window.parent.postMessage(json, ltng_origin);            
             }
+        }
+  
+  
+        // Voice analyzer below
+        
+        // Older browsers might not implement mediaDevices at all, so we set an empty object first
+        if (navigator.mediaDevices === undefined) {
+          navigator.mediaDevices = {};
+        }
+        
+        
+        // Some browsers partially implement mediaDevices. We can't just assign an object
+        // with getUserMedia as it would overwrite existing properties.
+        // Here, we will just add the getUserMedia property if it's missing.
+        if (navigator.mediaDevices.getUserMedia === undefined) {
+          navigator.mediaDevices.getUserMedia = function(constraints) {
+        
+            // First get ahold of the legacy getUserMedia, if present
+            var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+        
+            // Some browsers just don't implement it - return a rejected promise with an error
+            // to keep a consistent interface
+            if (!getUserMedia) {
+              return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+            }
+        
+            // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
+            return new Promise(function(resolve, reject) {
+              getUserMedia.call(navigator, constraints, resolve, reject);
+            });
+          }
+        }
+        
+        
+        
+        // set up forked web audio context, for multiple browsers
+        // window. is needed otherwise Safari explodes
+        
+        var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        var voiceSelect = null;
+        var source;
+        var stream;
+        
+        // grab the mute button to use below
+        
+        //var mute = document.querySelector('.mute');
+        
+        //set up the different audio nodes we will use for the app
+        
+        var analyser = audioCtx.createAnalyser();
+        analyser.minDecibels = -90;
+        analyser.maxDecibels = -10;
+        analyser.smoothingTimeConstant = 0.85;
+
+        var distortion = audioCtx.createWaveShaper();
+        var gainNode = audioCtx.createGain();
+        var biquadFilter = audioCtx.createBiquadFilter();
+        var convolver = audioCtx.createConvolver();
+        
+        // distortion curve for the waveshaper, thanks to Kevin Ennis
+        // http://stackoverflow.com/questions/22312841/waveshaper-node-in-webaudio-how-to-emulate-distortion
+        
+        function makeDistortionCurve(amount) {
+          var k = typeof amount === 'number' ? amount : 50,
+            n_samples = 44100,
+            curve = new Float32Array(n_samples),
+            deg = Math.PI / 180,
+            i = 0,
+            x;
+          for ( ; i < n_samples; ++i ) {
+            x = i * 2 / n_samples - 1;
+            curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) );
+          }
+          return curve;
+        };
+                
+        if (navigator.mediaDevices.getUserMedia) {
+           var constraints = {audio: true}
+           navigator.mediaDevices.getUserMedia (constraints)
+              .then(
+                function(stream) {
+                   source = audioCtx.createMediaStreamSource(stream);
+                   source.connect(analyser);
+                   analyser.connect(distortion);
+                   distortion.connect(biquadFilter);
+                   biquadFilter.connect(convolver);
+                   convolver.connect(gainNode);
+                   gainNode.connect(audioCtx.destination);
+        
+                   analyze();
+              })
+              .catch( function(err) { console.log('The following gUM error occured: ' + err);})
+        } else {
+           console.log('getUserMedia not supported on your browser!');
+        }
+        
+        
+        function getBuffer() {
+            console.warn('getBuffer');
+            analyser.getByteTimeDomainData(dataArray);
+            console.warn('dataArray: ', dataArray);
+            for(var i = 0; i < bufferLength; i++) {
+                var v = dataArray[i] / 128.0;
+                console.warn(i, v);    
+            }
+            
+        }
+
+        var bufferLength = null;
+        var dataArray = null;
+        var bufferLengthAlt = null;
+        var dataArrayAlt = null;
+        
+          
+        function analyze() {
+            //var visualSetting = config.visualSetting || 'sinewave';
+            var visualSetting = 'sinewave';
+            
+            if (visualSetting === 'sinewave') {
+                analyser.fftSize = 2048;
+                bufferLength = analyser.fftSize;
+                console.log('bufferLength: ', bufferLength);
+                dataArray = new Uint8Array(bufferLength);
+                
+                analyser.getByteTimeDomainData(dataArray);
+                
+                                 
+            } else if (visualSetting === 'frequencybars') {    
+                analyser.fftSize = 256;
+                bufferLengthAlt = analyser.frequencyBinCount;
+                console.warn('bufferLengthAlt: ', bufferLengthAlt);
+                dataArrayAlt = new Uint8Array(bufferLengthAlt);
+                
+                analyser.getByteFrequencyData(dataArrayAlt);                
+            }
+        
+            //console.warn('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ dataArray: ',typeof dataArray, dataArray);
+            //console.warn('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ dataArrayAlt: ',typeof dataArrayAlt, dataArrayAlt);  
+        
+        }
+        
+        function getByteTimeDomainData(config) {
+            if (_busy === true) {
+              return;
+            }
+            //console.warn('voiceProxy.getByteTimeDomainData: ', config);
+
+            var visualSetting = config.visualSetting || 'sinewave';
+            
+            //console.warn('dataArray: ',typeof dataArray, dataArray)  
+            if (visualSetting === 'sinewave') {
+                /*
+                analyser.fftSize = 2048;
+                bufferLength = analyser.fftSize;
+                console.log('bufferLength: ', bufferLength);
+                dataArray = new Uint8Array(bufferLength);
+                */
+                
+                analyser.getByteTimeDomainData(dataArray);                
+                                 
+            } else if (visualSetting === 'frequencybars') {    
+                /*
+                analyser.fftSize = 256;
+                bufferLength = analyser.frequencyBinCount;
+                console.warn('bufferLength: ', bufferLength);
+                dataArray = new Uint8Array(bufferLength);
+                */
+                
+                analyser.getByteFrequencyData(dataArrayAlt); 
+            }
+                       
+                                    
+            var response = {
+                source: 'AudioAnalyzer',                    
+                dataArray: visualSetting === 'sinewave' ? dataArray : dataArrayAlt,
+                bufferLength: visualSetting === 'sinewave' ? bufferLength : bufferLengthAlt,
+                config: config
+            };
+                             
+            var json = JSON.stringify({type: "response", uid: _uid, response: response});
+            //console.warn('voiceProxy sending json: ', json.length, json);
+            window.parent.postMessage(json, ltng_origin);        
         }
   
     </script>
