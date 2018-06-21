@@ -297,8 +297,20 @@
                             };
                                                                                 
                             var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                            /*
                             window.parent.postMessage(json, ltng_origin);            
                             recognition.stop();
+                            */
+                            console.warn('voiceproxy - sending json: ', json);
+                            window.parent.postMessage(json, ltng_origin);            
+                            
+                            //recognition.stop();
+
+                            setTimeout(function() {
+                              console.warn('voiceanalysisproxy - onresult called setTimeout, now calling recognition.stop');
+                              recognition.stop();
+                              _busy = false;
+                            }, 3000);                            
 
                         }
                     };
