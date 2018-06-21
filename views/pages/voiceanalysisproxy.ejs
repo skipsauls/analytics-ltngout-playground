@@ -21,8 +21,10 @@
         console.warn('voiceanalysisproxy - _uid: ', _uid);
         console.warn('voiceanalysisproxy - visualSetting: ', visualSetting);
 
-        /*        
         window.addEventListener("message", messageHandler, true);
+
+
+        /*        
         var json = JSON.stringify({type: "ready", uid: _uid});
         var target = ltng_origin;
         if (window.parent && window.parent.postMessage && target !== null && target !== '') {
@@ -228,10 +230,11 @@
 
 
         // Send ready message
-        window.addEventListener("message", messageHandler, true);
         var json = JSON.stringify({type: "ready", uid: _uid});
         var target = ltng_origin;
+        console.warn('voiceanalysisproxy - arget: ', target);
         if (window.parent && window.parent.postMessage && target !== null && target !== '') {
+            console.warn('postMessage: ', json, target);
             window.parent.postMessage(json, target);
         }
 
