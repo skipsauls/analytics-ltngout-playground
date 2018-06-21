@@ -197,6 +197,8 @@
             //console.warn('voiceProxy.getByteTimeDomainData: ', config);
 
             //var visualSetting = config.visualSetting || 'sinewave';
+
+            console.warn('voiceProxy.getByteTimeDomainData - visualSetting: ', visualSetting);
             
             //console.warn('dataArray: ',typeof dataArray, dataArray)  
             if (visualSetting === 'sinewave') {
@@ -215,7 +217,7 @@
             };
                              
             var json = JSON.stringify({type: "response", uid: _uid, response: response});
-            //console.warn('voiceProxy sending json: ', json.length, json);
+            console.warn('voiceProxy sending json: ', json.length, json);
             window.parent.postMessage(json, ltng_origin);        
         }
   
