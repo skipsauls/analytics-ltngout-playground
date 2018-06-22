@@ -216,7 +216,7 @@
                 config: config
             }; 
 
-            var json = JSON.stringify({type: "response", uid: _uid, response: {voices: _voiceList}});
+            var json = JSON.stringify({type: "response", uid: _uid, response: response});
             window.parent.postMessage(json, ltng_origin);  
 
         }
