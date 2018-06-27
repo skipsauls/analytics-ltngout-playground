@@ -270,8 +270,9 @@
 
             if (source !== null && typeof source !== 'undefined') {
 
-               analyzer.disconnect(audioCtx.destination);                
-               source.disconnect(analyzer);
+               //analyzer.disconnect(audioCtx.destination);                
+               //source.disconnect(analyzer);
+               
                 //source.disconnect(); //analyzer);
 
                 audioCtx.close().then(function() { 
