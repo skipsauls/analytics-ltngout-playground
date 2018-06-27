@@ -269,7 +269,10 @@
             console.warn('voiceanalysisproxy.stopAnalyzer');
 
             if (source !== null && typeof source !== 'undefined') {
-                source.disconnect(); //analyzer);
+
+               analyzer.disconnect(audioCtx.destination);                
+               source.disconnect(analyzer);
+                //source.disconnect(); //analyzer);
 
                 audioCtx.close().then(function() { 
 
