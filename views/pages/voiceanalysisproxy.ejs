@@ -55,9 +55,9 @@
                     getVoices(data.config);
                 }
                 */
-                if (type === 'startAnalyzer' && _uid === uid) {
+                if (type === 'startAnalysis' && _uid === uid) {
                     startAnalyzer(data.config);
-                } else if (type === 'stopAnalyzer' && _uid === uid) {
+                } else if (type === 'stopAnalysis' && _uid === uid) {
                     stopAnalyzer(data.config);
                 } else if (type === 'getByteTimeDomainData' && _uid === uid) {
                     getByteTimeDomainData(data.config);
