@@ -186,7 +186,7 @@
             biquadFilter = audioCtx.createBiquadFilter();
             convolver = audioCtx.createConvolver();
             */
-            
+
             // distortion curve for the waveshaper, thanks to Kevin Ennis
             // http://stackoverflow.com/questions/22312841/waveshaper-node-in-webaudio-how-to-emulate-distortion
             
@@ -210,6 +210,12 @@
                navigator.mediaDevices.getUserMedia (constraints)
                   .then(
                     function(stream) {
+
+
+                        stream.onremovetrack = function() {
+                            console.warn('voiceanalysisproxy.stream ended');
+                        };
+
                        source = audioCtx.createMediaStreamSource(stream);
                        source.connect(analyzer);
                        analyzer.connect(audioCtx.destination);
@@ -271,13 +277,17 @@
             console.warn('voiceanalysisproxy.stopAnalyzer');
 
             if (source !== null && typeof source !== 'undefined') {
+                console.warn('calling analyzer.disconnect');
+                analyzer.disconnect(audioCtx.destination);
+                console.warn('calling source.disconnect');
+                source.disconnect(analyzer);
 
-               analyzer.disconnect(audioCtx.destination);                
-               source.disconnect(analyzer);
                 //source.disconnect(); //analyzer);
 
+                console.warn('calling audioCtx.close');
                 audioCtx.close().then(function() { 
 
+                    console.warn('audioCtx.close.then returned - arguments: ', arguments);
 
                     var response = {
                         source: 'AudioAnalyzer',
