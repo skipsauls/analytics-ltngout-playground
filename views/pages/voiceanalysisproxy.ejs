@@ -162,7 +162,7 @@
         }
 */
 
-        startAnalyzer(config) {
+        function startAnalyzer(config) {
             if (navigator.mediaDevices.getUserMedia) {
                var constraints = {audio: true}
                navigator.mediaDevices.getUserMedia (constraints)
@@ -221,7 +221,7 @@
             }        
         }
 
-        stopAnalyzer(config) {
+        function stopAnalyzer(config) {
             if (source !== null && typeof source !== 'undefined') {
                 source.disconnect(analyzer);
 
