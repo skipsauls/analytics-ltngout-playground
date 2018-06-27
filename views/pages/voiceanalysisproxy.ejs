@@ -225,6 +225,8 @@
             if (source !== null && typeof source !== 'undefined') {
                 source.disconnect(analyzer);
 
+                audioCtx.close();
+                
                 var response = {
                     source: 'AudioAnalyzer',
                     status: 'stopped',                  
