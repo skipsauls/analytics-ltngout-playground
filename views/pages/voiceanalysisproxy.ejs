@@ -103,6 +103,11 @@
         var source = null;
         var stream = null;
         var analyzer = null;
+
+        var distortion;
+        var gainNode;
+        var biquadFilter;
+        var convolver;        
         
         // grab the mute button to use below
         
@@ -175,10 +180,10 @@
             analyzer.maxDecibels = -10;
             analyzer.smoothingTimeConstant = 0.85;
 
-            var distortion = audioCtx.createWaveShaper();
-            var gainNode = audioCtx.createGain();
-            var biquadFilter = audioCtx.createBiquadFilter();
-            var convolver = audioCtx.createConvolver();
+            distortion = audioCtx.createWaveShaper();
+            gainNode = audioCtx.createGain();
+            biquadFilter = audioCtx.createBiquadFilter();
+            convolver = audioCtx.createConvolver();
             
             // distortion curve for the waveshaper, thanks to Kevin Ennis
             // http://stackoverflow.com/questions/22312841/waveshaper-node-in-webaudio-how-to-emulate-distortion
@@ -260,19 +265,21 @@
             console.warn('voiceanalysisproxy.stopAnalyzer');
 
             if (source !== null && typeof source !== 'undefined') {
-                source.disconnect(analyzer);
+                source.disconnect(); //analyzer);
 
-                audioCtx.close();
+                audioCtx.close().then(function() { 
 
-                var response = {
-                    source: 'AudioAnalyzer',
-                    status: 'stopped',                  
-                    config: config
-                };
-                                 
-                var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                console.warn('voiceanalysisproxy sending json: ', json.length, json);
-                window.parent.postMessage(json, ltng_origin);  
+
+                    var response = {
+                        source: 'AudioAnalyzer',
+                        status: 'stopped',                  
+                        config: config
+                    };
+                                     
+                    var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                    console.warn('voiceanalysisproxy sending json: ', json.length, json);
+                    window.parent.postMessage(json, ltng_origin);  
+                });
 
             } else {
                 var response = {
