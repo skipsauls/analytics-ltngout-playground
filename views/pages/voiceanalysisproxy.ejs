@@ -98,7 +98,7 @@
         // set up forked web audio context, for multiple browsers
         // window. is needed otherwise Safari explodes
         
-        var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        var audioCtx = null;
         var voiceSelect = null;
         var source = null;
         var stream = null;
@@ -166,7 +166,9 @@
 */
 
         function startAnalyzer(config) {
+            console.warn('voiceanalysisproxy.startAnalyzer');
 
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
             analyzer = audioCtx.createAnalyser();
             analyzer.minDecibels = -90;
@@ -195,7 +197,7 @@
               return curve;
             };
 
-            
+
             if (navigator.mediaDevices.getUserMedia) {
                var constraints = {audio: true}
                navigator.mediaDevices.getUserMedia (constraints)
@@ -218,7 +220,7 @@
                         };
                                          
                         var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                        //console.warn('voiceanalysisproxy sending json: ', json.length, json);
+                        console.warn('voiceanalysisproxy sending json: ', json.length, json);
                         window.parent.postMessage(json, ltng_origin);  
 
                   })
@@ -233,7 +235,7 @@
                     };
                                      
                     var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                    //console.warn('voiceanalysisproxy sending json: ', json.length, json);
+                    console.warn('voiceanalysisproxy sending json: ', json.length, json);
                     window.parent.postMessage(json, ltng_origin);  
 
 
@@ -248,13 +250,15 @@
                 };
                                  
                 var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                //console.warn('voiceanalysisproxy sending json: ', json.length, json);
+                console.warn('voiceanalysisproxy sending json: ', json.length, json);
                 window.parent.postMessage(json, ltng_origin);  
 
             }        
         }
 
         function stopAnalyzer(config) {
+            console.warn('voiceanalysisproxy.stopAnalyzer');
+
             if (source !== null && typeof source !== 'undefined') {
                 source.disconnect(analyzer);
 
@@ -267,7 +271,7 @@
                 };
                                  
                 var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                //console.warn('voiceanalysisproxy sending json: ', json.length, json);
+                console.warn('voiceanalysisproxy sending json: ', json.length, json);
                 window.parent.postMessage(json, ltng_origin);  
 
             } else {
@@ -279,7 +283,7 @@
                 };
                                  
                 var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                //console.warn('voiceanalysisproxy sending json: ', json.length, json);
+                console.warn('voiceanalysisproxy sending json: ', json.length, json);
                 window.parent.postMessage(json, ltng_origin);                  
             }
         }
