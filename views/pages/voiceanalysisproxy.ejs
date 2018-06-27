@@ -59,7 +59,7 @@
                     startAnalyzer(data.config);
                 } else if (type === 'stopAnalyzer' && _uid === uid) {
                     stopAnalyzer(data.config);
-                if (type === 'getByteTimeDomainData' && _uid === uid) {
+                } else if (type === 'getByteTimeDomainData' && _uid === uid) {
                     getByteTimeDomainData(data.config);
                 }
             }
