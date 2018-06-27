@@ -109,10 +109,10 @@
         
         //set up the different audio nodes we will use for the app
         
-        var analyser = audioCtx.createAnalyser();
-        analyser.minDecibels = -90;
-        analyser.maxDecibels = -10;
-        analyser.smoothingTimeConstant = 0.85;
+        var analyzer = audioCtx.createAnalyser();
+        analyzer.minDecibels = -90;
+        analyzer.maxDecibels = -10;
+        analyzer.smoothingTimeConstant = 0.85;
 
         var distortion = audioCtx.createWaveShaper();
         var gainNode = audioCtx.createGain();
@@ -147,8 +147,8 @@
               .then(
                 function(stream) {
                    source = audioCtx.createMediaStreamSource(stream);
-                   source.connect(analyser);
-                   analyser.connect(distortion);
+                   source.connect(analyzer);
+                   analyzer.connect(distortion);
                    distortion.connect(biquadFilter);
                    biquadFilter.connect(convolver);
                    convolver.connect(gainNode);
@@ -169,8 +169,8 @@
                   .then(
                     function(stream) {
                        source = audioCtx.createMediaStreamSource(stream);
-                       source.connect(analyser);
-                       analyser.connect(distortion);
+                       source.connect(analyzer);
+                       analyzer.connect(distortion);
                        distortion.connect(biquadFilter);
                        biquadFilter.connect(convolver);
                        convolver.connect(gainNode);
@@ -251,7 +251,7 @@
 
         function getBuffer() {
             console.warn('getBuffer');
-            analyser.getByteTimeDomainData(dataArray);
+            analyzer.getByteTimeDomainData(dataArray);
             console.warn('dataArray: ', dataArray);
             for(var i = 0; i < bufferLength; i++) {
                 var v = dataArray[i] / 128.0;
@@ -271,21 +271,21 @@
             //var visualSetting = 'sinewave';
             
             if (visualSetting === 'sinewave') {
-                analyser.fftSize = 2048;
-                bufferLength = analyser.fftSize;
+                analyzer.fftSize = 2048;
+                bufferLength = analyzer.fftSize;
                 console.log('bufferLength: ', bufferLength);
                 dataArray = new Uint8Array(bufferLength);
                 
-                analyser.getByteTimeDomainData(dataArray);
+                analyzer.getByteTimeDomainData(dataArray);
                 
                                  
             } else if (visualSetting === 'frequencybars') {    
-                analyser.fftSize = 256;
-                bufferLengthAlt = analyser.frequencyBinCount;
+                analyzer.fftSize = 256;
+                bufferLengthAlt = analyzer.frequencyBinCount;
                 //console.warn('bufferLengthAlt: ', bufferLengthAlt);
                 dataArrayAlt = new Uint8Array(bufferLengthAlt);
                 
-                analyser.getByteFrequencyData(dataArrayAlt);                
+                analyzer.getByteFrequencyData(dataArrayAlt);                
             }
         
             //console.warn('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ dataArray: ',typeof dataArray, dataArray);
@@ -305,10 +305,10 @@
             
             //console.warn('dataArray: ',typeof dataArray, dataArray)  
             if (visualSetting === 'sinewave') {
-                analyser.getByteTimeDomainData(dataArray);                
+                analyzer.getByteTimeDomainData(dataArray);                
                                  
             } else if (visualSetting === 'frequencybars') {    
-                analyser.getByteFrequencyData(dataArrayAlt); 
+                analyzer.getByteFrequencyData(dataArrayAlt); 
             }
                        
                                     
