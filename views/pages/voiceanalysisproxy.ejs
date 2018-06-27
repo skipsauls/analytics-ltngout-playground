@@ -55,6 +55,10 @@
                     getVoices(data.config);
                 }
                 */
+                if (type === 'startAnalyzer' && _uid === uid) {
+                    startAnalyzer(data.config);
+                } else if (type === 'stopAnalyzer' && _uid === uid) {
+                    stopAnalyzer(data.config);
                 if (type === 'getByteTimeDomainData' && _uid === uid) {
                     getByteTimeDomainData(data.config);
                 }
@@ -132,6 +136,11 @@
           return curve;
         };
                 
+/*
+ * Original autoloaded
+ *
+ * Bad for CPU usage!
+ *                
         if (navigator.mediaDevices.getUserMedia) {
            var constraints = {audio: true}
            navigator.mediaDevices.getUserMedia (constraints)
@@ -151,8 +160,95 @@
         } else {
            console.log('getUserMedia not supported on your browser!');
         }
-        
-        
+*/
+
+        startAnalyzer(config) {
+            if (navigator.mediaDevices.getUserMedia) {
+               var constraints = {audio: true}
+               navigator.mediaDevices.getUserMedia (constraints)
+                  .then(
+                    function(stream) {
+                       source = audioCtx.createMediaStreamSource(stream);
+                       source.connect(analyser);
+                       analyser.connect(distortion);
+                       distortion.connect(biquadFilter);
+                       biquadFilter.connect(convolver);
+                       convolver.connect(gainNode);
+                       gainNode.connect(audioCtx.destination);
+            
+                       analyze();
+
+                        var response = {
+                            source: 'AudioAnalyzer',
+                            status: 'started',                  
+                            config: config
+                        };
+                                         
+                        var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                        //console.warn('voiceanalysisproxy sending json: ', json.length, json);
+                        window.parent.postMessage(json, ltng_origin);  
+
+                  })
+                  .catch( function(err) {
+                    console.log('The following gUM error occured: ' + err);
+
+                    var response = {
+                        source: 'AudioAnalyzer',
+                        status: 'error',
+                        error: 'gUM error ' + err,                  
+                        config: config
+                    };
+                                     
+                    var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                    //console.warn('voiceanalysisproxy sending json: ', json.length, json);
+                    window.parent.postMessage(json, ltng_origin);  
+
+
+                   })
+            } else {
+               console.log('getUserMedia not supported on your browser!');
+                var response = {
+                    source: 'AudioAnalyzer',
+                    status: 'error',
+                    error: 'getUserMedia not supported',                  
+                    config: config
+                };
+                                 
+                var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                //console.warn('voiceanalysisproxy sending json: ', json.length, json);
+                window.parent.postMessage(json, ltng_origin);  
+
+            }        
+        }
+
+        stopAnalyzer(config) {
+            if (source !== null && typeof source !== 'undefined') {
+                source.disconnect(analyzer);
+
+                var response = {
+                    source: 'AudioAnalyzer',
+                    status: 'stopped',                  
+                    config: config
+                };
+                                 
+                var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                //console.warn('voiceanalysisproxy sending json: ', json.length, json);
+                window.parent.postMessage(json, ltng_origin);  
+
+            } else {
+                var response = {
+                    source: 'AudioAnalyzer',
+                    status: 'error',
+                    error: 'analyzer is not active',
+                    config: config
+                };
+                                 
+                var json = JSON.stringify({type: "response", uid: _uid, response: response});
+                //console.warn('voiceanalysisproxy sending json: ', json.length, json);
+                window.parent.postMessage(json, ltng_origin);                  
+            }
+        }
+
         function getBuffer() {
             console.warn('getBuffer');
             analyser.getByteTimeDomainData(dataArray);
