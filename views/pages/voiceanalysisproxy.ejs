@@ -180,10 +180,12 @@
             analyzer.maxDecibels = -10;
             analyzer.smoothingTimeConstant = 0.85;
 
+            /*
             distortion = audioCtx.createWaveShaper();
             gainNode = audioCtx.createGain();
             biquadFilter = audioCtx.createBiquadFilter();
             convolver = audioCtx.createConvolver();
+            */
             
             // distortion curve for the waveshaper, thanks to Kevin Ennis
             // http://stackoverflow.com/questions/22312841/waveshaper-node-in-webaudio-how-to-emulate-distortion
@@ -270,9 +272,8 @@
 
             if (source !== null && typeof source !== 'undefined') {
 
-               //analyzer.disconnect(audioCtx.destination);                
-               //source.disconnect(analyzer);
-               
+               analyzer.disconnect(audioCtx.destination);                
+               source.disconnect(analyzer);
                 //source.disconnect(); //analyzer);
 
                 audioCtx.close().then(function() { 
