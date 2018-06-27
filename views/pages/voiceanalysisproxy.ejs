@@ -210,12 +210,16 @@
                     function(stream) {
                        source = audioCtx.createMediaStreamSource(stream);
                        source.connect(analyzer);
+                       analyzer.connect(audioCtx.destination);
+
+                       /*
                        analyzer.connect(distortion);
                        distortion.connect(biquadFilter);
                        biquadFilter.connect(convolver);
                        convolver.connect(gainNode);
                        gainNode.connect(audioCtx.destination);
-            
+                        */
+
                        analyze();
 
                         var response = {
