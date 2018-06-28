@@ -13,7 +13,7 @@
         var ltng_url = params.ltng_url;
         var _uid = params.ltng_uid;
         var visualSetting = params.visual_setting || 'sinewave';
-        
+
         var _busy = false;
 
         console.warn('voiceanalysisproxy - ltng_origin: ', ltng_origin);
@@ -31,30 +31,19 @@
             window.parent.postMessage(json, target);
         }
         */
-            
+
         function messageHandler(event) {
             //console.warn('event.origin: ', event.origin);
             //console.warn('event.data: ', event.data);
             if (event.origin === ltng_origin) {
                 event.preventDefault();
                 event.stopPropagation();
-                
+
                 var data = JSON.parse(event.data);
                 var type = data.type;
                 var uid = data.uid;
-                
+
                 //console.warn('data: ', data.type, data.uid);
-                /*
-                if (type === 'startDictation' && _uid === uid) {
-                    startDictation(data.config);
-                } else if (type === 'stopDictation' && _uid === uid) {
-                    stopDictation(data.config);
-                } else if (type === 'speak' && _uid === uid) {
-                    speak(data.config);
-                } else if (type === 'getVoices' && _uid === uid) {
-                    getVoices(data.config);
-                }
-                */
                 if (type === 'startAnalysis' && _uid === uid) {
                     startAnalyzer(data.config);
                 } else if (type === 'stopAnalysis' && _uid === uid) {
@@ -64,40 +53,40 @@
                 }
             }
         }
-                
+
         // Older browsers might not implement mediaDevices at all, so we set an empty object first
         if (navigator.mediaDevices === undefined) {
-          navigator.mediaDevices = {};
+            navigator.mediaDevices = {};
         }
-        
-        
+
+
         // Some browsers partially implement mediaDevices. We can't just assign an object
         // with getUserMedia as it would overwrite existing properties.
         // Here, we will just add the getUserMedia property if it's missing.
         if (navigator.mediaDevices.getUserMedia === undefined) {
-          navigator.mediaDevices.getUserMedia = function(constraints) {
-        
-            // First get ahold of the legacy getUserMedia, if present
-            var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-        
-            // Some browsers just don't implement it - return a rejected promise with an error
-            // to keep a consistent interface
-            if (!getUserMedia) {
-              return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+            navigator.mediaDevices.getUserMedia = function(constraints) {
+
+                // First get ahold of the legacy getUserMedia, if present
+                var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+                // Some browsers just don't implement it - return a rejected promise with an error
+                // to keep a consistent interface
+                if (!getUserMedia) {
+                    return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+                }
+
+                // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
+                return new Promise(function(resolve, reject) {
+                    getUserMedia.call(navigator, constraints, resolve, reject);
+                });
             }
-        
-            // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
-            return new Promise(function(resolve, reject) {
-              getUserMedia.call(navigator, constraints, resolve, reject);
-            });
-          }
         }
-        
-        
-        
+
+
+
         // set up forked web audio context, for multiple browsers
         // window. is needed otherwise Safari explodes
-        
+
         var audioCtx = null;
         var voiceSelect = null;
         var source = null;
@@ -105,206 +94,107 @@
         var tracks = null;
         var analyzer = null;
 
-        var distortion;
-        var gainNode;
-        var biquadFilter;
-        var convolver;        
-        
-        // grab the mute button to use below
-        
-        //var mute = document.querySelector('.mute');
-        
-        //set up the different audio nodes we will use for the app
-
-/*        
-        analyzer = audioCtx.createAnalyser();
-        analyzer.minDecibels = -90;
-        analyzer.maxDecibels = -10;
-        analyzer.smoothingTimeConstant = 0.85;
-
-        var distortion = audioCtx.createWaveShaper();
-        var gainNode = audioCtx.createGain();
-        var biquadFilter = audioCtx.createBiquadFilter();
-        var convolver = audioCtx.createConvolver();
-        
-        // distortion curve for the waveshaper, thanks to Kevin Ennis
-        // http://stackoverflow.com/questions/22312841/waveshaper-node-in-webaudio-how-to-emulate-distortion
-        
-        function makeDistortionCurve(amount) {
-          var k = typeof amount === 'number' ? amount : 50,
-            n_samples = 44100,
-            curve = new Float32Array(n_samples),
-            deg = Math.PI / 180,
-            i = 0,
-            x;
-          for ( ; i < n_samples; ++i ) {
-            x = i * 2 / n_samples - 1;
-            curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) );
-          }
-          return curve;
-        };
-*/
-
-/*
- * Original autoloaded
- *
- * Bad for CPU usage!
- *                
-        if (navigator.mediaDevices.getUserMedia) {
-           var constraints = {audio: true}
-           navigator.mediaDevices.getUserMedia (constraints)
-              .then(
-                function(stream) {
-                   source = audioCtx.createMediaStreamSource(stream);
-                   source.connect(analyzer);
-                   analyzer.connect(distortion);
-                   distortion.connect(biquadFilter);
-                   biquadFilter.connect(convolver);
-                   convolver.connect(gainNode);
-                   gainNode.connect(audioCtx.destination);
-        
-                   analyze();
-              })
-              .catch( function(err) { console.log('The following gUM error occured: ' + err);})
-        } else {
-           console.log('getUserMedia not supported on your browser!');
-        }
-*/
-
         function startAnalyzer(config) {
             console.warn('voiceanalysisproxy.startAnalyzer');
 
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            audioCtx = new(window.AudioContext || window.webkitAudioContext)();
 
             analyzer = audioCtx.createAnalyser();
             analyzer.minDecibels = -90;
             analyzer.maxDecibels = -10;
             analyzer.smoothingTimeConstant = 0.85;
 
-            /*
-            distortion = audioCtx.createWaveShaper();
-            gainNode = audioCtx.createGain();
-            biquadFilter = audioCtx.createBiquadFilter();
-            convolver = audioCtx.createConvolver();
-            */
-
-            // distortion curve for the waveshaper, thanks to Kevin Ennis
-            // http://stackoverflow.com/questions/22312841/waveshaper-node-in-webaudio-how-to-emulate-distortion
-            
-            function makeDistortionCurve(amount) {
-              var k = typeof amount === 'number' ? amount : 50,
-                n_samples = 44100,
-                curve = new Float32Array(n_samples),
-                deg = Math.PI / 180,
-                i = 0,
-                x;
-              for ( ; i < n_samples; ++i ) {
-                x = i * 2 / n_samples - 1;
-                curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) );
-              }
-              return curve;
-            };
-
-
             if (navigator.mediaDevices.getUserMedia) {
-               var constraints = {audio: true}
-               navigator.mediaDevices.getUserMedia (constraints)
-                  .then(
-                    function(stream) {
+                var constraints = { audio: true }
+                navigator.mediaDevices.getUserMedia(constraints)
+                    .then(
+                        function(stream) {
 
-                        tracks = stream.getTracks();
+                            tracks = stream.getTracks();
 
-                        stream.onremovetrack = function() {
-                            console.warn('voiceanalysisproxy.stream ended');
-                        };
+                            stream.onremovetrack = function() {
+                                console.warn('voiceanalysisproxy.stream ended');
+                            };
 
-                       source = audioCtx.createMediaStreamSource(stream);
-                       source.connect(analyzer);
+                            source = audioCtx.createMediaStreamSource(stream);
+                            source.connect(analyzer);
 
-                       //analyzer.connect(audioCtx.destination);
+                            // Only connect the destination if you want feedback!!!
 
-                       /*
-                       analyzer.connect(distortion);
-                       distortion.connect(biquadFilter);
-                       biquadFilter.connect(convolver);
-                       convolver.connect(gainNode);
-                       gainNode.connect(audioCtx.destination);
-                        */
+                            //analyzer.connect(audioCtx.destination);
 
-                       analyze();
+                            analyze();
+
+                            var response = {
+                                source: 'AudioAnalyzer',
+                                status: 'started',
+                                config: config
+                            };
+
+                            var json = JSON.stringify({ type: "response", uid: _uid, response: response });
+                            //console.warn('voiceanalysisproxy sending json: ', json.length, json);
+                            window.parent.postMessage(json, ltng_origin);
+
+                        })
+                    .catch(function(err) {
+                        console.log('The following gUM error occured: ' + err);
 
                         var response = {
                             source: 'AudioAnalyzer',
-                            status: 'started',                  
+                            status: 'error',
+                            error: 'gUM error ' + err,
                             config: config
                         };
-                                         
-                        var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                        console.warn('voiceanalysisproxy sending json: ', json.length, json);
-                        window.parent.postMessage(json, ltng_origin);  
 
-                  })
-                  .catch( function(err) {
-                    console.log('The following gUM error occured: ' + err);
-
-                    var response = {
-                        source: 'AudioAnalyzer',
-                        status: 'error',
-                        error: 'gUM error ' + err,                  
-                        config: config
-                    };
-                                     
-                    var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                    console.warn('voiceanalysisproxy sending json: ', json.length, json);
-                    window.parent.postMessage(json, ltng_origin);  
+                        var json = JSON.stringify({ type: "response", uid: _uid, response: response });
+                        //console.warn('voiceanalysisproxy sending json: ', json.length, json);
+                        window.parent.postMessage(json, ltng_origin);
 
 
-                   })
+                    })
             } else {
-               console.log('getUserMedia not supported on your browser!');
+                console.log('getUserMedia not supported on your browser!');
                 var response = {
                     source: 'AudioAnalyzer',
                     status: 'error',
-                    error: 'getUserMedia not supported',                  
+                    error: 'getUserMedia not supported',
                     config: config
                 };
-                                 
-                var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                console.warn('voiceanalysisproxy sending json: ', json.length, json);
-                window.parent.postMessage(json, ltng_origin);  
 
-            }        
+                var json = JSON.stringify({ type: "response", uid: _uid, response: response });
+                //console.warn('voiceanalysisproxy sending json: ', json.length, json);
+                window.parent.postMessage(json, ltng_origin);
+
+            }
         }
 
         function stopAnalyzer(config) {
             console.warn('voiceanalysisproxy.stopAnalyzer');
 
             if (source !== null && typeof source !== 'undefined') {
-                //console.warn('calling analyzer.disconnect');
-                //analyzer.disconnect(audioCtx.destination);
+
                 console.warn('calling source.disconnect');
                 source.disconnect(analyzer);
 
-                //source.disconnect(); //analyzer);
-
+                // Do we need to stop these?
                 tracks.forEach(function(track) {
                     track.stop();
                 });
 
                 console.warn('calling audioCtx.close');
-                audioCtx.close().then(function() { 
+                audioCtx.close().then(function() {
 
                     console.warn('audioCtx.close.then returned - arguments: ', arguments);
 
                     var response = {
                         source: 'AudioAnalyzer',
-                        status: 'stopped',                  
+                        status: 'stopped',
                         config: config
                     };
-                                     
-                    var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                    console.warn('voiceanalysisproxy sending json: ', json.length, json);
-                    window.parent.postMessage(json, ltng_origin);  
+
+                    var json = JSON.stringify({ type: "response", uid: _uid, response: response });
+                    //console.warn('voiceanalysisproxy sending json: ', json.length, json);
+                    window.parent.postMessage(json, ltng_origin);
                 });
 
             } else {
@@ -314,116 +204,103 @@
                     error: 'analyzer is not active',
                     config: config
                 };
-                                 
-                var json = JSON.stringify({type: "response", uid: _uid, response: response});
-                console.warn('voiceanalysisproxy sending json: ', json.length, json);
-                window.parent.postMessage(json, ltng_origin);                  
-            }
-        }
 
-        function getBuffer() {
-            console.warn('getBuffer');
-            analyzer.getByteTimeDomainData(dataArray);
-            console.warn('dataArray: ', dataArray);
-            for(var i = 0; i < bufferLength; i++) {
-                var v = dataArray[i] / 128.0;
-                console.warn(i, v);    
+                var json = JSON.stringify({ type: "response", uid: _uid, response: response });
+                //console.warn('voiceanalysisproxy sending json: ', json.length, json);
+                window.parent.postMessage(json, ltng_origin);
             }
-            
         }
 
         var bufferLength = null;
         var dataArray = null;
         var bufferLengthAlt = null;
         var dataArrayAlt = null;
-        
-          
+
+
         function analyze() {
             //var visualSetting = config.visualSetting || 'sinewave';
             //var visualSetting = 'sinewave';
-            
+
             if (visualSetting === 'sinewave') {
                 analyzer.fftSize = 2048;
                 bufferLength = analyzer.fftSize;
                 console.log('bufferLength: ', bufferLength);
                 dataArray = new Uint8Array(bufferLength);
-                
+
                 analyzer.getByteTimeDomainData(dataArray);
-                
-                                 
-            } else if (visualSetting === 'frequencybars') {    
+
+
+            } else if (visualSetting === 'frequencybars') {
                 analyzer.fftSize = 256;
                 bufferLengthAlt = analyzer.frequencyBinCount;
                 //console.warn('bufferLengthAlt: ', bufferLengthAlt);
                 dataArrayAlt = new Uint8Array(bufferLengthAlt);
-                
-                analyzer.getByteFrequencyData(dataArrayAlt);                
+
+                analyzer.getByteFrequencyData(dataArrayAlt);
             }
-        
+
             //console.warn('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ dataArray: ',typeof dataArray, dataArray);
             //console.warn('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ dataArrayAlt: ',typeof dataArrayAlt, dataArrayAlt);  
-        
+
         }
-        
+
         function getByteTimeDomainData(config) {
             if (_busy === true) {
-              return;
+                return;
             }
             //console.warn('voiceanalysisproxy.getByteTimeDomainData: ', config);
 
             //var visualSetting = config.visualSetting || 'sinewave';
 
             //console.warn('voiceanalysisproxy.getByteTimeDomainData - visualSetting: ', visualSetting);
-            
+
             //console.warn('dataArray: ',typeof dataArray, dataArray)  
             if (visualSetting === 'sinewave') {
-                analyzer.getByteTimeDomainData(dataArray);                
-                                 
-            } else if (visualSetting === 'frequencybars') {    
-                analyzer.getByteFrequencyData(dataArrayAlt); 
+                analyzer.getByteTimeDomainData(dataArray);
+
+            } else if (visualSetting === 'frequencybars') {
+                analyzer.getByteFrequencyData(dataArrayAlt);
             }
-                       
-                                    
+
+
             var response = {
-                source: 'AudioAnalyzer',                    
+                source: 'AudioAnalyzer',
                 dataArray: visualSetting === 'sinewave' ? dataArray : dataArrayAlt,
                 bufferLength: visualSetting === 'sinewave' ? bufferLength : bufferLengthAlt,
                 config: config
             };
-                             
-            var json = JSON.stringify({type: "response", uid: _uid, response: response});
+
+            var json = JSON.stringify({ type: "response", uid: _uid, response: response });
             //console.warn('voiceanalysisproxy sending json: ', json.length, json);
-            window.parent.postMessage(json, ltng_origin);        
+            window.parent.postMessage(json, ltng_origin);
         }
 
         function sendReadyResponse() {
-          // Send ready message
-          console.warn('voiceanalysisproxy sending ready response');
-          var response = {
-              type: 'ready',
-              service_name: 'voiceanalysisproxy',
-              remote_url: window.location.href,
-              ltng_origin: ltng_origin,
-              ltng_url: ltng_url,
-              uid: _uid,
-              visualSetting: visualSetting
-          };
+            // Send ready message
+            console.warn('voiceanalysisproxy sending ready response');
+            var response = {
+                type: 'ready',
+                service_name: 'voiceanalysisproxy',
+                remote_url: window.location.href,
+                ltng_origin: ltng_origin,
+                ltng_url: ltng_url,
+                uid: _uid,
+                visualSetting: visualSetting
+            };
 
-          //var json = JSON.stringify({type: "ready", uid: _uid});
+            //var json = JSON.stringify({type: "ready", uid: _uid});
 
-          var json = JSON.stringify(response)
-          console.warn('voiceanalysisproxy - json: ', json);
+            var json = JSON.stringify(response)
+            console.warn('voiceanalysisproxy - json: ', json);
 
-          var target = ltng_origin;
-          console.warn('voiceanalysisproxy - target: ', target);
-          if (window.parent && window.parent.postMessage && target !== null && target !== '') {
-              console.warn('postMessage: ', json, target);
-              window.parent.postMessage(json, target);
-          }
+            var target = ltng_origin;
+            console.warn('voiceanalysisproxy - target: ', target);
+            if (window.parent && window.parent.postMessage && target !== null && target !== '') {
+                console.warn('postMessage: ', json, target);
+                window.parent.postMessage(json, target);
+            }
         }
 
-        window.onload = sendReadyResponse;
-
-    </script>
+        window.onload = sendReadyResponse;    </script>
   </body>
 </html>
