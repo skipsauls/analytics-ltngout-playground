@@ -220,7 +220,8 @@
 
                        source = audioCtx.createMediaStreamSource(stream);
                        source.connect(analyzer);
-                       analyzer.connect(audioCtx.destination);
+                       
+                       //analyzer.connect(audioCtx.destination);
 
                        /*
                        analyzer.connect(distortion);
@@ -289,7 +290,7 @@
                 tracks.forEach(function(track) {
                     track.stop();
                 });
-                
+
                 console.warn('calling audioCtx.close');
                 audioCtx.close().then(function() { 
 
