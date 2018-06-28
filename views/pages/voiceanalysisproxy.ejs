@@ -220,7 +220,7 @@
 
                        source = audioCtx.createMediaStreamSource(stream);
                        source.connect(analyzer);
-                       
+
                        //analyzer.connect(audioCtx.destination);
 
                        /*
@@ -280,8 +280,8 @@
             console.warn('voiceanalysisproxy.stopAnalyzer');
 
             if (source !== null && typeof source !== 'undefined') {
-                console.warn('calling analyzer.disconnect');
-                analyzer.disconnect(audioCtx.destination);
+                //console.warn('calling analyzer.disconnect');
+                //analyzer.disconnect(audioCtx.destination);
                 console.warn('calling source.disconnect');
                 source.disconnect(analyzer);
 
