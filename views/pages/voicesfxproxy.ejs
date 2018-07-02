@@ -1,185 +1,183 @@
-< !DOCTYPE html >
-    <
-    html >
-    <
-    head >
-    <
-    title >
-    Voice Analysis Proxy <
-    /title> <
-    /head> <
-    body >
-    <
-    script type = "text/javascript" >
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      Voice SFX Proxy
+    </title>
+  </head>
+  <body>
+    <script type="text/javascript">
+
     var params = JSON.parse('<%- params %>');
-console.warn('voicesfxproxy - params: ', params);
-var ltng_origin = params.ltng_origin;
-var ltng_url = params.ltng_url;
-var _uid = params.ltng_uid;
-var visualSetting = params.visual_setting || 'sinewave';
+    console.warn('voicesfxproxy - params: ', params);
+    var ltng_origin = params.ltng_origin;
+    var ltng_url = params.ltng_url;
+    var _uid = params.ltng_uid;
+    var visualSetting = params.visual_setting || 'sinewave';
 
-var _busy = false;
+    var _busy = false;
 
-console.warn('voicesfxproxy - ltng_origin: ', ltng_origin);
-console.warn('voicesfxproxy - ltng_url: ', ltng_url);
-console.warn('voicesfxproxy - _uid: ', _uid);
-console.warn('voicesfxproxy - visualSetting: ', visualSetting);
+    console.warn('voicesfxproxy - ltng_origin: ', ltng_origin);
+    console.warn('voicesfxproxy - ltng_url: ', ltng_url);
+    console.warn('voicesfxproxy - _uid: ', _uid);
+    console.warn('voicesfxproxy - visualSetting: ', visualSetting);
 
-window.addEventListener("message", messageHandler, true);
-
-
-/*        
-var json = JSON.stringify({type: "ready", uid: _uid});
-var target = ltng_origin;
-if (window.parent && window.parent.postMessage && target !== null && target !== '') {
-    window.parent.postMessage(json, target);
-}
-*/
-
-function messageHandler(event) {
-    //console.warn('event.origin: ', event.origin);
-    //console.warn('event.data: ', event.data);
-    if (event.origin === ltng_origin) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        var data = JSON.parse(event.data);
-        var type = data.type;
-        var uid = data.uid;
-
-        //console.warn('data: ', data.type, data.uid);
-        if (type === 'loadSounds' && _uid === uid) {
-            loadSounds(data.config);
-        } else if (type === 'playSound' && _uid === uid) {
-            playSound(data.config);
-        } else if (type === 'stopSound' && _uid === uid) {
-            stopSound(data.config);
-        }
-    }
-}
-
-// Older browsers might not implement mediaDevices at all, so we set an empty object first
-if (navigator.mediaDevices === undefined) {
-    navigator.mediaDevices = {};
-}
+    window.addEventListener("message", messageHandler, true);
 
 
-// Some browsers partially implement mediaDevices. We can't just assign an object
-// with getUserMedia as it would overwrite existing properties.
-// Here, we will just add the getUserMedia property if it's missing.
-if (navigator.mediaDevices.getUserMedia === undefined) {
-    navigator.mediaDevices.getUserMedia = function(constraints) {
-
-        // First get ahold of the legacy getUserMedia, if present
-        var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-
-        // Some browsers just don't implement it - return a rejected promise with an error
-        // to keep a consistent interface
-        if (!getUserMedia) {
-            return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
-        }
-
-        // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
-        return new Promise(function(resolve, reject) {
-            getUserMedia.call(navigator, constraints, resolve, reject);
-        });
-    }
-}
-
-// set up forked web audio context, for multiple browsers
-// window. is needed otherwise Safari explodes
-
-function BufferLoader(context, urlList, callback) {
-    this.context = context;
-    this.urlList = urlList;
-    this.onload = callback;
-    this.bufferList = new Array();
-    this.loadCount = 0;
-}
-
-BufferLoader.prototype.loadBuffer = function(url, index) {
-    // Load buffer asynchronously
-    var request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.responseType = "arraybuffer";
-
-    var loader = this;
-
-    request.onload = function() {
-        // Asynchronously decode the audio file data in request.response
-        loader.context.decodeAudioData(
-            request.response,
-            function(buffer) {
-                if (!buffer) {
-                    alert('error decoding file data: ' + url);
-                    return;
-                }
-                loader.bufferList[index] = buffer;
-                if (++loader.loadCount == loader.urlList.length)
-                    loader.onload(loader.bufferList);
-            },
-            function(error) {
-                console.error('decodeAudioData error', error);
-            }
-        );
-    }
-
-    request.onerror = function() {
-        alert('BufferLoader: XHR error');
-    }
-
-    request.send();
-}
-
-BufferLoader.prototype.load = function() {
-    for (var i = 0; i < this.urlList.length; ++i)
-        this.loadBuffer(this.urlList[i], i);
-}
-
-var audioCtx = new(window.AudioContext || window.webkitAudioContext)();
-
-function loadSounds(config) {
-    console.warn('loadSounds: ', config);
-
-    var resources = config.resources;
-
-    var bufferLoader = new BufferLoader(audioCtx, resources, function(bufferList) {
-        console.warn('BufferLoader.finishedLoading: ', bufferList);
-    });
-}
-
-
-function playSound(config) {
-
-}
-
-function sendReadyResponse() {
-    // Send ready message
-    console.warn('voicesfxproxy sending ready response');
-    var response = {
-        type: 'ready',
-        service_name: 'voicesfxproxy',
-        remote_url: window.location.href,
-        ltng_origin: ltng_origin,
-        ltng_url: ltng_url,
-        uid: _uid,
-        visualSetting: visualSetting
-    };
-
-    //var json = JSON.stringify({type: "ready", uid: _uid});
-
-    var json = JSON.stringify(response)
-    console.warn('voicesfxproxy - json: ', json);
-
+    /*        
+    var json = JSON.stringify({type: "ready", uid: _uid});
     var target = ltng_origin;
-    console.warn('voicesfxproxy - target: ', target);
     if (window.parent && window.parent.postMessage && target !== null && target !== '') {
-        console.warn('postMessage: ', json, target);
         window.parent.postMessage(json, target);
     }
-}
+    */
 
-window.onload = sendReadyResponse; <
-/script> <
-/body> <
-/html>
+    function messageHandler(event) {
+        console.warn('event.origin: ', event.origin);
+        console.warn('event.data: ', event.data);
+        if (event.origin === ltng_origin) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            var data = JSON.parse(event.data);
+            var type = data.type;
+            var uid = data.uid;
+
+            console.warn('data: ', data.type, data.uid);
+            if (type === 'loadSounds' && _uid === uid) {
+                loadSounds(data.config);
+            } else if (type === 'playSound' && _uid === uid) {
+                playSound(data.config);
+            } else if (type === 'stopSound' && _uid === uid) {
+                stopSound(data.config);
+            }
+        }
+    }
+
+    // Older browsers might not implement mediaDevices at all, so we set an empty object first
+    if (navigator.mediaDevices === undefined) {
+        navigator.mediaDevices = {};
+    }
+
+
+    // Some browsers partially implement mediaDevices. We can't just assign an object
+    // with getUserMedia as it would overwrite existing properties.
+    // Here, we will just add the getUserMedia property if it's missing.
+    if (navigator.mediaDevices.getUserMedia === undefined) {
+        navigator.mediaDevices.getUserMedia = function(constraints) {
+
+            // First get ahold of the legacy getUserMedia, if present
+            var getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+            // Some browsers just don't implement it - return a rejected promise with an error
+            // to keep a consistent interface
+            if (!getUserMedia) {
+                return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+            }
+
+            // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
+            return new Promise(function(resolve, reject) {
+                getUserMedia.call(navigator, constraints, resolve, reject);
+            });
+        }
+    }
+
+    // set up forked web audio context, for multiple browsers
+    // window. is needed otherwise Safari explodes
+
+    function BufferLoader(context, urlList, callback) {
+        this.context = context;
+        this.urlList = urlList;
+        this.onload = callback;
+        this.bufferList = new Array();
+        this.loadCount = 0;
+    }
+
+    BufferLoader.prototype.loadBuffer = function(url, index) {
+        // Load buffer asynchronously
+        var request = new XMLHttpRequest();
+        request.open("GET", url, true);
+        request.responseType = "arraybuffer";
+
+        var loader = this;
+
+        request.onload = function() {
+            // Asynchronously decode the audio file data in request.response
+            loader.context.decodeAudioData(
+                request.response,
+                function(buffer) {
+                    if (!buffer) {
+                        alert('error decoding file data: ' + url);
+                        return;
+                    }
+                    loader.bufferList[index] = buffer;
+                    if (++loader.loadCount == loader.urlList.length)
+                        loader.onload(loader.bufferList);
+                },
+                function(error) {
+                    console.error('decodeAudioData error', error);
+                }
+            );
+        }
+
+        request.onerror = function() {
+            alert('BufferLoader: XHR error');
+        }
+
+        request.send();
+    }
+
+    BufferLoader.prototype.load = function() {
+        for (var i = 0; i < this.urlList.length; ++i)
+            this.loadBuffer(this.urlList[i], i);
+    }
+
+    var audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+
+    function loadSounds(config) {
+        console.warn('loadSounds: ', config);
+
+        var resources = config.resources;
+
+        var bufferLoader = new BufferLoader(audioCtx, resources, function(bufferList) {
+            console.warn('BufferLoader.finishedLoading: ', bufferList);
+        });
+    }
+
+
+    function playSound(config) {
+
+    }
+
+    function sendReadyResponse() {
+        // Send ready message
+        console.warn('voicesfxproxy sending ready response');
+        var response = {
+            type: 'ready',
+            service_name: 'voicesfxproxy',
+            remote_url: window.location.href,
+            ltng_origin: ltng_origin,
+            ltng_url: ltng_url,
+            uid: _uid,
+            visualSetting: visualSetting
+        };
+
+        //var json = JSON.stringify({type: "ready", uid: _uid});
+
+        var json = JSON.stringify(response)
+        console.warn('voicesfxproxy - json: ', json);
+
+        var target = ltng_origin;
+        console.warn('voicesfxproxy - target: ', target);
+        if (window.parent && window.parent.postMessage && target !== null && target !== '') {
+            console.warn('postMessage: ', json, target);
+            window.parent.postMessage(json, target);
+        }
+    }
+
+    window.onload = sendReadyResponse;
+
+    </script>
+    </body>
+</html>
