@@ -46,9 +46,9 @@
                 //console.warn('data: ', data.type, data.uid);
                 if (type === 'loadSounds' && _uid === uid) {
                     loadSounds(data.config);
-                } else if (type === 'playSounds' && _uid === uid) {
+                } else if (type === 'playSound' && _uid === uid) {
                     playSound(data.config);
-                } else if (type === 'stopSounds' && _uid === uid) {
+                } else if (type === 'stopSound' && _uid === uid) {
                     stopSound(data.config);
                 }
             }
