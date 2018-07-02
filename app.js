@@ -619,19 +619,22 @@ var getParams = function(req){
 // Voice Proxy
 app.get('/voiceproxy', function(req, res) {
 	req.params = getParams(req);
-	console.warn('req.params: ', req.params);
 	var params = JSON.stringify(req.params);
-	console.warn('params: ', params);
     res.render('pages/voiceproxy', {title: 'Einstein Analytics - Voice Proxy', params: params});
 });
 
 // Voice Analysis Proxy
 app.get('/voiceanalysisproxy', function(req, res) {
 	req.params = getParams(req);
-	console.warn('req.params: ', req.params);
 	var params = JSON.stringify(req.params);
-	console.warn('params: ', params);
     res.render('pages/voiceanalysisproxy', {title: 'Einstein Analytics - Voice Analysis Proxy', params: params});
+});
+
+// Voice Analysis Proxy
+app.get('/voicesfxproxy', function(req, res) {
+	req.params = getParams(req);
+	var params = JSON.stringify(req.params);
+    res.render('pages/voicesfxproxy', {title: 'Einstein Analytics - Voice SFX Proxy', params: params});
 });
 
 
