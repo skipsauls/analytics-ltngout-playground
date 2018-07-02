@@ -134,6 +134,7 @@
     }
 
     var audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+    var sources = {};
 
     function loadSounds(config) {
         console.warn('loadSounds: ', config);
@@ -148,7 +149,12 @@
 
         var bufferLoader = new BufferLoader(audioCtx, resources, function(bufferList) {
             console.warn('BufferLoader.finishedLoading: ', bufferList);
+            bufferList.forEach(function(buffer, i) {
+                console.warn('buffer: ', i, buffer);
+            });
         });
+
+        bufferLoader.load();
     }
 
 
