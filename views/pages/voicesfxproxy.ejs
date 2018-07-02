@@ -140,6 +140,12 @@
 
         var resources = config.resources;
 
+        resources.forEach(function(resource) {
+            resource = ltng_url + resource;
+        });
+
+        console.warn('resources: ', resources);
+        
         var bufferLoader = new BufferLoader(audioCtx, resources, function(bufferList) {
             console.warn('BufferLoader.finishedLoading: ', bufferList);
         });
