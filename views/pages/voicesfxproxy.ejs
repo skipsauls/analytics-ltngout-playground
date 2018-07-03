@@ -136,8 +136,14 @@
     }
 
 
+
+    var audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+    var sources = {};
+
+
+
     function initSound(arrayBuffer) {
-        context.decodeAudioData(arrayBuffer, function(buffer) {
+        audioCtx.decodeAudioData(arrayBuffer, function(buffer) {
             audioBuffer = buffer;
             console.warn('audioBuffer: ', audioBuffer);
         }, function(e) {
@@ -156,12 +162,6 @@
         xhr.send();
     }
 
-
-
-
-
-    var audioCtx = new(window.AudioContext || window.webkitAudioContext)();
-    var sources = {};
 
     function loadSounds(config) {
         console.warn('loadSounds: ', config);
