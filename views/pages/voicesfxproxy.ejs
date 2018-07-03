@@ -143,9 +143,9 @@
 
 
     function initSound(arrayBuffer) {
+        console.warn('initSound - arrayBuffer: ', arrayBuffer);
         audioCtx.decodeAudioData(arrayBuffer, function(buffer) {
-            audioBuffer = buffer;
-            console.warn('audioBuffer: ', audioBuffer);
+            console.warn('buffer: ', buffer);
         }, function(e) {
             console.error('Error decoding file', e);
         });
@@ -179,16 +179,7 @@
             loadSoundFile(resource);
         });
 
-        /*
-        var bufferLoader = new BufferLoader(audioCtx, resources, function(bufferList) {
-            console.warn('BufferLoader.finishedLoading: ', bufferList);
-            bufferList.forEach(function(buffer, i) {
-                console.warn('buffer: ', i, buffer);
-            });
-        });
 
-        bufferLoader.load();
-        */
 
     }
 
