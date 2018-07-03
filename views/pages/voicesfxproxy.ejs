@@ -18,7 +18,6 @@
     console.warn('voicesfxproxy - ltng_origin: ', ltng_origin);
     console.warn('voicesfxproxy - ltng_url: ', ltng_url);
     console.warn('voicesfxproxy - _uid: ', _uid);
-    console.warn('voicesfxproxy - visualSetting: ', visualSetting);
 
     window.addEventListener("message", messageHandler, true);
 
@@ -169,8 +168,7 @@
             remote_url: window.location.href,
             ltng_origin: ltng_origin,
             ltng_url: ltng_url,
-            uid: _uid,
-            visualSetting: visualSetting
+            uid: _uid
         };
 
         //var json = JSON.stringify({type: "ready", uid: _uid});
