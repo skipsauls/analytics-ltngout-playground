@@ -127,10 +127,38 @@
         request.send();
     }
 
+
+
+
     BufferLoader.prototype.load = function() {
         for (var i = 0; i < this.urlList.length; ++i)
             this.loadBuffer(this.urlList[i], i);
     }
+
+
+    function initSound(arrayBuffer) {
+        context.decodeAudioData(arrayBuffer, function(buffer) {
+            audioBuffer = buffer;
+            console.warn('audioBuffer: ', audioBuffer);
+        }, function(e) {
+            console.error('Error decoding file', e);
+        });
+    }
+
+    function loadSoundFile(url) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.responseType = 'arraybuffer';
+        xhr.withCredentials = true;
+        xhr.onload = function(e) {
+            initSound(this.response);
+        };
+        xhr.send();
+    }
+
+
+
+
 
     var audioCtx = new(window.AudioContext || window.webkitAudioContext)();
     var sources = {};
@@ -147,6 +175,11 @@
 
         console.warn('resources: ', resources);
 
+        resources.forEch(function(resource, i) {
+            loadSoundFile(resource);
+        });
+
+        /*
         var bufferLoader = new BufferLoader(audioCtx, resources, function(bufferList) {
             console.warn('BufferLoader.finishedLoading: ', bufferList);
             bufferList.forEach(function(buffer, i) {
@@ -155,6 +188,8 @@
         });
 
         bufferLoader.load();
+        */
+        
     }
 
 
