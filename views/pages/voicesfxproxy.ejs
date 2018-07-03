@@ -96,6 +96,8 @@
         var request = new XMLHttpRequest();
         request.open("GET", url, true);
         request.responseType = "arraybuffer";
+        request.withCredentials = true;
+        //request.setHeader('Access-Control-Allow-Origin: *');
 
         var loader = this;
 
