@@ -189,6 +189,7 @@
             source.buffer = buffer; // Add the buffered data to our object
             source.loop = false; // Make it loop
             //source.connect(gain1Node);
+            source.connect(audioCtx.destination);
             source.start(0); // Play immediately
         }
     }
