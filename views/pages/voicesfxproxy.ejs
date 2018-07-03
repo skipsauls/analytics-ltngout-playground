@@ -153,6 +153,7 @@
     }
 
     function loadSoundFile(name, url) {
+        console.warn('loadSoundFile: ', name, url);
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.responseType = 'arraybuffer';
@@ -170,6 +171,8 @@
         var resources = config.resources;
 
         for (var name in config.resources) {
+            console.warn('name: ', name);
+            console.warn('resource: ', config.resources[name]);
             loadSoundFile(name, ltng_url + config.resources[name]);
         }
 
@@ -177,7 +180,9 @@
 
 
     function playSound(config) {
+        console.warn('playSound: ', config);
         var buffer = buffers[config.name];
+        console.warn('buffer: ', buffer);
         if (typeof buffer !== 'undefined' && buffer !== null) {
 
             var source = audioCtx.createBufferSource(); // Create a sound source
