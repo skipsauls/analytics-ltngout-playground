@@ -143,10 +143,11 @@
 
 
     function initSound(name, arrayBuffer) {
-        console.warn('initSound - arrayBuffer: ', arrayBuffer);
+        console.warn('initSound - arrayBuffer: ', name, arrayBuffer);
         audioCtx.decodeAudioData(arrayBuffer, function(buffer) {
             console.warn('buffer: ', buffer);
             buffers[name] = buffer;
+            console.warn('buffers: ', buffers);
         }, function(e) {
             console.error('Error decoding file', e);
         });
