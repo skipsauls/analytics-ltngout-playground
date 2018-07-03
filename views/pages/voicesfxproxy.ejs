@@ -140,8 +140,11 @@
 
         var resources = config.resources;
 
+        var myurl = 'https://adx-dev-ed.my.salesforce.com';
+
         resources.forEach(function(resource, i) {
-            resources[i] = ltng_url + resource;
+            //resources[i] = ltng_url + resource;
+            resources[i] = myurl + resource;
         });
 
         console.warn('resources: ', resources);
