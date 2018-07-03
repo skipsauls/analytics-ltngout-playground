@@ -138,26 +138,27 @@
 
 
     var audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+    var buffers = {};
     var sources = {};
 
 
-
-    function initSound(arrayBuffer) {
+    function initSound(name, arrayBuffer) {
         console.warn('initSound - arrayBuffer: ', arrayBuffer);
         audioCtx.decodeAudioData(arrayBuffer, function(buffer) {
             console.warn('buffer: ', buffer);
+            buffers[name] = buffer;
         }, function(e) {
             console.error('Error decoding file', e);
         });
     }
 
-    function loadSoundFile(url) {
+    function loadSoundFile(name, url) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.responseType = 'arraybuffer';
         xhr.withCredentials = true;
         xhr.onload = function(e) {
-            initSound(this.response);
+            initSound(name, this.response);
         };
         xhr.send();
     }
@@ -168,26 +169,28 @@
 
         var resources = config.resources;
 
-
-        resources.forEach(function(resource, i) {
-            resources[i] = ltng_url + resource;
-        });
-
-        console.warn('resources: ', resources);
-
-        resources.forEach(function(resource, i) {
-            loadSoundFile(resource);
-        });
-
-
+        for (var name in config.resources) {
+            loadSoundFile(name, ltng_url + config.resources[name]);
+        }
 
     }
 
 
     function playSound(config) {
+        var buffer = buffers[config.name];
+        if (typeof buffer !== 'undefined' && buffer !== null) {
 
+            var source = audioCtx.createBufferSource(); // Create a sound source
+            source.buffer = buffer; // Add the buffered data to our object
+            source.loop = false; // Make it loop
+            //source.connect(gain1Node);
+            source.start(0); // Play immediately
+        }
     }
 
+    function stopSound(config) {
+
+    }
     function sendReadyResponse() {
         // Send ready message
         console.warn('voicesfxproxy sending ready response');
