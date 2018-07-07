@@ -8,14 +8,14 @@
   <body>
     <script type="text/javascript">
         var params = JSON.parse('<%- params %>');
-        console.warn('params: ', params);
+        //console.warn('params: ', params);
         var ltng_origin = params.ltng_origin;
         var ltng_url = params.ltng_url;
         var _uid = params.ltng_uid;
 
-        console.warn('voiceproxy - mltng_origin: ', ltng_origin);
-        console.warn('voiceproxy - ltng_url: ', ltng_url);
-        console.warn('voiceproxy - _uid: ', _uid);
+        //console.warn('voiceproxy - ltng_origin: ', ltng_origin);
+        //console.warn('voiceproxy - ltng_url: ', ltng_url);
+        //console.warn('voiceproxy - _uid: ', _uid);
 
         window.addEventListener("message", messageHandler, true);
 
@@ -97,63 +97,7 @@
                 });
             }
 
-            /*            
-                        synth.onstart = function(e) {
-                            _sendResponse({
-                                phase: 'onstart',
-                                config: config
-                            });
-                        }
-                        synth.onend = function(e) {
-                            _sendResponse({
-                                phase: 'onend',
-                                config: config
-                            });
-                        }
-                        synth.onpause = function(e) {
-                            _sendResponse({
-                                phase: 'onpause',
-                                config: config
-                            });
-                        }
-                        synth.onresume = function(e) {
-                            _sendResponse({
-                                phase: 'onresume',
-                                config: config
-                            });
-                        }            
-                        synth.onerror = function(e) {
-                            _sendResponse({
-                                phase: 'onerror',
-                                error: {
-                                    error: e.error,
-                                    message: e.message
-                                },
-                                config: config
-                            });
-                        }
-                        synth.onmark = function(e) {
-                            _sendResponse({
-                                phase: 'onmark',
-                                mark: {
-                                    name: e.name
-                                },
-                                config: config
-                            });
-                        }
-                        synth.onboundary = function(e) {
-                            _sendResponse({
-                                phase: 'onboundary',
-                                boundary: {
-                                    name: e.name
-                                },
-                                config: config
-                            });
-                        }
-                        
-            */
             synth.speak(utterThis);
-
 
         }
 
@@ -306,20 +250,11 @@
                             };
 
                             var json = JSON.stringify({ type: "response", uid: _uid, response: response });
-                            /*
-                            window.parent.postMessage(json, ltng_origin);            
-                            recognition.stop();
-                            */
-                            //console.warn('voiceproxy - sending json: ', json);
+                            
                             window.parent.postMessage(json, ltng_origin);
 
                             recognition.stop();
-                            /*
-                                                        setTimeout(function() {
-                                                          //console.warn('voiceanalysisproxy - onresult called setTimeout, now calling recognition.stop');
-                                                          recognition.stop();
-                                                        }, 50);
-                            */
+  
 
                         }
                     };

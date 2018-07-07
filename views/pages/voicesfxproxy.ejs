@@ -8,16 +8,15 @@
   <body>
     <script type="text/javascript">
     var params = JSON.parse('<%- params %>');
-    console.warn('voicesfxproxy - params: ', params);
     var ltng_origin = params.ltng_origin;
     var ltng_url = params.ltng_url;
     var _uid = params.ltng_uid;
 
     var _busy = false;
 
-    console.warn('voicesfxproxy - ltng_origin: ', ltng_origin);
-    console.warn('voicesfxproxy - ltng_url: ', ltng_url);
-    console.warn('voicesfxproxy - _uid: ', _uid);
+    //console.warn('voicesfxproxy - ltng_origin: ', ltng_origin);
+    //console.warn('voicesfxproxy - ltng_url: ', ltng_url);
+    //console.warn('voicesfxproxy - _uid: ', _uid);
 
     window.addEventListener("message", messageHandler, true);
 
@@ -31,8 +30,8 @@
     */
 
     function messageHandler(event) {
-        console.warn('event.origin: ', event.origin);
-        console.warn('event.data: ', event.data);
+        //console.warn('event.origin: ', event.origin);
+        //console.warn('event.data: ', event.data);
         if (event.origin === ltng_origin) {
             event.preventDefault();
             event.stopPropagation();
@@ -41,7 +40,7 @@
             var type = data.type;
             var uid = data.uid;
 
-            console.warn('data: ', data.type, data.uid);
+            //console.warn('data: ', data.type, data.uid);
             if (type === 'loadSounds' && _uid === uid) {
                 loadSounds(data.config);
             } else if (type === 'playSound' && _uid === uid) {
@@ -143,18 +142,18 @@
 
 
     function initSound(name, arrayBuffer) {
-        console.warn('initSound - arrayBuffer: ', name, arrayBuffer);
+        //console.warn('initSound - arrayBuffer: ', name, arrayBuffer);
         audioCtx.decodeAudioData(arrayBuffer, function(buffer) {
-            console.warn('buffer: ', buffer);
+            //console.warn('buffer: ', buffer);
             buffers[name] = buffer;
-            console.warn('buffers: ', buffers);
+            //console.warn('buffers: ', buffers);
         }, function(e) {
             console.error('Error decoding file', e);
         });
     }
 
     function loadSoundFile(name, url) {
-        console.warn('loadSoundFile: ', name, url);
+        //console.warn('loadSoundFile: ', name, url);
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.responseType = 'arraybuffer';
@@ -167,13 +166,13 @@
 
 
     function loadSounds(config) {
-        console.warn('loadSounds: ', config);
+        c//onsole.warn('loadSounds: ', config);
 
         var resources = config.resources;
 
         for (var name in config.resources) {
-            console.warn('name: ', name);
-            console.warn('resource: ', config.resources[name]);
+            //console.warn('name: ', name);
+            //console.warn('resource: ', config.resources[name]);
             loadSoundFile(name, ltng_url + config.resources[name]);
         }
 
@@ -181,9 +180,9 @@
 
 
     function playSound(config) {
-        console.warn('playSound: ', config);
+        //console.warn('playSound: ', config);
         var buffer = buffers[config.name];
-        console.warn('buffer: ', buffer);
+        //console.warn('buffer: ', buffer);
         if (typeof buffer !== 'undefined' && buffer !== null) {
 
             var source = audioCtx.createBufferSource(); // Create a sound source
@@ -200,7 +199,7 @@
     }
     function sendReadyResponse() {
         // Send ready message
-        console.warn('voicesfxproxy sending ready response');
+        //console.warn('voicesfxproxy sending ready response');
         var response = {
             type: 'ready',
             service_name: 'voicesfxproxy',
@@ -213,12 +212,12 @@
         //var json = JSON.stringify({type: "ready", uid: _uid});
 
         var json = JSON.stringify(response)
-        console.warn('voicesfxproxy - json: ', json);
+        //console.warn('voicesfxproxy - json: ', json);
 
         var target = ltng_origin;
-        console.warn('voicesfxproxy - target: ', target);
+        //console.warn('voicesfxproxy - target: ', target);
         if (window.parent && window.parent.postMessage && target !== null && target !== '') {
-            console.warn('postMessage: ', json, target);
+            //console.warn('postMessage: ', json, target);
             window.parent.postMessage(json, target);
         }
     }

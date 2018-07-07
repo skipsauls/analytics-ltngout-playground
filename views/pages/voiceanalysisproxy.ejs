@@ -8,7 +8,7 @@
   <body>
     <script type="text/javascript">
         var params = JSON.parse('<%- params %>');
-        console.warn('voiceanalysisproxy - params: ', params);
+        //console.warn('voiceanalysisproxy - params: ', params);
         var ltng_origin = params.ltng_origin;
         var ltng_url = params.ltng_url;
         var _uid = params.ltng_uid;
@@ -16,10 +16,10 @@
 
         var _busy = false;
 
-        console.warn('voiceanalysisproxy - ltng_origin: ', ltng_origin);
-        console.warn('voiceanalysisproxy - ltng_url: ', ltng_url);
-        console.warn('voiceanalysisproxy - _uid: ', _uid);
-        console.warn('voiceanalysisproxy - visualSetting: ', visualSetting);
+        //console.warn('voiceanalysisproxy - ltng_origin: ', ltng_origin);
+        //console.warn('voiceanalysisproxy - ltng_url: ', ltng_url);
+        //console.warn('voiceanalysisproxy - _uid: ', _uid);
+        //console.warn('voiceanalysisproxy - visualSetting: ', visualSetting);
 
         window.addEventListener("message", messageHandler, true);
 
@@ -95,7 +95,7 @@
         var analyzer = null;
 
         function startAnalyzer(config) {
-            console.warn('voiceanalysisproxy.startAnalyzer');
+            //console.warn('voiceanalysisproxy.startAnalyzer');
 
             audioCtx = new(window.AudioContext || window.webkitAudioContext)();
 
@@ -113,7 +113,7 @@
                             tracks = stream.getTracks();
 
                             stream.onremovetrack = function() {
-                                console.warn('voiceanalysisproxy.stream ended');
+                                //console.warn('voiceanalysisproxy.stream ended');
                             };
 
                             source = audioCtx.createMediaStreamSource(stream);
@@ -137,7 +137,7 @@
 
                         })
                     .catch(function(err) {
-                        console.log('The following gUM error occured: ' + err);
+                        console.error('The following gUM error occured: ' + err);
 
                         var response = {
                             source: 'AudioAnalyzer',
@@ -153,7 +153,7 @@
 
                     })
             } else {
-                console.log('getUserMedia not supported on your browser!');
+                console.warn('getUserMedia not supported on your browser!');
                 var response = {
                     source: 'AudioAnalyzer',
                     status: 'error',
@@ -169,11 +169,11 @@
         }
 
         function stopAnalyzer(config) {
-            console.warn('voiceanalysisproxy.stopAnalyzer');
+            //console.warn('voiceanalysisproxy.stopAnalyzer');
 
             if (source !== null && typeof source !== 'undefined') {
 
-                console.warn('calling source.disconnect');
+                //console.warn('calling source.disconnect');
                 source.disconnect(analyzer);
 
                 // Do we need to stop these?
@@ -181,7 +181,7 @@
                     track.stop();
                 });
 
-                console.warn('calling audioCtx.close');
+                //console.warn('calling audioCtx.close');
                 audioCtx.close().then(function() {
 
                     console.warn('audioCtx.close.then returned - arguments: ', arguments);
@@ -224,7 +224,7 @@
             if (visualSetting === 'sinewave') {
                 analyzer.fftSize = 2048;
                 bufferLength = analyzer.fftSize;
-                console.log('bufferLength: ', bufferLength);
+                //console.log('bufferLength: ', bufferLength);
                 dataArray = new Uint8Array(bufferLength);
 
                 analyzer.getByteTimeDomainData(dataArray);
@@ -239,22 +239,13 @@
                 analyzer.getByteFrequencyData(dataArrayAlt);
             }
 
-            //console.warn('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ dataArray: ',typeof dataArray, dataArray);
-            //console.warn('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ dataArrayAlt: ',typeof dataArrayAlt, dataArrayAlt);  
-
         }
 
         function getByteTimeDomainData(config) {
             if (_busy === true) {
                 return;
             }
-            //console.warn('voiceanalysisproxy.getByteTimeDomainData: ', config);
 
-            //var visualSetting = config.visualSetting || 'sinewave';
-
-            //console.warn('voiceanalysisproxy.getByteTimeDomainData - visualSetting: ', visualSetting);
-
-            //console.warn('dataArray: ',typeof dataArray, dataArray)  
             if (visualSetting === 'sinewave') {
                 analyzer.getByteTimeDomainData(dataArray);
 
@@ -277,7 +268,7 @@
 
         function sendReadyResponse() {
             // Send ready message
-            console.warn('voiceanalysisproxy sending ready response');
+            //console.warn('voiceanalysisproxy sending ready response');
             var response = {
                 type: 'ready',
                 service_name: 'voiceanalysisproxy',
@@ -291,12 +282,12 @@
             //var json = JSON.stringify({type: "ready", uid: _uid});
 
             var json = JSON.stringify(response)
-            console.warn('voiceanalysisproxy - json: ', json);
+            //console.warn('voiceanalysisproxy - json: ', json);
 
             var target = ltng_origin;
-            console.warn('voiceanalysisproxy - target: ', target);
+            //console.warn('voiceanalysisproxy - target: ', target);
             if (window.parent && window.parent.postMessage && target !== null && target !== '') {
-                console.warn('postMessage: ', json, target);
+                //console.warn('postMessage: ', json, target);
                 window.parent.postMessage(json, target);
             }
         }
