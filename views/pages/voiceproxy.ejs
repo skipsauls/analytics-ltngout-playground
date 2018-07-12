@@ -433,7 +433,7 @@
 
         function sendReadyResponse() {
             // Send ready message
-            console.warn('voiceproxy - sending ready response');
+            //console.warn('voiceproxy - sending ready response');
             var response = {
                 type: 'ready',
                 service_name: 'voiceproxy',
@@ -446,12 +446,12 @@
             //var json = JSON.stringify({type: "ready", uid: _uid});
 
             var json = JSON.stringify(response)
-            console.warn('voiceproxy - json: ', json);
+            //console.warn('voiceproxy - json: ', json);
 
             var target = ltng_origin;
-            console.warn('voiceproxy - target: ', target);
+            //console.warn('voiceproxy - target: ', target);
             if (window.parent && window.parent.postMessage && target !== null && target !== '') {
-                console.warn('postMessage: ', json, target);
+                c//onsole.warn('postMessage: ', json, target);
                 window.parent.postMessage(json, target);
             }
         }
