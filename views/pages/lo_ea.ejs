@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html>
-  <head><title>Einstein Analytics - Lightning Out</title></head>
+  <head>
+    <title>Einstein Analytics - Lightning Out</title>
+    <link href="/assets/styles/salesforce-lightning-design-system.min.css" type="text/css" rel="stylesheet"/>
+  </head>
   <body>
     <div id="dashboard"></div>
-    <div id="filterTest"></div>
+    <div id="sdkTab"></div>
     <script src="https://adx-dev-ed.my.salesforce.com/lightning/lightning.out.js"></script>
     <script src="/javascripts/force.all.js"></script>
     <script>
@@ -23,7 +26,7 @@
           };
           $Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {});
           //$Lightning.createComponent("c:imageMapTest", config, "filterTest", function(cmp, msg, err) {});
-          $Lightning.createComponent("c:sdkTab", {}, "filterTest", function(cmp, msg, err) {});
+          $Lightning.createComponent("c:sdkTab", {}, "sdkTab", function(cmp, msg, err) {});
         }, ltngURL, oauthResult.accessToken);        
       });
     </script>
