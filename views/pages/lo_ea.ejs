@@ -22,7 +22,8 @@
             showHeader: false
           };
           $Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {});
-          $Lightning.createComponent("c:imageMapTest", config, "filterTest", function(cmp, msg, err) {});
+          //$Lightning.createComponent("c:imageMapTest", config, "filterTest", function(cmp, msg, err) {});
+          $Lightning.createComponent("c:sdkTab", {}, "filterTest", function(cmp, msg, err) {});
         }, ltngURL, oauthResult.accessToken);        
       });
     </script>
