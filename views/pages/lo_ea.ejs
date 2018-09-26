@@ -18,6 +18,7 @@
       oauth.login().then(function(oauthResult) {
         var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
         $Lightning.use(loAppName, function(evt) {
+          /*
           var config = {
             developerName: "eadx__Image_Test_2",
             height: "700",
@@ -25,8 +26,9 @@
             showHeader: false
           };
           $Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {});
+          */
           //$Lightning.createComponent("c:imageMapTest", config, "filterTest", function(cmp, msg, err) {});
-          //$Lightning.createComponent("c:sdkTab", {}, "sdkTab", function(cmp, msg, err) {});
+          $Lightning.createComponent("c:sdkTab", {}, "sdkTab", function(cmp, msg, err) {});
         }, ltngURL, oauthResult.accessToken);        
       });
     </script>
