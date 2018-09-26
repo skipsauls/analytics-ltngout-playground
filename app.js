@@ -537,6 +537,8 @@ app.post('/formulas/parse', function(req, res) {
 
 */
 
+/* - Playground redirect version, not in use
+
 app.get('/', function(req, res) {
 	var origin = req.session.origin || req.query.origin;
 	console.warn('origin: ', origin);
@@ -562,6 +564,11 @@ app.get('/', function(req, res) {
 		    });		
 		}
 	}
+});
+*/
+
+app.get('/', function(req, res) {
+    res.render('pages/index', {title: 'Analytics Lightning Out Playground', appId: process.env.APPID});
 });
 
 app.get('/lo2', function(req, res) {
