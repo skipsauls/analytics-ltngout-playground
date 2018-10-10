@@ -585,6 +585,7 @@ app.get('/lo4', function(req, res) {
 
 // Commander
 app.get('/commander', function(req, res) {
+    console.warn('commander called at ', new Date());
     res.render('pages/commander', {title: 'Einstein Analytics - Commander', appId: process.env.APPID});
 });
 
