@@ -591,7 +591,18 @@ app.get('/commander', function(req, res) {
 
 app.post('/commander', function(req, res) {
     console.warn('POST commander called at ', new Date());
-    res.send({title: 'Einstein Analytics - Commander', timestamp: Date.now()});
+
+    console.warn("req.params: ", req.params);
+    console.warn("req.body: ", req.body);
+
+    var body = req.body;
+    var json = JSON.stringify(req.body, null, 2);
+    console.warn("req.body json: ", json);
+
+    var phrase = req.body.phrase;
+    console.warn('phrase: ', phrase);
+
+    res.send({title: 'Einstein Analytics - Commander', phrase: phrase, timestamp: Date.now()});
 });
 
 // Hello World
