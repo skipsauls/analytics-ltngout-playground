@@ -583,6 +583,10 @@ app.get('/lo4', function(req, res) {
     res.render('pages/lo4', {title: 'Fancy Lightning Out Demo', appId: process.env.APPID});
 });
 
+// Commander
+app.get('/commander', function(req, res) {
+    res.render('pages/commander', {title: 'Einstein Analytics - Commander', appId: process.env.APPID});
+});
 
 // Hello World
 app.get('/lo_ea', function(req, res) {
