@@ -268,7 +268,7 @@ Note that this will return the complete response for the dashboard, e.g.:
 var _oauthResult = null;
 
 (function getSFDCPasswordToken() {
-	var hostname = 'df17eadx';
+	var hostname = 'adx-dev-ed';
 
 	var domain = hostname;
 	var appAuth = _appAuth[domain];
@@ -278,14 +278,14 @@ var _oauthResult = null;
 	  client_id: appAuth.appId,
 	  client_secret: appAuth.appSecret,
 	  grant_type: 'password',
-	  username: 'skip@df17eadx.com',
-	  password: 'waveout2@' // + '7hjL2VWKAodCaNOYMdfQGHSU'
+	  username: 'skip@eadx.com',
+	  password: 'waveout4$' + 'POO8eW3hPCbOo6AK65S0s6nG'
 	};
 
 	console.warn('config: ', config);
 
 
-	rest.post('https://login.salesforce.com/services/oauth2/token', {data: config}).on('complete', function(data, response) {
+	rest.post('https://adx-dev-ed.my.salesforce.com/services/oauth2/token', {data: config}).on('complete', function(data, response) {
 		console.warn('token call data: ', data);
 
 	    if (response.statusCode === 200) {
@@ -297,10 +297,10 @@ var _oauthResult = null;
 	        	issuedAt: data.issued_at,
 	        	signature: data.signature
 	        };
+            console.warn('_oauthResult: ', _oauthResult);
 	    }
 	});
 
-	console.warn('_oauthResult: ', _oauthResult);
 })();
 
 
@@ -584,6 +584,56 @@ app.get('/lo4', function(req, res) {
 });
 
 // Commander
+
+
+function createPlatformEvent(type, target, payload, callback) {
+
+    let sfdcApiVersion = '44.0';
+
+    let path = '/services/data/v' + sfdcApiVersion + '/sobjects/eadx__EinsteinAnalyticsEvent__e';
+    let postData = {
+        eadx__type__c: type,
+        eadx__target__c: target,
+        eadx__payload__c: payload ? JSON.stringify(payload) : null
+    };
+    
+    console.warn('postData: ', postData);
+
+    let url = _oauthResult.instanceURL + path;
+
+    console.warn('url: ', url);
+
+    var config = {
+
+        headers: {
+            "Authorization": _oauthResult.tokenType + " " + _oauthResult.accessToken,
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        data: JSON.stringify(postData)
+    };
+
+    console.warn('config: ', config);
+
+
+    rest.post(url, config).on('complete', function(data, response) {
+        console.warn('createPlaformEvent returned data: ', data);
+        console.warn('createPlaformEvent returned response.statusCode: ', response.statusCode);
+
+        if (response.statusCode === 200) {
+            console.warn('json data: ', JSON.stringify(data, null, 2));
+        } else {            
+            console.error('response.statusCode: ', response.statusCode);
+        }
+
+        if (typeof callback === 'function') {
+            callback(data, response);
+        }        
+    });
+   
+}
+
+
 app.get('/commander', function(req, res) {
     console.warn('GET commander called at ', new Date());
     res.render('pages/commander', {title: 'Einstein Analytics - Commander', appId: process.env.APPID});
@@ -601,6 +651,14 @@ app.post('/commander', function(req, res) {
 
     var phrase = req.body.phrase;
     console.warn('phrase: ', phrase);
+
+    let payload = {
+        phrase: phrase
+    };
+    
+    createPlatformEvent('command', null, payload, function(data, response) {
+        console.warn('createPlatformEvent returned: ', data);
+    });    
 
     res.send({title: 'Einstein Analytics - Commander', phrase: phrase, timestamp: Date.now()});
 });
