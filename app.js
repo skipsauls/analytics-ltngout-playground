@@ -119,6 +119,10 @@ var _appAuthMap = {
             'df17eadx': {
                 appId: '3MVG9g9rbsTkKnAXTRjLb_HJvrzsMe5ne87cjIO_8sE7RAM.6C5q0YcbK_pmlCEcFqWRSudAFFzIJFuthJp.X',
                 appSecret: '6576199763315337959'
+            },
+            'ackeynotedf18': {
+                appId: '3MVG9SemV5D80oBe0VjaR0v7j8x6.Mh.doZYoVpBZcQpdZ3b13QSABzJ2vX8ShgPh_i.GNOLw7171sLPpFRmk',
+                appSecret: '3244981663010648141'
             }            
         }
     },
@@ -135,6 +139,10 @@ var _appAuthMap = {
             'df17eadx': {
                 appId: '3MVG9g9rbsTkKnAXTRjLb_HJvr0vSrovGJMtkWWKJEEuFPAcxj5eLP3E5am.KowfnHQF375auqBXi01TQdNON',
                 appSecret: '77518935725482072'
+            },
+            'ackeynotedf18': {
+                appId: '3MVG9SemV5D80oBe0VjaR0v7j83DUFyaBAxCQugkuZlXESfkkueEoRTvL0piDwLa2Xhv.nRwUDjzhKp6LdKHm',
+                appSecret: '6962648447068098115'
             }                        
         }
     }
@@ -194,77 +202,102 @@ exports.handler = function(event, context, callback){
     alexa.execute();
 };
 
-/*
 
-	vars - Variables that are used for computations
-	data - Row data, each one processed sequentially
-	code - Code statements, processed sequentially per row
 
-	The vars are useful for things like totals, previous row values, max, min, etc.
-	The data is typically the dataset row data
-	The code is JavaScript, but must return a value
+var _oauthResultMap = {};
 
-	// Sample used with CURL
-	{"code":"function(){data.a = data.a + 1;data.b += 100;data.c = data.a * 2;bar += data.a;total++;return {data:data,total:total,bar:bar};}()","data":[{"a":1,"b":2},{"a":5,"b":20}],"vars":{"total":0,"bar":0}}
+function getSFDCPasswordToken(domain, username, password, securityToken, callback) {
 
-	{
-		code:
-			function() {
-				data.a = data.a + 1;
-				data.b += 100;
-				data.c = data.a * 2;
-				bar += data.a;total++;
-				return {
-					data: data,
-					total: total,
-					bar:bar
-				};
-			}()
-		data: [
-			{
-				a: 1,
-				b: 2
-			},
-			{
-				a: 5,
-				b: 20
-			}
-		],
-		vars: {
-			total: 0,
-			bar: 0
-		}
-	}
+    var appAuth = _appAuth[domain];
+    console.warn('appAuth: ', appAuth);
 
-*/
-/*
+    var config = {
+      client_id: appAuth.appId,
+      client_secret: appAuth.appSecret,
+      grant_type: 'password',
+      username: username,
+      password: password + securityToken
+    };
 
-Note that this will return the complete response for the dashboard, e.g.:
+    console.warn('config: ', config);
 
-{
-  "metadata": {
-    "strings": [
-      "Name",
-      "Type"
-    ],
-    "numbers": [
-      "Value"
-    ],
-    "groupings": [
-      "Type"
-    ]
-  },
-  "data": [
-    {
-      "Name": "Alpha",
-      "Type": "A",
-      "Value": 50.33
-    },
-    ...
-  ]
+
+    rest.post('https://adx-dev-ed.my.salesforce.com/services/oauth2/token', {data: config}).on('complete', function(data, response) {
+        console.warn('token call data: ', data);
+
+        if (response.statusCode === 200) {
+            var oauthResult = {
+                instanceURL: data.instance_url,
+                accessToken: data.access_token,
+                id: data.id,
+                tokenType: data.token_type,
+                issuedAt: data.issued_at,
+                signature: data.signature
+            };
+            console.warn('oauthResult: ', oauthResult);
+            if (typeof callback === 'function') {
+                callback(null, oauthResult);
+            }
+        } else {
+            console.error('Status Code: ', response.statusCode);
+            console.error('Status Message: ', response.statusMessage);
+            if (typeof callback === 'function') {
+                callback ({statusCode: response.statusCode, statusMessage: response.statusMessage}, null);
+            }
+        }
+    });
+
 }
-*/
 
+getSFDCPasswordToken('adx-dev-ed', 'skip@eadx.com', 'waveout4$', 'POO8eW3hPCbOo6AK65S0s6nG', function(err, oauthResult) {
+    if (typeof oauthResult !== 'undefined' && oauthResult !== null) {
+        _oauthResultMap['adx-dev-ed'] = oauthResult;
+        getCurrentAPIVersion('adx-dev-ed', function(err, version) {
+            console.warn('adx-dev-ed version: ', version);
+            if (err) {
+                console.error('Error from getCurrentAPIVersion: ', err);
+            } else {
+                oauthResult.version = version;
+            }
+            getNamespacePrefix('adx-dev-ed', function(err, ns) {
+                console.warn('getNamespacePrefix returned: ', err, ns);
+                if (err) {
+                    console.error('Error from getNamespacePrefix: ', err);
+                } else {
+                    oauthResult.namespacePrefix = ns;
+                }
+            });
+        });
+    } else {
+        console.error('Error getting token for adx-dev-ed: ', err);
+    }
+});
+
+getSFDCPasswordToken('ackeynotedf18', 'ssauls@eakeynote18.org', 'waveout4$', '', function(err, oauthResult) {
+    if (typeof oauthResult !== 'undefined' && oauthResult !== null) {
+        _oauthResultMap['ackeynotedf18'] = oauthResult;
+        getCurrentAPIVersion('ackeynotedf18', function(err, version) {
+            console.warn('v version: ', version);
+            if (err) {
+                console.error('Error from getCurrentAPIVersion: ', err);
+            } else {
+                oauthResult.version = version;
+            }
+            getNamespacePrefix('ackeynotedf18', function(err, ns) {
+                console.warn('getNamespacePrefix returned: ', err, ns);
+                if (err) {
+                    console.error('Error from getNamespacePrefix: ', err);
+                } else {
+                    oauthResult.namespacePrefix = ns;
+                }
+            });
+        });
+    } else {
+        console.error('Error getting token for ackeynotedf18: ', err);
+    }
+});
+
+/*
 var _oauthResult = null;
 
 (function getSFDCPasswordToken() {
@@ -302,311 +335,107 @@ var _oauthResult = null;
 	});
 
 })();
-
-
-app.post('/eval', function(req, res) {
-    console.warn("req.params: ", req.params);
-    console.warn("req.body: ", req.body, typeof req.body);
-
-    let body = req.body;
-    let stmt = null;
-    let result = null;
-    let results = [];
-
-    console.warn('body: ', body);
-
-    let code = body.code;
-    console.warn('code: ', code, typeof code);
-    if (!(code instanceof Array)) {
-    	code = [code];
-    }
-    console.warn('code: ', code);
-
-    let vars = JSON.parse(body.vars);
-    console.warn('vars: ', vars, typeof vars);
-    /*
-    if (!(vars instanceof Array)) {
-    	vars = [vars];
-    }
-    console.warn('vars: ', vars);
-	*/
-
-    let data = JSON.parse(body.data);
-    if (!(data instanceof Array)) {
-    	data = [data];
-    }
-    console.warn('data: ', data);
-
-	let baseContext = {
-		dateFormat: dateFormat
-	};
-	for (var varName in vars) {
-		baseContext[varName] = vars[varName];
-	}
-
-	//console.warn('baseContext: ', baseContext);
-
-	let context = null;
-
-	if (code) {
-
-		data.forEach(function(row) {
-			console.warn('row: ', row);
-
-			context = baseContext;
-
-			context.data = {};
-			
-			for (var key in row) {
-				context.data[key] = row[key];
-			}
-
-			code.forEach(function(stmt) {
-				console.warn('stmt: ', stmt);
-				//console.warn('context: ', context);
-				try {
-					result = safeEval(stmt, context);
-					results.push(result);
-					console.warn('result: ', result);
-					//console.warn('context: ', context);
-
-					// See if any variables are in the result and set them in baseContext
-					for (var key in vars) {
-						if (result[key]) {
-							baseContext[key] = result[key];
-						}
-					}
-				} catch (e) {
-					console.error(e);
-				}
-			});
-		});
-	}
-
-	console.warn('results: ', results);
-
-	let response = {
-		metadata: {
-			strings: body.strings ? body.strings.split(',') : [],
-			numbers: body.numbers ? body.numbers.split(',') : [],
-			groupings: body.groupings ? body.groupings.split(',') : []
-		},
-		data: results
-	};
-/*
-	results.forEach(function(result) {
-		console.warn('result: ', result, typeof result);
-		response.data.push(result.data);
-		for (var key in result.data) {
-			let type = typeof result.data[key];
-			console.warn('type of ', result.data[key], ' is ', type);
-		}
-	});
-*/
-	console.warn('response: ', response);
-	console.warn('response json: ', JSON.stringify(response, null, 2));
-/*
-	if (body.strings) {
-		results.met
-	}
-    "strings": [
-      "Name",
-      "Type"
-    ],
-    "numbers": [
-      "Value"
-    ],
-    "groupings": [
-      "Type"
-    ]
-  },
-*/
-	res.send(response);
-
-});
-
-/*
-app.get('/formulas', function(req, res) {
-
-	var formulas = require('hot-formula-parser').SUPPORTED_FORMULAS;
-	res.send(formulas);
-});
-
-app.post('/formulas/parse', function(req, res) {
-    console.warn("req.params: ", req.params);
-    console.warn("req.body: ", req.body, typeof req.body);
-
-    let body = req.body;
-
-    let exp = null;
-    let formula = null;
-    let varName = null;
-    let varVal = null;
-    let varFormula = null;
-    let result = null;
-    let formulaResult = null;
-
-    let results = [];
-
-    if (body instanceof Array) {
-    	for (var i = 0; i < body.length; i++) {
-    		exp = body[i];
-    		console.warn("exp: ", exp, typeof exp);
-    		result = {};
-    		if (exp.set) {
-    			varName = exp.set.name;
-    			//result.varname = varName;
-    			if (exp.set.value || exp.set.value) {
-    				varVal = exp.set.value || exp.set.val;
-    				varVal = parseFloat(varVal);
-    				formulaParser.setVariable(varName, varVal);
-	    			//result.varvalue = varVal;
-	    			result.formula = "SET(" + varName + "," + varVal + ")";
-	    			result.result = varVal;
-    			}
-    			if (exp.set.formula) {
-    				formula = exp.set.formula;
-    				result.formula = "SET(" + varName + "," + formula + ")";
-		    		formulaResult = formulaParser.parse(formula);
-		    		console.warn('formulaResult: ', formulaResult);
-		    		//result.varvalue = formulaResult.result;
-		    		result.result = formulaResult.result;
-		    		result.error = formulaResult.error;
-		    		formulaParser.setVariable(varName, formulaResult.result);
-    			}
-    			if (exp.set.code) {
-
-    			}
-    		}
-    		if (exp.code) {
-    			let code = exp.code;
-	    		result.code = code;
-    			console.warn('original code: ', code);
-
-    			let r = new RegExp('__[a-zA-Z_]*(__)?', 'g');
-    			let m = code.match(r);
-    			if (m && m.length > 0) {
-    				console.warn('found variable: ', m);
-    				m.forEach(function(v) {
-    					varName = v.replace(/\_\_/g, '');
-    					console.warn('varName: ', varName);
-    					varVal = formulaParser.getVariable(varName);
-    					console.warn('varVal: ', varVal);
-    					code = code.replace(v, varVal);
-    				});
-    			}
-
-    			console.warn('modified code: ', code);
-
-	    		let context = {
-	    			dateFormat: dateFormat,
-	    			fx: fx,
-	    			accounting: accounting
-	    		};
-
-    			try {
-					result.result = safeEval(code, context)
-    			} catch (e) {
-    				console.error('safeEval exception: ', e);
-    				result.error = e.message;
-    			}
-    		}
-    		if (exp.formula) {
-    			formula = exp.formula;
-	    		console.warn('formula: ', formula);
-	    		formulaResult = formulaParser.parse(formula);
-	    		result.formula = formula;
-	    		result.result = formulaResult.result;
-	    		result.error = formulaResult.error;
-    		}
-    		if (exp.get) {
-    			varName = exp.get.name
-    			varVal = formulaParser.getVariable(varName);
-    			result.formula = "GET(" + varName + ")";
-    			result.result = varVal;
-    			//result.varname = varName;
-    			//result.varvalue = varVal;
-    		}
-    		console.warn('result: ', result);
-    		results.push(result);
-    	}
-    }
-
-    res.send(results);
-});
-
 */
 
-/* - Playground redirect version, not in use
+function getCurrentAPIVersion(domain, callback) {
 
-app.get('/', function(req, res) {
-	var origin = req.session.origin || req.query.origin;
-	console.warn('origin: ', origin);
-	origin = 'https://wavepm.lightning.force.com';
-	if (!origin || origin.indexOf('lightning') < 0) {
-		res.render('pages/noorigin');
-	} else {
-		if (req.query.origin) {
-			req.session.origin = req.query.origin;
-			res.redirect('/');
-		} else {
+    let path = '/services/data';
 
-			req.session.uuid = req.session.uuid || uuidv4();
-			var domain = req.session.origin.replace(/^https?\:\/\//i, "");
-		    res.render('pages/index', {
-		    	title: 'Analytics Lightning Out Playground',
-		    	appId: appId, origin: origin,
-		    	oauthResult: req.session.oauthResult || null,
-		    	loAppName: req.session.loAppName,
-		    	sandbox: req.session.sandbox,
-		    	origin: req.session.origin,
-		    	domain: domain
-		    });		
-		}
-	}
-});
-*/
+    let oauthResult = _oauthResultMap[domain];
 
-app.get('/', function(req, res) {
-    res.render('pages/index', {title: 'Analytics Lightning Out Playground', appId: process.env.APPID});
-});
+    let url = oauthResult.instanceURL + path;
+    console.warn('url: ', url);
 
-app.get('/lo2', function(req, res) {
-    res.render('pages/lo2', {title: 'Fancy Lightning Out Demo', appId: process.env.APPID});
-});
+    let version = {version: '0.0'};
+    let err = null;
 
-app.get('/lo3', function(req, res) {
-    res.render('pages/lo3', {title: 'Fancy Lightning Out Demo', appId: process.env.APPID});
-});
+    rest.get(url, options).on('complete', function(result, response) {
+                            
+        //console.warn('complete: ', result);
 
-app.get('/lo4', function(req, res) {
-    res.render('pages/lo4', {title: 'Fancy Lightning Out Demo', appId: process.env.APPID});
-});
+        console.warn('rest.get response.statusCode: ', response.statusCode);
+        if (response.statusCode === 200) {
+            //console.warn('json data: ', JSON.stringify(result, null, 2));
+            result.forEach(function(v) {
+                if (parseFloat(v.version) > parseFloat(version.version)) {
+                    version = v;
+                };
+            });
+        } else {            
+            console.error('response.statusCode: ', response.statusCode);
+            err = {statusCode: response.statusCode, statusMessage: response.statusMessage};
+        }
+        if (typeof callback === 'function') {
+            callback(err, version);
+        }
+    });
 
-// Commander
+}
 
+function getNamespacePrefix(domain, callback) {
+    // /services/data/v44.0/query?q=SELECT+NamespacePrefix+FROM+Organization
 
-function createPlatformEvent(type, target, payload, callback) {
+    let oauthResult = _oauthResultMap[domain];
+    console.warn('getNamespacePrefix oauthResult: ', oauthResult);
 
-    let sfdcApiVersion = '44.0';
+    let url = oauthResult.instanceURL + oauthResult.version.url + '/query?q=SELECT+NamespacePrefix+FROM+Organization';
 
-    let path = '/services/data/v' + sfdcApiVersion + '/sobjects/eadx__EinsteinAnalyticsEvent__e';
-    let postData = {
-        eadx__type__c: type,
-        eadx__target__c: target,
-        eadx__payload__c: payload ? JSON.stringify(payload) : null
+    console.warn('url: ', url);
+
+    let options = {
+        headers: {
+            "Accept": "application/json",
+            "Authorization": oauthResult.tokenType + " " + oauthResult.accessToken
+        }
     };
-    
+
+    var ns = null;
+    var err = null;
+
+    rest.get(url, options).on('complete', function(result, response) {
+
+        console.warn('complete: ', result);
+
+        console.warn('rest.get response.statusCode: ', response.statusCode);
+        if (response.statusCode === 200) {
+            if (result.records && result.records.length > 0) {
+                ns = result.records[0].NamespacePrefix;
+            }
+        } else {            
+            console.error('response.statusCode: ', response.statusCode);
+            err = {statusCode: response.statusCode, statusMessage: response.statusMessage};
+        }
+        if (typeof callback === 'function') {
+            callback(err, ns);
+        }
+    });
+
+}
+
+function createPlatformEvent(domain, eventName, type, target, payload, callback) {
+
+    console.warn('createPlatformEvent: ', domain, eventName, type, target, payload);
+
+    let oauthResult = _oauthResultMap[domain];
+    console.warn('oauthResult: ', oauthResult);
+    let nsp = oauthResult.namespacePrefix ? oauthResult.namespacePrefix + '__' : '';
+    console.warn('nsp: ', nsp);
+
+    let postData = {};
+    postData[nsp + 'type__c'] = type;
+    postData[nsp + 'target__c'] = target;
+    postData[nsp + 'payload__c'] = payload ? JSON.stringify(payload) : null;
+
     console.warn('postData: ', postData);
 
-    let url = _oauthResult.instanceURL + path;
+    let url = oauthResult.instanceURL + oauthResult.version.url + '/sobjects/' + nsp + eventName + '__e';
 
     console.warn('url: ', url);
 
     var config = {
 
         headers: {
-            "Authorization": _oauthResult.tokenType + " " + _oauthResult.accessToken,
+            "Authorization": oauthResult.tokenType + " " + oauthResult.accessToken,
             "Content-Type": "application/json",
             "Accept": "application/json"
         },
@@ -634,6 +463,27 @@ function createPlatformEvent(type, target, payload, callback) {
 }
 
 
+app.get('/', function(req, res) {
+    res.render('pages/index', {title: 'Analytics Lightning Out Playground', appId: process.env.APPID});
+});
+
+app.get('/lo2', function(req, res) {
+    res.render('pages/lo2', {title: 'Fancy Lightning Out Demo', appId: process.env.APPID});
+});
+
+app.get('/lo3', function(req, res) {
+    res.render('pages/lo3', {title: 'Fancy Lightning Out Demo', appId: process.env.APPID});
+});
+
+app.get('/lo4', function(req, res) {
+    res.render('pages/lo4', {title: 'Fancy Lightning Out Demo', appId: process.env.APPID});
+});
+
+// Commander
+
+
+
+
 app.get('/commander', function(req, res) {
     console.warn('GET commander called at ', new Date());
     res.render('pages/commander', {title: 'Einstein Analytics - Commander', appId: process.env.APPID});
@@ -649,14 +499,21 @@ app.post('/commander', function(req, res) {
     var json = JSON.stringify(req.body, null, 2);
     console.warn("req.body json: ", json);
 
+    var domain = req.body.domain;
+    console.warn('domain: ', domain);
+
     var phrase = req.body.phrase;
     console.warn('phrase: ', phrase);
+
+    let type = 'command';
+    
+    let target = null;
 
     let payload = {
         phrase: phrase
     };
-    
-    createPlatformEvent('command', null, payload, function(data, response) {
+
+    createPlatformEvent(domain, 'EinsteinAnalyticsEvent', type, target, payload, function(data, response) {
         console.warn('createPlatformEvent returned: ', data);
     });    
 
