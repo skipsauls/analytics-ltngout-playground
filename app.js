@@ -505,7 +505,7 @@ function createPlatformEvent(domain, eventName, type, target, payload, callback)
         console.warn('createPlaformEvent returned data: ', data);
         console.warn('createPlaformEvent returned response.statusCode: ', response.statusCode);
 
-        if (response.statusCode === 200) {
+        if (response.statusCode >= 200 && response.statusCode <= 299) {
 			console.warn('json data: ', JSON.stringify(data, null, 2));
 			
 			if (typeof callback === 'function') {
