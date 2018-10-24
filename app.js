@@ -232,7 +232,8 @@ function getSFDCPasswordToken(domain, username, password, securityToken, callbac
                 id: data.id,
                 tokenType: data.token_type,
                 issuedAt: data.issued_at,
-                signature: data.signature
+				signature: data.signature,
+				domain: domain
             };
             console.warn('oauthResult: ', oauthResult);
             if (typeof callback === 'function') {
@@ -249,6 +250,7 @@ function getSFDCPasswordToken(domain, username, password, securityToken, callbac
 
 }
 
+/*
 getSFDCPasswordToken('adx-dev-ed', 'skip@eadx.com', 'waveout4$', 'POO8eW3hPCbOo6AK65S0s6nG', function(err, oauthResult) {
     if (typeof oauthResult !== 'undefined' && oauthResult !== null) {
         _oauthResultMap['adx-dev-ed'] = oauthResult;
@@ -296,6 +298,60 @@ getSFDCPasswordToken('ackeynotedf18', 'ssauls@eakeynote18.org', 'waveout4$', '',
         console.error('Error getting token for ackeynotedf18: ', err);
     }
 });
+*/
+
+var tokenConfigs = {
+	'adx-dev-ed': {
+		domain: 'adx-dev-ed',
+		username: 'skip@eadx.com',
+		password: 'waveout4$',
+		securityToken: 'POO8eW3hPCbOo6AK65S0s6nG'
+	},
+	'ackeynotedf18': {
+		domain: 'ackeynotedf18',
+		username: 'ssauls@eakeynote18.org',
+		password: 'waveout4$',
+		securityToken: ''
+	}
+};
+
+function getToken(domain, callback) {
+	var config = null;
+	config = tokenConfigs[domain];
+	getSFDCPasswordToken(config.domain, config.username, config.password, config.securityToken, function(err, oauthResult) {
+		if (typeof oauthResult !== 'undefined' && oauthResult !== null) {
+			_oauthResultMap[oauthResult.domain] = oauthResult;
+			getCurrentAPIVersion(oauthResult.domain, function(err, version) {
+				console.warn('v version: ', version);
+				if (err) {
+					console.error('Error from getCurrentAPIVersion: ', err);
+				} else {
+					oauthResult.version = version;
+				}
+				getNamespacePrefix(oauthResult.domain, function(err, ns) {
+					console.warn('getNamespacePrefix returned: ', err, ns);
+					if (err) {
+						console.error('Error from getNamespacePrefix: ', err);
+					} else {
+						oauthResult.namespacePrefix = ns;
+					}
+					if (typeof callback === 'function') {
+						callback(null, oauthResult);
+					}
+				});
+			});
+		} else {
+			console.error('Error getting token for ' + domain + ': ', err);
+			callback({'error': 'Error getting token for ' + domain + ': ', err}, null);
+		}
+	});		
+}
+
+for (var domain in tokenConfigs) {
+	getToken(domain, function(err, oauthResult) {
+		console.warn('getToken returned: ', err, oauthResult);
+	});
+}
 
 /*
 var _oauthResult = null;
@@ -450,14 +506,31 @@ function createPlatformEvent(domain, eventName, type, target, payload, callback)
         console.warn('createPlaformEvent returned response.statusCode: ', response.statusCode);
 
         if (response.statusCode === 200) {
-            console.warn('json data: ', JSON.stringify(data, null, 2));
-        } else {            
-            console.error('response.statusCode: ', response.statusCode);
-        }
+			console.warn('json data: ', JSON.stringify(data, null, 2));
+			
+			if (typeof callback === 'function') {
+				callback(data, response);
+			}  
 
+        } else {            
+			console.error('response.statusCode: ', response.statusCode);
+			getToken(domain, function(err, oauthResult) {
+				if (err) {
+					console.warn('getToken for ', domain, ' error: ', err);
+					if (typeof callback === 'function') {
+						callback(null, response);
+					}  					
+				} else {
+					// Retry with updated token
+					createPlatformEvent(domain, eventName, type, target, payload, callback);
+				}
+			});
+        }
+/*
         if (typeof callback === 'function') {
             callback(data, response);
-        }        
+		}
+*/       
     });
    
 }
