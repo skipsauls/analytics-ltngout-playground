@@ -5,11 +5,13 @@
     <link href="/assets/styles/salesforce-lightning-design-system.min.css" type="text/css" rel="stylesheet"/>
   </head>
   <body>
+    <h1>Access Token: <%- accessToken %></h1>
     <div id="dashboard"></div>
     <div id="sdkTab"></div>
     <script src="https://adx-dev-ed.my.salesforce.com/lightning/lightning.out.js"></script>
     <script src="/javascripts/force.all.js"></script>
     <script>
+/*      
       var appId = '3MVG9SemV5D80oBcff3jWxxK32f4PQBwm702A4fEFlSAEviJg7BsC7PUI_WpupyyBwMfhXypJSkdVqKX7_IXr';
       var loginURL = "https://login.salesforce.com";
       var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
@@ -19,7 +21,7 @@
         var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
         $Lightning.use(loAppName, function(evt) {
           var config = {
-            developerName: "eadx__Image_Test_2",
+            developerName: "eadx__Demo1",
             height: "700",
             showTitle: false,
             showHeader: false
@@ -29,6 +31,22 @@
           //$Lightning.createComponent("c:sdkTab", {}, "sdkTab", function(cmp, msg, err) {});
         }, ltngURL, oauthResult.accessToken);        
       });
+*/      
+var loAppName = "c:loApp";
+var accessToken = '<%- accessToken %>';
+console.warn('accessToken: ', accessToken);
+var ltngURL = '<%- instanceURL %>'.replace(/my.salesforce/, "lightning.force");
+console.warn('ltngURL: ', ltngURL);
+$Lightning.use(loAppName, function(evt) {
+  var config = {
+    developerName: "eadx__Demo1",
+    height: "700",
+    showTitle: false,
+    showHeader: false
+  };
+  $Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {});
+}, ltngURL, accessToken);        
+
     </script>
   </body>
 </html>

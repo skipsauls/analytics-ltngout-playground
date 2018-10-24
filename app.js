@@ -595,7 +595,14 @@ app.post('/commander', function(req, res) {
 
 // Hello World
 app.get('/lo_ea', function(req, res) {
-    res.render('pages/lo_ea', {title: 'Lightning Out - Einstein Analytics', appId: process.env.APPID});
+
+	let domain = 'adx-dev-ed';
+    let oauthResult = _oauthResultMap[domain];
+    console.warn('oauthResult: ', oauthResult);
+    let nsp = oauthResult.namespacePrefix ? oauthResult.namespacePrefix + '__' : '';
+	console.warn('nsp: ', nsp);
+		
+    res.render('pages/lo_ea', {title: 'Lightning Out - Einstein Analytics', appId: process.env.APPID, accessToken: oauthResult.accessToken, instanceURL: oauthResult.instanceURL});
 });
 
 app.get('/lo_pw', function(req, res) {
