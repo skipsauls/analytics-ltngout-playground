@@ -98,7 +98,15 @@ var _appAuthMap = {
                 appSecret: '6962648447068098115'
             }                        
         }
-    }
+	},
+    azure: {
+        oauth: {
+            'adx-dev-ed': {
+                appId: '3MVG9SemV5D80oBcff3jWxxK32c5zHxFjm3Sc.Eou5bSehiqLnlmha0jAcBE7xK.fL8_FXbizdpYiCG2VSFvm',
+                appSecret: '2591270049733179149'
+			}
+		}
+	}
 };
 
 var _appAuth = process.env.HEROKU === 'true' ? _appAuthMap.heroku.oauth : _appAuthMap.localhost.oauth;
