@@ -222,10 +222,10 @@ function getSFDCPasswordToken(domain, username, password, securityToken, callbac
     console.warn('config: ', config);
 
 
-    rest.post('https://adx-dev-ed.my.salesforce.com/services/oauth2/token', {data: config}).on('complete', function(data, response) {
+    rest.post('https://' + domain  + '.my.salesforce.com/services/oauth2/token', {data: config}).on('complete', function(data, response) {
         console.warn('token call data: ', data);
 
-        if (response.statusCode === 200) {
+        if (response.statusCode >= 200 && response.statusCode <= 299) {
             var oauthResult = {
                 instanceURL: data.instance_url,
                 accessToken: data.access_token,
@@ -350,7 +350,12 @@ function getToken(domain, callback) {
 for (var domain in tokenConfigs) {
 	getToken(domain, function(err, oauthResult) {
 		console.warn('getToken returned: ', err, oauthResult);
+
+		getUserInfo(domain, function(err, userInfo) {
+			console.warn('userInfo: ', userInfo);
+		});
 	});
+
 }
 
 /*
@@ -428,8 +433,49 @@ function getCurrentAPIVersion(domain, callback) {
 
 }
 
+function getUserInfo(domain, callback) {
+	let t1 = Date.now();
+    let path = '/services/oauth2/userinfo';
+
+    let oauthResult = _oauthResultMap[domain];
+
+    let url = oauthResult.instanceURL + path;
+    console.warn('url: ', url);
+
+    let options = {
+        headers: {
+            "Accept": "application/json",
+            "Authorization": oauthResult.tokenType + " " + oauthResult.accessToken
+        }
+	};
+		
+	let err = null;
+	let userInfo = null;
+
+    rest.get(url, options).on('complete', function(result, response) {
+                            
+        //console.warn('complete: ', result);
+
+		console.warn('rest.get response.statusCode: ', response.statusCode);
+        if (response.statusCode >= 200 && response.statusCode <= 299) {
+			console.warn('json data: ', JSON.stringify(result, null, 2));
+			userInfo = result;
+			console.warn('userInfo: ', userInfo);
+
+        } else {            
+            console.error('response.statusCode: ', response.statusCode);
+            err = {statusCode: response.statusCode, statusMessage: response.statusMessage};
+        }
+        if (typeof callback === 'function') {
+			let t2 = Date.now();
+            callback(err, userInfo);
+			console.warn('time: ', t2 - t1);
+        }
+    });
+
+}
+
 function getNamespacePrefix(domain, callback) {
-    // /services/data/v44.0/query?q=SELECT+NamespacePrefix+FROM+Organization
 
     let oauthResult = _oauthResultMap[domain];
     console.warn('getNamespacePrefix oauthResult: ', oauthResult);
@@ -453,7 +499,7 @@ function getNamespacePrefix(domain, callback) {
         console.warn('complete: ', result);
 
         console.warn('rest.get response.statusCode: ', response.statusCode);
-        if (response.statusCode === 200) {
+        if (response.statusCode >= 200 && response.statusCode <= 299) {
             if (result.records && result.records.length > 0) {
                 ns = result.records[0].NamespacePrefix;
             }
@@ -596,13 +642,19 @@ app.post('/commander', function(req, res) {
 // Hello World
 app.get('/lo_ea', function(req, res) {
 
+	/*
 	let domain = 'adx-dev-ed';
     let oauthResult = _oauthResultMap[domain];
     console.warn('oauthResult: ', oauthResult);
     let nsp = oauthResult.namespacePrefix ? oauthResult.namespacePrefix + '__' : '';
 	console.warn('nsp: ', nsp);
+
+	console.warn('process.env: ', process.env);
+	*/
+
+    var appAuth = _appAuth[domain];
 		
-    res.render('pages/lo_ea', {title: 'Lightning Out - Einstein Analytics', appId: process.env.APPID, accessToken: oauthResult.accessToken, instanceURL: oauthResult.instanceURL});
+    res.render('pages/lo_ea', {title: 'Lightning Out - Einstein Analytics', appId: appAuth.appId, domain: domain});
 });
 
 app.get('/lo_cmdr', function(req, res) {
