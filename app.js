@@ -595,6 +595,10 @@ app.post('/commander', function(req, res) {
 // Hello World
 app.get('/lo_ea', function(req, res) {
 
+	var host = 'localhost';
+	var host = process.env.HEROKU === 'true' ? 'heroku' : host;
+	var host = process.env.AZURE === 'true' ? 'azure' : host;
+
 	/*
 	let domain = 'adx-dev-ed';
     let oauthResult = _oauthResultMap[domain];
@@ -607,7 +611,7 @@ app.get('/lo_ea', function(req, res) {
 
     var appAuth = _appAuth[domain];
 		
-    res.render('pages/lo_ea', {title: 'Lightning Out - Einstein Analytics', appId: appAuth.appId, domain: domain});
+    res.render('pages/lo_ea', {title: 'Lightning Out - Einstein Analytics', appId: appAuth.appId, domain: domain, host: host});
 });
 
 app.get('/lo_cmdr', function(req, res) {
