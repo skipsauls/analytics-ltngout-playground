@@ -51,59 +51,12 @@ oxr.latest(function() {
 });
 */
 
+console.warn('\n');
+console.warn('process.env: ', process.env);
+console.warn('\n');
+
 var port = process.env.PORT || 3000;
 var https_port = process.env.HTTPS_PORT || parseInt(port) + 1;
-
-//console.warn('process.env: ', process.env);
-
-/*
-// Localhost appId
-var appId = '3MVG9SemV5D80oBcff3jWxxK32b.valGtNTj90WK4mj5IAn1LOmdrz1ObgypNEnd9JRtxfhKpuE.iX7vv0WSy';
-var appSecret = '5138307552141816846';
-
-
-// Check and set Heroku appId
-if (process.env.HEROKU === 'true') {
-	appId = '3MVG9SemV5D80oBcff3jWxxK32f4PQBwm702A4fEFlSAEviJg7BsC7PUI_WpupyyBwMfhXypJSkdVqKX7_IXr';
-	appSecret = '6818833808157477050';
-}
-
-console.warn('appId: ', appId);
-*/
-
-/*
-var amazonProductClient = amazonProductAPI.createClient({
-  awsId: "AKIAIQAC2ZVNW4GUCBEA",
-  awsSecret: "CdP/LdtcPo7UsEa10rfeERt+zCLww4rBhgrDnWuO",
-  awsTag: "sfdcdemo-20"
-});
-*/
-
-/*
-// R Test
-var out = R("example/ex-sync.R")
-  .data("hello world", 20)
-  .callSync();
-  
-console.log('\n\nR output: ', out);
-
-
-var attitude = JSON.parse(
-  require("fs").readFileSync("example/attitude.json", "utf8"));
-
-console.warn('attitude: ', attitude);
-
-console.warn('---------------- Starting async R');
-R("example/ex-async.R")
-  .data({df: attitude, nGroups: 3, fxn: "mean" })
-  .call(function(err, d) {
-    console.log(err, d);
-	console.log('---------------- Ending async R');
-    if (err) {
-		console.error('R error: ', err);
-	}
-});
-*/
 
 var _appAuthMap = {
     localhost: {
