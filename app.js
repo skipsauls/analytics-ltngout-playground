@@ -170,38 +170,47 @@ var _oauthResultMap = {};
 
 function getSFDCPasswordToken(domain, username, password, securityToken, callback) {
 
-    var appAuth = _appAuth[domain];
+	try {
 
-    var config = {
-      client_id: appAuth.appId,
-      client_secret: appAuth.appSecret,
-      grant_type: 'password',
-      username: username,
-      password: password + securityToken
-    };
+		var appAuth = _appAuth[domain];
 
-    rest.post('https://' + domain  + '.my.salesforce.com/services/oauth2/token', {data: config}).on('complete', function(data, response) {
+		var config = {
+		client_id: appAuth.appId,
+		client_secret: appAuth.appSecret,
+		grant_type: 'password',
+		username: username,
+		password: password + securityToken
+		};
 
-        if (response.statusCode >= 200 && response.statusCode <= 299) {
-            var oauthResult = {
-                instanceURL: data.instance_url,
-                accessToken: data.access_token,
-                id: data.id,
-                tokenType: data.token_type,
-                issuedAt: data.issued_at,
-				signature: data.signature,
-				domain: domain
-            };
-            if (typeof callback === 'function') {
-                callback(null, oauthResult);
-            }
-        } else {
-            console.error('OAuth2 Token error: ', response.statusCode, response.statusMessage);
-            if (typeof callback === 'function') {
-                callback ({statusCode: response.statusCode, statusMessage: response.statusMessage}, null);
-            }
-        }
-    });
+		rest.post('https://' + domain  + '.my.salesforce.com/services/oauth2/token', {data: config}).on('complete', function(data, response) {
+
+			if (response.statusCode >= 200 && response.statusCode <= 299) {
+				var oauthResult = {
+					instanceURL: data.instance_url,
+					accessToken: data.access_token,
+					id: data.id,
+					tokenType: data.token_type,
+					issuedAt: data.issued_at,
+					signature: data.signature,
+					domain: domain
+				};
+				if (typeof callback === 'function') {
+					callback(null, oauthResult);
+				}
+			} else {
+				console.error('OAuth2 Token error: ', response.statusCode, response.statusMessage);
+				if (typeof callback === 'function') {
+					callback ({statusCode: response.statusCode, statusMessage: response.statusMessage}, null);
+				}
+			}
+		});
+
+	} catch (e) {
+		console.error('OAuth2 Token exception: ', e);
+		if (typeof callback === 'function') {
+			callback({exception: e}, null);
+		}
+	}
 
 }
 
