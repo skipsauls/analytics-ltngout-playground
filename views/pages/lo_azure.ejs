@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">    
+    <title>Einstein Analytics on Azure</title>
+    <!-- LDS -->
+    <link href="/assets/styles/salesforce-lightning-design-system.min.css" type="text/css" rel="stylesheet"/>    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Bootstrap core CSS -->
+    <link href="/FDBootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Material Design Bootstrap -->
+    <link href="/FDBootstrap/css/fluent.css" rel="stylesheet">
+    <!-- Micon icons-->
+    <link rel="stylesheet" href="/FDBootstrap/css/micon.min.css">
+    <!--Custom style -->    
+    <link rel="stylesheet" href="/FDBootstrap/css/style.css">
+    </head>
+  <body>
+
+    <!--Main Navigation-->
+    <header>
+      <!--Navbar-->
+      <nav class="navbar navbar-expand-lg navbar-dark indigo">
+
+          <div class="container">
+            <!-- Navbar brand -->
+            <a class="navbar-brand" href="#">Azure Demo</a>
+          
+            <!-- Collapse button -->
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#basicExampleNav" aria-controls="basicExampleNav"
+                aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+          
+            <!-- Collapsible content -->
+            <div class="collapse navbar-collapse" id="basicExampleNav">
+          
+                <!-- Links -->
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Home
+                            <span class="sr-only">(current)</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Pricing</a>
+                    </li>
+          
+                    <!-- Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Solutions</a>
+                        <div class="dropdown-menu dropdown-primary" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" href="#">Overview</a>
+                            <a class="dropdown-item" href="#">Pricing</a>
+                            <a class="dropdown-item" href="#">Partners</a>
+                        </div>
+                    </li>
+          
+                </ul>
+                <!-- Links -->
+          
+                <form class="form-inline">
+                    <div class="md-form my-0">
+                        <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+                    </div>
+                </form>
+            </div>
+            <!-- Collapsible content -->
+          </div>
+        </nav>
+        <!--/.Navbar-->
+    </header>
+    <!--Main Navigation-->
+    
+    <!--Main layout-->
+    <main>
+      <!--Main container-->
+      <div class="container">
+
+          <!--Grid row-->
+          <div class="row">
+
+              <!--Grid column-->
+              <div class="col-md-9">
+
+                <!--Carousel Wrapper-->
+                <div id="carousel-example-2" class="carousel slide carousel-multi-item" data-ride="false" data-interval="8000">
+
+                    <!--Controls-->
+                    <div class="controls-top">
+                      <a class="btn-floating waves-effect waves-light" href="#carousel-example-2" data-slide="prev"><i class="fa fa-chevron-left"></i></a>
+                      <a class="btn-floating waves-effect waves-light" href="#carousel-example-2" data-slide="next"><i class="fa fa-chevron-right"></i></a>
+                    </div>
+                    <!--/.Controls-->
+
+                    <!--Indicators-->
+                    <ol class="carousel-indicators">
+                      <li data-target="#carousel-example-2" data-slide-to="0" class="active"></li>
+                      <li data-target="#carousel-example-2" data-slide-to="1"></li>
+                      <li data-target="#carousel-example-2" data-slide-to="2"></li>
+                    </ol>
+                    <!--/.Indicators-->
+                    <!--Slides-->
+                    <div class="carousel-inner" role="listbox">
+                      <div class="carousel-item active">
+                        <div class="view">
+                          <div class="card">
+                              <div class="card-body">
+                                <h6 class="card-title">
+                                  Einstein Analytics Dashboard
+                                </h4>
+                                <div id="dashboard"></div>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="carousel-caption">
+                          <h3 class="h3-responsive" id="dashboard_label"></h3>
+                          <p id="dashboard_last_modified_by"></p>
+                        </div>
+                      </div>
+                      <div class="carousel-item">
+
+                          <div class="card mb-2">
+                              <img class="card-img-top" src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(34).jpg"
+                                alt="Card image cap">
+                              <div class="card-body">
+                                <h4 class="card-title">Card title</h4>
+                                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the
+                                  card's content.</p>
+                                <a class="btn btn-primary">Button</a>
+                              </div>
+                            </div>
+
+                      </div>
+                      <div class="carousel-item">
+                          <div class="card">
+                              <p>Host: <%- host %></p>
+                              <p>Domain: <%- domain %></p>
+                              <p>App ID: <%- appId %></p>                  
+                          </div>
+                      </div>
+                    </div>
+                    <!--/.Slides-->
+
+                  </div>
+                  <!--/.Carousel Wrapper-->
+
+              </div>
+              <!--Grid column-->
+
+              <!--Grid column-->
+              <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                          Einstein Analytics Explorer
+                        </h4>
+                        <div id="analytics_tree"></div>                 
+                    </div>
+                </div>
+
+
+              </div>
+              <!--Grid column-->
+
+          </div>
+          <!--Grid row-->
+
+          <!--Grid row-->
+          <div class="row">
+
+              <!--Grid column-->
+              <div class="col-lg-4 col-md-12">
+
+
+
+              </div>
+              <!--Grid column-->
+
+              <!--Grid column-->
+              <div class="col-lg-4 col-md-6">
+
+
+
+              </div>
+              <!--Grid column-->
+
+              <!--Grid column-->
+              <div class="col-lg-4 col-md-6">
+
+
+
+              </div>
+              <!--Grid column-->
+
+          </div>
+          <!--Grid row-->
+
+      </div>
+      <!--Main container-->    
+    </main>
+    <!--Main layout-->
+    
+    <!--Footer-->
+    <footer class="page-footer font-small indigo pt-4 mt-4">
+
+        <!-- Footer Links -->
+        <div class="container text-center text-md-left">
+    
+          <!-- Grid row -->
+          <div class="row">
+    
+            <!-- Grid column -->
+            <div class="col-md-6 mt-md-0 mt-3">
+    
+              <!-- Content -->
+              <h5 class="text-uppercase">Azure Demo</h5>
+              <p>Call us at 1-800-867-5309</p>
+    
+            </div>
+            <!-- Grid column -->
+    
+            <hr class="clearfix w-100 d-md-none pb-3">
+    
+            <!-- Grid column -->
+            <div class="col-md-3 mb-md-0 mb-3">
+    
+              <!-- Links -->
+              <h5 class="text-uppercase">About</h5>
+    
+              <ul class="list-unstyled">
+                <li>
+                  <a href="#!">Company</a>
+                </li>
+                <li>
+                  <a href="#!">Board</a>
+                </li>
+                <li>
+                  <a href="#!">Careers</a>
+                </li>
+                <li>
+                  <a href="#!">Contact</a>
+                </li>
+              </ul>
+    
+            </div>
+            <!-- Grid column -->
+    
+            <!-- Grid column -->
+            <div class="col-md-3 mb-md-0 mb-3">
+    
+              <!-- Links -->
+              <h5 class="text-uppercase">Resources</h5>
+    
+              <ul class="list-unstyled">
+                <li>
+                  <a href="#!">Products</a>
+                </li>
+                <li>
+                  <a href="#!">Sites/a>
+                </li>
+                <li>
+                  <a href="#!">Community</a>
+                </li>
+                <li>
+                  <a href="#!">Services</a>
+                </li>
+              </ul>
+    
+            </div>
+            <!-- Grid column -->
+    
+          </div>
+          <!-- Grid row -->
+    
+        </div>
+        <!-- Footer Links -->
+    
+        <!-- Copyright -->
+        <div class="footer-copyright text-center py-3">
+          © 2018 Copyright: Azure Demo
+        </div>
+        <!-- Copyright -->
+    
+      </footer>      
+    <!--Footer-->
+    
+    <script type="text/javascript" src="/FDBootstrap/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/FDBootstrap/js/popper.min.js"></script>
+    <script type="text/javascript" src="/FDBootstrap/js/bootstrap.min.js"></script>
+
+    <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
+    <script src="/javascripts/force.all.js"></script>
+    <script>
+      var appId = '<%- appId %>';
+      var loginURL = "https://login.salesforce.com";
+      var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
+      var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+      var loAppName = "c:loApp";
+
+      var dashboardComponent = null;
+
+
+      function handleAnalyticsTreeSelection(event) {
+        var params = event.getParams();
+        console.warn('handleAnalyticsTreeSelection: ', params);
+        console.warn('dashboardComponent: ', dashboardComponent);
+        if (params.assetType === 'dashboard' && typeof dashboardComponent !== 'undefined') {  
+          dashboardComponent.set('v.dashboardId', params.assetId);
+          document.querySelector('#dashboard_label').innerHTML = params.asset.label;
+          document.querySelector('#dashboard_last_modified_by').innerHTML = params.asset.lastModifiedBy.name;
+        }
+      }
+
+      oauth.login().then(function(oauthResult) {
+        var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
+        $Lightning.use(loAppName, function(evt) {
+          var config = {
+            dashboardId: "0FKB000000091kVOAQ",
+            developerName: "eadx__Demo1",
+            height: "700",
+            showTitle: false,
+            showHeader: false
+          };
+          $Lightning.createComponent("c:analyticsDashboardViewer", {}, "dashboard", function(cmp, msg, err) {
+            cmp.set('v.dashboardId', config.dashboardId);
+            dashboardComponent = cmp;
+
+            $Lightning.createComponent("c:analyticsTree", {}, "analytics_tree", function(cmp, msg, err) {
+              var analyticsTree = cmp;
+              analyticsTree.refresh(function(msg) {
+                  console.warn('analyticsTree.refresh returned: ', msg);
+              });
+
+              $A.eventService.addHandler({event: "eadx:analyticsTreeSelection", handler: handleAnalyticsTreeSelection});
+
+            });
+  
+          });
+
+
+          //$Lightning.createComponent("c:sdkTab", {}, "sdkTab", function(cmp, msg, err) {});
+        }, ltngURL, oauthResult.accessToken);        
+      });
+
+    </script>
+  </body>
+</html>
