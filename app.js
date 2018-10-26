@@ -298,132 +298,146 @@ function getCurrentAPIVersion(domain, callback) {
 }
 
 function getUserInfo(domain, callback) {
-    let path = '/services/oauth2/userinfo';
+	try {
+		let path = '/services/oauth2/userinfo';
 
-    let oauthResult = _oauthResultMap[domain];
+		let oauthResult = _oauthResultMap[domain];
 
-    let url = oauthResult.instanceURL + path;
-    let options = {
-        headers: {
-            "Accept": "application/json",
-            "Authorization": oauthResult.tokenType + " " + oauthResult.accessToken
-        }
-	};
-		
-	let err = null;
-	let userInfo = null;
+		let url = oauthResult.instanceURL + path;
+		let options = {
+			headers: {
+				"Accept": "application/json",
+				"Authorization": oauthResult.tokenType + " " + oauthResult.accessToken
+			}
+		};
+			
+		let err = null;
+		let userInfo = null;
 
-    rest.get(url, options).on('complete', function(result, response) {
+		rest.get(url, options).on('complete', function(result, response) {
 
-        if (response.statusCode >= 200 && response.statusCode <= 299) {
-			userInfo = result;
-        } else {            
-            console.error('getUserInfo error: ', response.statusCode, response.statusMessage);
-            err = {statusCode: response.statusCode, statusMessage: response.statusMessage};
-        }
-        if (typeof callback === 'function') {
-            callback(err, userInfo);
-        }
-    });
+			if (response.statusCode >= 200 && response.statusCode <= 299) {
+				userInfo = result;
+			} else {            
+				console.error('getUserInfo error: ', response.statusCode, response.statusMessage);
+				err = {statusCode: response.statusCode, statusMessage: response.statusMessage};
+			}
+			if (typeof callback === 'function') {
+				callback(err, userInfo);
+			}
+		});
+	} catch (e) {
+		if (typeof callback === 'function') {
+			callback({exception: e}, null);
+		}
+	}
 }
 
 function getNamespacePrefix(domain, callback) {
 
-    let oauthResult = _oauthResultMap[domain];
+	try {
+		let oauthResult = _oauthResultMap[domain];
 
-    let url = oauthResult.instanceURL + oauthResult.version.url + '/query?q=SELECT+NamespacePrefix+FROM+Organization';
+		let url = oauthResult.instanceURL + oauthResult.version.url + '/query?q=SELECT+NamespacePrefix+FROM+Organization';
 
-    let options = {
-        headers: {
-            "Accept": "application/json",
-            "Authorization": oauthResult.tokenType + " " + oauthResult.accessToken
-        }
-    };
+		let options = {
+			headers: {
+				"Accept": "application/json",
+				"Authorization": oauthResult.tokenType + " " + oauthResult.accessToken
+			}
+		};
 
-    var ns = null;
-    var err = null;
+		var ns = null;
+		var err = null;
 
-    rest.get(url, options).on('complete', function(result, response) {
-        if (response.statusCode >= 200 && response.statusCode <= 299) {
-            if (result.records && result.records.length > 0) {
-                ns = result.records[0].NamespacePrefix;
-            }
-        } else {            
-            console.error('getNamespacePrefix error: ', response.statusCode, response.statusMessage);
-            err = {statusCode: response.statusCode, statusMessage: response.statusMessage};
-        }
-        if (typeof callback === 'function') {
-            callback(err, ns);
-        }
-    });
-
+		rest.get(url, options).on('complete', function(result, response) {
+			if (response.statusCode >= 200 && response.statusCode <= 299) {
+				if (result.records && result.records.length > 0) {
+					ns = result.records[0].NamespacePrefix;
+				}
+			} else {            
+				console.error('getNamespacePrefix error: ', response.statusCode, response.statusMessage);
+				err = {statusCode: response.statusCode, statusMessage: response.statusMessage};
+			}
+			if (typeof callback === 'function') {
+				callback(err, ns);
+			}
+		});
+	} catch (e) {
+		console.error('getNamespacePrefix excepotion: ', e);
+		if (typeof callback === 'function') {
+			callback({exception: e}, );
+		}
+	}
 }
 
 function createPlatformEvent(domain, eventName, type, target, payload, callback) {
 
-    console.warn('createPlatformEvent: ', domain, eventName, type, target, payload);
+	try {
+		console.warn('createPlatformEvent: ', domain, eventName, type, target, payload);
 
-    let oauthResult = _oauthResultMap[domain];
-    console.warn('oauthResult: ', oauthResult);
-    let nsp = oauthResult.namespacePrefix ? oauthResult.namespacePrefix + '__' : '';
-    console.warn('nsp: ', nsp);
+		let oauthResult = _oauthResultMap[domain];
+		console.warn('oauthResult: ', oauthResult);
+		let nsp = oauthResult.namespacePrefix ? oauthResult.namespacePrefix + '__' : '';
+		console.warn('nsp: ', nsp);
 
-    let postData = {};
-    postData[nsp + 'type__c'] = type;
-    postData[nsp + 'target__c'] = target;
-    postData[nsp + 'payload__c'] = payload ? JSON.stringify(payload) : null;
+		let postData = {};
+		postData[nsp + 'type__c'] = type;
+		postData[nsp + 'target__c'] = target;
+		postData[nsp + 'payload__c'] = payload ? JSON.stringify(payload) : null;
 
-    console.warn('postData: ', postData);
+		console.warn('postData: ', postData);
 
-    let url = oauthResult.instanceURL + oauthResult.version.url + '/sobjects/' + nsp + eventName + '__e';
+		let url = oauthResult.instanceURL + oauthResult.version.url + '/sobjects/' + nsp + eventName + '__e';
 
-    console.warn('url: ', url);
+		console.warn('url: ', url);
 
-    var config = {
+		var config = {
 
-        headers: {
-            "Authorization": oauthResult.tokenType + " " + oauthResult.accessToken,
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        },
-        data: JSON.stringify(postData)
-    };
+			headers: {
+				"Authorization": oauthResult.tokenType + " " + oauthResult.accessToken,
+				"Content-Type": "application/json",
+				"Accept": "application/json"
+			},
+			data: JSON.stringify(postData)
+		};
 
-    console.warn('config: ', config);
+		console.warn('config: ', config);
 
 
-    rest.post(url, config).on('complete', function(data, response) {
-        console.warn('createPlaformEvent returned data: ', data);
-        console.warn('createPlaformEvent returned response.statusCode: ', response.statusCode);
+		rest.post(url, config).on('complete', function(data, response) {
+			console.warn('createPlaformEvent returned data: ', data);
+			console.warn('createPlaformEvent returned response.statusCode: ', response.statusCode);
 
-        if (response.statusCode >= 200 && response.statusCode <= 299) {
-			console.warn('json data: ', JSON.stringify(data, null, 2));
-			
-			if (typeof callback === 'function') {
-				callback(data, response);
-			}  
+			if (response.statusCode >= 200 && response.statusCode <= 299) {
+				console.warn('json data: ', JSON.stringify(data, null, 2));
+				
+				if (typeof callback === 'function') {
+					callback(data, response);
+				}  
 
-        } else {            
-			console.error('response.statusCode: ', response.statusCode);
-			getToken(domain, function(err, oauthResult) {
-				if (err) {
-					console.warn('getToken for ', domain, ' error: ', err);
-					if (typeof callback === 'function') {
-						callback(null, response);
-					}  					
-				} else {
-					// Retry with updated token
-					createPlatformEvent(domain, eventName, type, target, payload, callback);
-				}
-			});
-        }
-/*
-        if (typeof callback === 'function') {
-            callback(data, response);
-		}
-*/       
-    });
-   
+			} else {            
+				console.error('response.statusCode: ', response.statusCode);
+				getToken(domain, function(err, oauthResult) {
+					if (err) {
+						console.warn('getToken for ', domain, ' error: ', err);
+						if (typeof callback === 'function') {
+							callback(null, response);
+						}  					
+					} else {
+						// Retry with updated token
+						createPlatformEvent(domain, eventName, type, target, payload, callback);
+					}
+				});
+			}
+		
+		});
+	} catch (e) {
+		console.error('createPlatformEvent exception: ', e);
+		if (typeof callback === 'function') {
+			callback({exception: e}, null);
+		}  					
+	}   
 }
 
 
