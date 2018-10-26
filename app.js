@@ -51,10 +51,6 @@ oxr.latest(function() {
 });
 */
 
-console.warn('\n');
-console.warn('process.env: ', process.env);
-console.warn('\n');
-
 var port = process.env.PORT || 3000;
 var https_port = process.env.HTTPS_PORT || parseInt(port) + 1;
 
@@ -109,8 +105,13 @@ var _appAuthMap = {
 	}
 };
 
-var _appAuth = process.env.HEROKU === 'true' ? _appAuthMap.heroku.oauth : _appAuthMap.localhost.oauth;
+let _host = 'localhost';
+_host = process.env.HEROKU === 'true' ? 'heroku' : _host;
+_host = process.env.AZURE === 'true' ? 'azure' : _host;
+console.warn('_host: ', _host);
 
+let _appAuth = _appAuthMap[_host].oauth; //process.env.HEROKU === 'true' ?  : _appAuthMap.localhost.oauth;
+console.warn('_appAuth: ', _appAuth);
 
 
 var db = low('db.json');
@@ -170,7 +171,6 @@ var _oauthResultMap = {};
 function getSFDCPasswordToken(domain, username, password, securityToken, callback) {
 
     var appAuth = _appAuth[domain];
-    console.warn('appAuth: ', appAuth);
 
     var config = {
       client_id: appAuth.appId,
@@ -180,11 +180,7 @@ function getSFDCPasswordToken(domain, username, password, securityToken, callbac
       password: password + securityToken
     };
 
-    console.warn('config: ', config);
-
-
     rest.post('https://' + domain  + '.my.salesforce.com/services/oauth2/token', {data: config}).on('complete', function(data, response) {
-        console.warn('token call data: ', data);
 
         if (response.statusCode >= 200 && response.statusCode <= 299) {
             var oauthResult = {
@@ -196,13 +192,11 @@ function getSFDCPasswordToken(domain, username, password, securityToken, callbac
 				signature: data.signature,
 				domain: domain
             };
-            console.warn('oauthResult: ', oauthResult);
             if (typeof callback === 'function') {
                 callback(null, oauthResult);
             }
         } else {
-            console.error('Status Code: ', response.statusCode);
-            console.error('Status Message: ', response.statusMessage);
+            console.error('OAuth2 Token error: ', response.statusCode, response.statusMessage);
             if (typeof callback === 'function') {
                 callback ({statusCode: response.statusCode, statusMessage: response.statusMessage}, null);
             }
@@ -210,56 +204,6 @@ function getSFDCPasswordToken(domain, username, password, securityToken, callbac
     });
 
 }
-
-/*
-getSFDCPasswordToken('adx-dev-ed', 'skip@eadx.com', 'waveout4$', 'POO8eW3hPCbOo6AK65S0s6nG', function(err, oauthResult) {
-    if (typeof oauthResult !== 'undefined' && oauthResult !== null) {
-        _oauthResultMap['adx-dev-ed'] = oauthResult;
-        getCurrentAPIVersion('adx-dev-ed', function(err, version) {
-            console.warn('adx-dev-ed version: ', version);
-            if (err) {
-                console.error('Error from getCurrentAPIVersion: ', err);
-            } else {
-                oauthResult.version = version;
-            }
-            getNamespacePrefix('adx-dev-ed', function(err, ns) {
-                console.warn('getNamespacePrefix returned: ', err, ns);
-                if (err) {
-                    console.error('Error from getNamespacePrefix: ', err);
-                } else {
-                    oauthResult.namespacePrefix = ns;
-                }
-            });
-        });
-    } else {
-        console.error('Error getting token for adx-dev-ed: ', err);
-    }
-});
-
-getSFDCPasswordToken('ackeynotedf18', 'ssauls@eakeynote18.org', 'waveout4$', '', function(err, oauthResult) {
-    if (typeof oauthResult !== 'undefined' && oauthResult !== null) {
-        _oauthResultMap['ackeynotedf18'] = oauthResult;
-        getCurrentAPIVersion('ackeynotedf18', function(err, version) {
-            console.warn('v version: ', version);
-            if (err) {
-                console.error('Error from getCurrentAPIVersion: ', err);
-            } else {
-                oauthResult.version = version;
-            }
-            getNamespacePrefix('ackeynotedf18', function(err, ns) {
-                console.warn('getNamespacePrefix returned: ', err, ns);
-                if (err) {
-                    console.error('Error from getNamespacePrefix: ', err);
-                } else {
-                    oauthResult.namespacePrefix = ns;
-                }
-            });
-        });
-    } else {
-        console.error('Error getting token for ackeynotedf18: ', err);
-    }
-});
-*/
 
 var tokenConfigs = {
 	'adx-dev-ed': {
@@ -283,14 +227,12 @@ function getToken(domain, callback) {
 		if (typeof oauthResult !== 'undefined' && oauthResult !== null) {
 			_oauthResultMap[oauthResult.domain] = oauthResult;
 			getCurrentAPIVersion(oauthResult.domain, function(err, version) {
-				console.warn('v version: ', version);
 				if (err) {
 					console.error('Error from getCurrentAPIVersion: ', err);
 				} else {
 					oauthResult.version = version;
 				}
 				getNamespacePrefix(oauthResult.domain, function(err, ns) {
-					console.warn('getNamespacePrefix returned: ', err, ns);
 					if (err) {
 						console.error('Error from getNamespacePrefix: ', err);
 					} else {
@@ -310,54 +252,11 @@ function getToken(domain, callback) {
 
 for (var domain in tokenConfigs) {
 	getToken(domain, function(err, oauthResult) {
-		console.warn('getToken returned: ', err, oauthResult);
-
 		getUserInfo(domain, function(err, userInfo) {
-			console.warn('userInfo: ', userInfo);
+			//console.warn('userInfo: ', userInfo);
 		});
 	});
-
 }
-
-/*
-var _oauthResult = null;
-
-(function getSFDCPasswordToken() {
-	var hostname = 'adx-dev-ed';
-
-	var domain = hostname;
-	var appAuth = _appAuth[domain];
-	console.warn('appAuth: ', appAuth);
-
-	var config = {
-	  client_id: appAuth.appId,
-	  client_secret: appAuth.appSecret,
-	  grant_type: 'password',
-	  username: 'skip@eadx.com',
-	  password: 'waveout4$' + 'POO8eW3hPCbOo6AK65S0s6nG'
-	};
-
-	console.warn('config: ', config);
-
-
-	rest.post('https://adx-dev-ed.my.salesforce.com/services/oauth2/token', {data: config}).on('complete', function(data, response) {
-		console.warn('token call data: ', data);
-
-	    if (response.statusCode === 200) {
-	        _oauthResult = {
-	        	instanceURL: data.instance_url,
-	        	accessToken: data.access_token,
-	        	id: data.id,
-	        	tokenType: data.token_type,
-	        	issuedAt: data.issued_at,
-	        	signature: data.signature
-	        };
-            console.warn('_oauthResult: ', _oauthResult);
-	    }
-	});
-
-})();
-*/
 
 function getCurrentAPIVersion(domain, callback) {
 
@@ -366,25 +265,20 @@ function getCurrentAPIVersion(domain, callback) {
     let oauthResult = _oauthResultMap[domain];
 
     let url = oauthResult.instanceURL + path;
-    console.warn('url: ', url);
 
     let version = {version: '0.0'};
     let err = null;
 
     rest.get(url, options).on('complete', function(result, response) {
                             
-        //console.warn('complete: ', result);
-
-        console.warn('rest.get response.statusCode: ', response.statusCode);
         if (response.statusCode === 200) {
-            //console.warn('json data: ', JSON.stringify(result, null, 2));
             result.forEach(function(v) {
                 if (parseFloat(v.version) > parseFloat(version.version)) {
                     version = v;
                 };
             });
         } else {            
-            console.error('response.statusCode: ', response.statusCode);
+            console.error('getCurrentApiVersion error: ', response.statusCode, response.statusMessage);
             err = {statusCode: response.statusCode, statusMessage: response.statusMessage};
         }
         if (typeof callback === 'function') {
@@ -395,14 +289,11 @@ function getCurrentAPIVersion(domain, callback) {
 }
 
 function getUserInfo(domain, callback) {
-	let t1 = Date.now();
     let path = '/services/oauth2/userinfo';
 
     let oauthResult = _oauthResultMap[domain];
 
     let url = oauthResult.instanceURL + path;
-    console.warn('url: ', url);
-
     let options = {
         headers: {
             "Accept": "application/json",
@@ -414,36 +305,24 @@ function getUserInfo(domain, callback) {
 	let userInfo = null;
 
     rest.get(url, options).on('complete', function(result, response) {
-                            
-        //console.warn('complete: ', result);
 
-		console.warn('rest.get response.statusCode: ', response.statusCode);
         if (response.statusCode >= 200 && response.statusCode <= 299) {
-			console.warn('json data: ', JSON.stringify(result, null, 2));
 			userInfo = result;
-			console.warn('userInfo: ', userInfo);
-
         } else {            
-            console.error('response.statusCode: ', response.statusCode);
+            console.error('getUserInfo error: ', response.statusCode, response.statusMessage);
             err = {statusCode: response.statusCode, statusMessage: response.statusMessage};
         }
         if (typeof callback === 'function') {
-			let t2 = Date.now();
             callback(err, userInfo);
-			console.warn('time: ', t2 - t1);
         }
     });
-
 }
 
 function getNamespacePrefix(domain, callback) {
 
     let oauthResult = _oauthResultMap[domain];
-    console.warn('getNamespacePrefix oauthResult: ', oauthResult);
 
     let url = oauthResult.instanceURL + oauthResult.version.url + '/query?q=SELECT+NamespacePrefix+FROM+Organization';
-
-    console.warn('url: ', url);
 
     let options = {
         headers: {
@@ -456,16 +335,12 @@ function getNamespacePrefix(domain, callback) {
     var err = null;
 
     rest.get(url, options).on('complete', function(result, response) {
-
-        console.warn('complete: ', result);
-
-        console.warn('rest.get response.statusCode: ', response.statusCode);
         if (response.statusCode >= 200 && response.statusCode <= 299) {
             if (result.records && result.records.length > 0) {
                 ns = result.records[0].NamespacePrefix;
             }
         } else {            
-            console.error('response.statusCode: ', response.statusCode);
+            console.error('getNamespacePrefix error: ', response.statusCode, response.statusMessage);
             err = {statusCode: response.statusCode, statusMessage: response.statusMessage};
         }
         if (typeof callback === 'function') {
@@ -603,15 +478,11 @@ app.post('/commander', function(req, res) {
 // Hello World
 app.get('/lo_ea', function(req, res) {
 
-	var host = 'localhost';
-	var host = process.env.HEROKU === 'true' ? 'heroku' : host;
-	var host = process.env.AZURE === 'true' ? 'azure' : host;
-
 	let domain = 'adx-dev-ed';
 
     var appAuth = _appAuth[domain];
 		
-    res.render('pages/lo_ea', {title: 'Lightning Out - Einstein Analytics', appId: appAuth.appId, domain: domain, host: host});
+    res.render('pages/lo_ea', {title: 'Lightning Out - Einstein Analytics', appId: appAuth.appId, domain: domain, host: _host});
 });
 
 app.get('/lo_cmdr', function(req, res) {
@@ -835,6 +706,7 @@ function twitterSearchTweets(query, callback) {
 	}
 }
 
+/*
 (function getTwitterBearerToken() {
 
 	var encodedKey = encodeURI(twitterConsumerKey);
@@ -893,6 +765,7 @@ app.get('/twitterapi/search/tweets', function(req, res) {
     	}
     });
 });
+*/
 
 /*
  * MC test
