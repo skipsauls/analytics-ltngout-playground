@@ -607,15 +607,7 @@ app.get('/lo_ea', function(req, res) {
 	var host = process.env.HEROKU === 'true' ? 'heroku' : host;
 	var host = process.env.AZURE === 'true' ? 'azure' : host;
 
-	/*
 	let domain = 'adx-dev-ed';
-    let oauthResult = _oauthResultMap[domain];
-    console.warn('oauthResult: ', oauthResult);
-    let nsp = oauthResult.namespacePrefix ? oauthResult.namespacePrefix + '__' : '';
-	console.warn('nsp: ', nsp);
-
-	console.warn('process.env: ', process.env);
-	*/
 
     var appAuth = _appAuth[domain];
 		
