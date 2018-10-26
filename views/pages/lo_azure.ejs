@@ -299,6 +299,8 @@
     <script src="/javascripts/force.all.js"></script>
     <script>
       var appId = '<%- appId %>';
+      var domain = '<%- domain %>';
+      console.warn('domain: ', domain);
       var loginURL = "https://login.salesforce.com";
       var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
       var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
@@ -318,12 +320,23 @@
         }
       }
 
+      var defaultDashboardIds = {
+        'adx-dev-ed': '0FKB000000091kVOAQ',
+        'wavepm': '0FKB00000006uElOAI'
+      };
+
       oauth.login().then(function(oauthResult) {
-        var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
+        console.warn('oauthResult: ', oauthResult);
+        var domain = oauthResult.instanceURL.replace(/.my.salesforce.com/, '');
+        domain = domain.replace(/https\:\/\//, '');
+        console.warn('domain: ', domain);
+        var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, 'lightning.force')
         $Lightning.use(loAppName, function(evt) {
+
+          var dashboardId = defaultDashboardIds[domain];
+          console.warn('dashboardId: ', dashboardId);
           var config = {
-            dashboardId: "0FKB000000091kVOAQ",
-            developerName: "eadx__Demo1",
+            dashboardId: dashboardId,
             height: "700",
             showTitle: false,
             showHeader: false
@@ -339,6 +352,7 @@
               });
 
               $A.eventService.addHandler({event: "eadx:analyticsTreeSelection", handler: handleAnalyticsTreeSelection});
+              $A.eventService.addHandler({event: "c:analyticsTreeSelection", handler: handleAnalyticsTreeSelection});
 
             });
   
