@@ -100,7 +100,11 @@ var _appAuthMap = {
             'adx-dev-ed': {
                 appId: '3MVG9SemV5D80oBcff3jWxxK32c5zHxFjm3Sc.Eou5bSehiqLnlmha0jAcBE7xK.fL8_FXbizdpYiCG2VSFvm',
                 appSecret: '2591270049733179149'
-			}
+			},
+            'wavepm': {
+                appId: '3MVG9SemV5D80oBelr7Nm4Bdjw8skGntvxfjQ4USC5YVd8h8jsZemT_fAIWJoFHAChSyKUFw14BALk8sEUJ3Y',
+                appSecret: '301338094436076617'
+            }
 		}
 	}
 };
