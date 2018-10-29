@@ -1,4 +1,12 @@
-@media (min-width: 1200px)
+@media screen and (min-width: 1920px)
+.container {
+    max-width: 1840px;
+}
+@media screen and (min-width: 1600px)
+.container {
+    max-width: 1540px;
+}
+@media screen and (min-width: 1200px)
 .container {
     max-width: 1140px;
 }
@@ -15,6 +23,10 @@
     max-width: 540px;
 }
 
+.container {
+    width: 90%;
+    max-width: 100%;
+}
 .indigo {
     background-color: #3f51b5!important;
 }
