@@ -332,7 +332,7 @@
         var domain = oauthResult.instanceURL.replace(/.my.salesforce.com/, '');
         domain = domain.replace(/https\:\/\//, '');
         console.warn('domain: ', domain);
-        var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, 'lightning.force')
+        var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, 'lightning.force');
         $Lightning.use(loAppName, function(evt) {
 
           var dashboardId = defaultDashboardIds[domain];

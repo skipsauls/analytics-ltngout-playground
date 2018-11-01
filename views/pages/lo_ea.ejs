@@ -5,9 +5,11 @@
     <link href="/assets/styles/salesforce-lightning-design-system.min.css" type="text/css" rel="stylesheet"/>
   </head>
   <body>
+    <!--
     <h1>Host: <%- host %></h1>
     <h1>Domain: <%- domain %></h1>
     <h1>App ID: <%- appId %></h1>
+    -->
     <div id="dashboard"></div>
     <div id="sdkTab"></div>
     <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
@@ -21,6 +23,7 @@
       oauth.login().then(function(oauthResult) {      
         var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
         $Lightning.use(loAppName, function(evt) {
+          /*
           var config = {
             developerName: "eadx__Demo1",
             height: "700",
@@ -28,8 +31,9 @@
             showHeader: false
           };
           $Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {});
+          */
           //$Lightning.createComponent("c:imageMapTest", config, "filterTest", function(cmp, msg, err) {});
-          //$Lightning.createComponent("c:sdkTab", {}, "sdkTab", function(cmp, msg, err) {});
+          $Lightning.createComponent("c:sdkTab", {}, "sdkTab", function(cmp, msg, err) {});
         }, ltngURL, oauthResult.accessToken);        
       });
     </script>
