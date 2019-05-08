@@ -103,8 +103,13 @@ var _appAuthMap = {
             }                        
         }
 	},
+
     azure: {
         oauth: {
+			'einsteinprediction123' : {
+				appId: '3MVG9SemV5D80oBdO4D3T0wG.Xt5IQI7wepMXeMjyvFec.h7klw4hyWFZsVFw6kYF7tySJYWOYtBahbTu.GgW',
+				appSecret: '81657B4BD8033E7A930D81586DEB8562FEE36B5F79CAD41FF935B4523197FA54'
+			},			
             'adx-dev-ed': {
                 appId: '3MVG9SemV5D80oBcff3jWxxK32c5zHxFjm3Sc.Eou5bSehiqLnlmha0jAcBE7xK.fL8_FXbizdpYiCG2VSFvm',
                 appSecret: '2591270049733179149'
