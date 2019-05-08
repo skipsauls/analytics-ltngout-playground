@@ -537,7 +537,7 @@ app.get('/lo_platform', function(req, res) {
 // Azure demo
 app.get('/demo', function(req, res) {
 
-	let domain = 'adx-dev-ed';
+	let domain = 'einsteinprediction123';
 
     var appAuth = _appAuth[domain];
 		

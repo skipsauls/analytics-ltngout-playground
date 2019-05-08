@@ -1,125 +1,291 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">    
-    <title>Einstein Analytics Embedded Demo</title>
-    <!--Custom style -->    
-    <link rel="stylesheet" href="/FDBootstrap/css/style.css">
-    </head>
-  <body>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Einstein Analytics Embedded Demo</title>
+  <!--Custom style -->
+  <style>
+    .chart {
+      background-color: #c4e0b3;
+    }
+
+    .chart rect {
+      fill: #bf9133;
+    }
+
+    .chart text {
+      fill: #000000;
+      font: 10px sans-serif;
+      text-anchor: middle;
+    }
+
+    .outer {
+      margin: 15px;
+      background-color #FFFFFF;
+    }
     
-    <div>Demo Demo Demo</div>
+    .row {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    
+    .column {
+      display: flex;
+      flex-direction: column;
+      flex-basis: 100%;
+      flex: 1;
+    }
+    
+    .left-column {
+      height: 290px;
+      text-align: center;
+    }
 
-    <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
-    <script src="/javascripts/force.all.js"></script>
-    <script src="/javascripts/util.js"></script>
-    <script>
-      var appId = '<%- appId %>';
-      var domain = '<%- domain %>';
+    .middle-column {
+      height: 290px;
+      width: 545px;
+      text-align: center;
+    }
+
+    .right-column {
+        height: 290px;
+        text-align: center;
+        position: relative;
+    }
+
+    .right-column .company-container {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class='outer'>
+    <div class='row'>
+      <div class='column'>
+        <div class='left-column'>
+          Einstein Analytics
+        </div>
+      </div>
+      <div class='column'>
+        <div class='middle-column'>
+          <svg class="chart"></svg>
+        </div>
+      </div>
+      <div class='column'>
+        <div class='right-column'>
+          <select id="select" value="" onchange="handleSelect(this.value);"></select>
+          <div class="company-container">
+              <div id="company-name"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+  <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
+  <script src="/javascripts/force.all.js"></script>
+  <script src="/javascripts/util.js"></script>
+  <script>
+    var appId = '<%- appId %>';
+    var domain = '<%- domain %>';
+    console.warn('domain: ', domain);
+    //var loginURL = "https://login.salesforce.com";
+    var loginURL = "https://einsteinprediction123.my.salesforce.com";
+    var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
+    var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+    var loAppName = "c:loApp";
+    var _oauthResult = null;
+
+    oauth.login().then(function (oauthResult) {
+      console.warn('oauthResult: ', oauthResult);
+      _oauthResult = oauthResult;
+      var domain = oauthResult.instanceURL.replace(/.my.salesforce.com/, '');
+      domain = domain.replace(/https\:\/\//, '');
       console.warn('domain: ', domain);
-      var loginURL = "https://login.salesforce.com";
-      var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
-      var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
-      var loAppName = "c:loApp";
-      var _oauthResult = null;
+      var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, 'lightning.force');
 
-      var dashboardComponent = null;
+      updateControls();
+    });
 
+    var queries = {
+      all: "\
+      q = load \"0FbB0000000HO4hKAG/0FcB0000002DgcrKAC\"; \
+      q = filter q by 'Company' == \"{{Company}}\"; \
+      q = foreach q generate 'Company' as 'Company', 'Inquiries' as 'Inquiries', 'Time' as 'Time'; \
+      q = order q by ('Company' asc, 'Time' asc); \
+      q = limit q 100; \
+      ",
+      companies: " \
+      q = load \"0FbB0000000HO4hKAG/0FcB0000002DgcrKAC\"; \
+      q = foreach q generate 'Company' as 'Company'; \
+      q = order q by ('Company' asc); \
+      q = limit q 100; \
+      "
+    };
 
-      function handleAnalyticsTreeSelection(event) {
-        var params = event.getParams();
-        console.warn('handleAnalyticsTreeSelection: ', params);
-        console.warn('dashboardComponent: ', dashboardComponent);
-        if (params.assetType === 'dashboard' && typeof dashboardComponent !== 'undefined') {  
-          dashboardComponent.set('v.dashboardId', params.assetId);
-          document.querySelector('#dashboard_label').innerHTML = params.asset.label;
-          document.querySelector('#dashboard_last_modified_by').innerHTML = params.asset.lastModifiedBy.name;
-        }
-      }
-
-      var defaultDashboardIds = {
-        'adx-dev-ed': '0FKB000000091kVOAQ',
-        'wavepm': '0FKB00000002t3JOAQ'
-      };
-
-      oauth.login().then(function(oauthResult) {
-        console.warn('oauthResult: ', oauthResult);
-        _oauthResult = oauthResult;
-        var domain = oauthResult.instanceURL.replace(/.my.salesforce.com/, '');
-        domain = domain.replace(/https\:\/\//, '');
-        console.warn('domain: ', domain);
-        var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, 'lightning.force');
-      });
-
-      var query = " \
+    var query = " \
         q = load \"0FbB0000000HO4hKAG/0FcB0000002DgcrKAC\"; \
+        q = filter q by 'Company' == \"{{Company}}\"; \
         q = foreach q generate 'Company' as 'Company', 'Inquiries' as 'Inquiries', 'Time' as 'Time'; \
         q = order q by ('Company' asc, 'Time' asc); \
         q = limit q 100; \
       ";
 
-      var query2 = "q = load \"0FbB0000000HO4hKAG/0FcB0000002DgcrKAC\"; q = foreach q generate 'Company' as 'Company', 'Inquiries' as 'Inquiries', 'Time' as 'Time';q = order q by ('Company' asc, 'Time' asc);q = limit q 100;";
-
-      function _execQuery() {
-        console.warn('execQuery');
-        var req = new XMLHttpRequest();     
-        req.onreadystatechange = function(event) {
-          console.warn('event: ', event);
-          console.warn('req: ', req);
-          // XMLHttpRequest.HEADERS_RECEIVED
-          if (req.readyState == 2) {
-          } else if (req.readyState == 4) {
-            if (req.status === 200) {                    
-              console.log('response: ', req.response);
-            } else {
-              // Something went wrong.
+    function execQuery(data, callback) {
+      console.warn('execQuery: ', data);
+      var req = new XMLHttpRequest();
+      req.onreadystatechange = function (event) {
+        // XMLHttpRequest.HEADERS_RECEIVED
+        if (req.readyState == 2) {
+        } else if (req.readyState == 4) {
+          if (req.status === 200) {
+            console.log('response: ', req.response);
+            var json = req.response;
+            var result = JSON.parse(json);
+            console.warn('result: ', result);
+            if (typeof callback === 'function') {
+              callback(null, result);
             }
+          } else {
+            // Something went wrong.
           }
-        };
+        }
+      };
 
-        var url = _oauthResult.instanceURL + '/services/data/v46.0/wave/query';
+      var url = _oauthResult.instanceURL + '/services/data/v46.0/wave/query';
 
-        req.open('POST', url);
-      
-        //req.setRequestHeader('Authorization', 'OAuth ' + oauthResult.accessToken);
-        req.setRequestHeader('Content-Type', 'application/json');
-  
-        console.warn('calling req.send');
-        req.send(JSON.stringify({query: query}));        
+      req.open('POST', url);
+
+      req.setRequestHeader('Authorization', 'OAuth ' + _oauthResult.accessToken);
+      req.setRequestHeader('Content-Type', 'application/json');
+
+      var q = queries[data.queryName];
+      if (data.options) {
+        for (var key in data.options) {
+          q = q.replace(new RegExp("{{\\s*" + key + "\\s*}}", "g"), data.options[key]);
+        }
       }
+      req.send(JSON.stringify({ query: q }));
+    }
 
-      function execQuery(oauthResult, saql) {
-        var config = {
-          path: oauthResult.instanceURL + '/services/data/v46.0/wave/query',
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Accept': 'application/json',
-            'Authorization': 'Bearer ' + oauthResult.accessToken
-          },
-          data: {
-            "query": saql
+    function test() {
+      execQuery({ 'Company': 'Forrester' });
+    }
+    function test2() {
+      execQuery({ 'Company': 'Boris' });
+    }
+    function test3() {
+      execQuery({ 'Company': 'Salesforce' });
+    }
+    function test4() {
+      var data = [4, 8, 15, 16, 23, 42];
+      updateChart(data);
+    }
+
+    function updateChart(data) {
+      console.warn('updateChart: ', data);
+
+
+      var width = 540,
+        height = 290;
+
+      var barMaxHeight = 200;
+
+      var y = d3.scale.linear()
+        .range([barMaxHeight, 0]);
+
+      var chart = d3.select(".chart")
+        .attr("width", width)
+        .attr("height", height);
+
+      chart.selectAll("*").remove();
+
+      y.domain([0, d3.max(data, function (d) { return d.value; })]);
+
+      var innerBarWidth = 40;
+
+      var barWidth = width / data.length;
+      var barDelta = barWidth + (barWidth / 2) - innerBarWidth;
+
+      var bar = chart.selectAll("g")
+        .data(data)
+        .enter().append("g")
+        .attr("transform", function (d, i) { return "translate(" + i * barDelta + ", " +((height / 2) - (barMaxHeight / 2)) + ")"; });
+
+      bar.append("rect")
+        .attr("y", function (d) { return y(d.value); })
+        .attr("height", function (d) { return barMaxHeight - y(d.value); })
+        .attr("width", innerBarWidth); //barWidth - 1);
+
+      bar.append("text")
+        .attr("x", function(d)  { return (innerBarWidth / 2); })
+        .attr("y", function (d) { return y(d.value) - 10; })
+        .attr("dy", ".75em")
+        .text(function (d) { return d.value; });
+
+    }
+
+    function handleSelect(value) {
+      console.warn('handleSelect: ', value);
+      update(value);
+      document.getElementById('company-name').innerHTML = value;
+    }
+
+    function updateControls() {
+
+      execQuery({ 'queryName': 'companies' }, function (err, result) {
+        if (err) {
+
+        } else {
+          var records = result.results.records;
+          var options = {};
+          records.forEach(function (record) {
+            options[record.Company] = record.Company;
+          });
+          handleSelect(records[0].Company);
+          var select = document.getElementById('select');
+          select.innerHTML = null;
+          var option = null;
+          for (var key in options) {
+            option = document.createElement('option');
+            option.value = key;
+            option.innerText = key;
+            select.appendChild(option);
           }
-        };
-        console.warn('config: ', config);
-        request(config, 
-          function(res) {
-            console.warn('execQuery result: ', res);
-          },
-          function(err) {
-            console.warn('execQuery error: ', err);
-          }
-        );
-      }
+        }
+      });
+    }
 
-      function test() {
-        execQuery(_oauthResult, query2);
-      }
+    function update(companyName) {
+      //var companyName = 'Forrester';
+      execQuery({ 'queryName': 'all', 'options': { 'Company': companyName } }, function (err, result) {
+        if (err) {
 
+        } else {
+          console.warn('result: ', result);
+          var records = result.results.records;
+          var data = [];
+          records.forEach(function (record) {
+            data.push({ name: record.Time, value: record.Inquiries });
+          });
+          updateChart(data);
+        }
+      });
+    }
 
-    </script>
-  </body>
+  </script>
+</body>
+
 </html>
