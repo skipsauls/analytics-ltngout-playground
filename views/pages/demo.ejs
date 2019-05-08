@@ -107,8 +107,26 @@
       bottom: 0;
       width: 100%;
       text-align: center;
-
+      width: 220px;
     }
+
+    .controls {
+      padding: 0 0 5px 0;
+      margin: 0px auto;
+      width: 220px;
+      white-space: nowrap
+    }
+
+    .controls .control {
+      text-align: right;
+      margin: 5px auto;
+      white-space: nowrap
+    }
+
+    .controls .control select {
+      width: 150px;
+    }
+    
   </style>
 </head>
 
@@ -130,8 +148,18 @@
       <div class='column'>
         <div class='right-column'>
           <div class="controls">
-            <span class="select-label">Sort</span>
-            <select id="select" value="" onchange="handleSelect(this.value);"></select>
+            <div class="control">
+              <span class="select-label">Sort</span>
+              <select id="select" value="" onchange="handleSelectSort(this.value);">
+                <option value="by_time">By Time</option>
+                <option value="by_value_asc">By Value Ascending</option>
+                <option value="by_value_desc">By Value Descending</option>
+              </select>
+            </div>
+            <div class="control">
+                <span class="select-label">Company</span>
+                <select id="select_company" value="" onchange="handleSelectCompany(this.value);"></select>
+            </div>    
             <div class="company-container">
               <div id="company-name"></div>
             </div>
@@ -173,6 +201,27 @@
       q = order q by ('Company' asc, 'Time' asc); \
       q = limit q 100; \
       ",
+      by_time: "\
+      q = load \"0FbB0000000HO4hKAG/0FcB0000002DipJKAS\"; \
+      q = filter q by 'Company' == \"{{Company}}\"; \
+      q = foreach q generate 'Company' as 'Company', 'Inquiries' as 'Inquiries', 'Time' as 'Time'; \
+      q = order q by ('Company' asc, 'Time' asc); \
+      q = limit q 100; \
+      ",
+      by_value_asc: "\
+      q = load \"0FbB0000000HO4hKAG/0FcB0000002DipJKAS\"; \
+      q = filter q by 'Company' == \"{{Company}}\"; \
+      q = foreach q generate 'Company' as 'Company', 'Inquiries' as 'Inquiries', 'Time' as 'Time'; \
+      q = order q by ('Inquiries' asc, 'Time' asc); \
+      q = limit q 100; \
+      ",
+      by_value_desc: "\
+      q = load \"0FbB0000000HO4hKAG/0FcB0000002DipJKAS\"; \
+      q = filter q by 'Company' == \"{{Company}}\"; \
+      q = foreach q generate 'Company' as 'Company', 'Inquiries' as 'Inquiries', 'Time' as 'Time'; \
+      q = order q by ('Inquiries' desc, 'Time' asc); \
+      q = limit q 100; \
+      ",
       companies: " \
       q = load \"0FbB0000000HO4hKAG/0FcB0000002DipJKAS\"; \
       q = foreach q generate 'Company' as 'Company'; \
@@ -192,6 +241,9 @@
     var testdata = {
 
     }
+
+    var sortOrder = 'by_time';
+    var companyName = null;
 
     function execQuery(data, callback) {
       var req = new XMLHttpRequest();
@@ -224,20 +276,6 @@
         }
       }
       req.send(JSON.stringify({ query: q }));
-    }
-
-    function test() {
-      execQuery({ 'Company': 'Forrester' });
-    }
-    function test2() {
-      execQuery({ 'Company': 'Boris' });
-    }
-    function test3() {
-      execQuery({ 'Company': 'Salesforce' });
-    }
-    function test4() {
-      var data = [4, 8, 15, 16, 23, 42];
-      updateChart(data);
     }
 
     function updateChart(data) {
@@ -359,10 +397,16 @@
 
     }
 
+    function handleSelectSort(value) {
+      sortOrder = value;
+      update();
+      //document.getElementById('company-name').innerHTML = value;
+    }
 
-    function handleSelect(value) {
-      update(value);
-      document.getElementById('company-name').innerHTML = value;
+    function handleSelectCompany(value) {
+      companyName = value;
+      update();
+      document.getElementById('company-name').innerHTML = companyName;
     }
 
     function updateControls() {
@@ -376,8 +420,9 @@
           records.forEach(function (record) {
             options[record.Company] = record.Company;
           });
-          handleSelect(records[0].Company);
-          var select = document.getElementById('select');
+          companyName = records[0].Company;
+          handleSelectCompany(companyName);
+          var select = document.getElementById('select_company');
           select.innerHTML = null;
           var option = null;
           for (var key in options) {
@@ -390,8 +435,8 @@
       });
     }
 
-    function update(companyName) {
-      execQuery({ 'queryName': 'all', 'options': { 'Company': companyName } }, function (err, result) {
+    function update() {
+      execQuery({ 'queryName': sortOrder, 'options': { 'Company': companyName } }, function (err, result) {
         if (err) {
 
         } else {
