@@ -4,7 +4,7 @@
   "description": "Simple Analytics Lightning Out Demo",
   "engines": {
     "node": "8.11.1",
-    "npm": "5.7.1"
+    "npm": "6.1.0"
   },
   "main": "app.js",
   "scripts": {
