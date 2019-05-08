@@ -8,54 +8,98 @@
   <title>Einstein Analytics Embedded Demo</title>
   <!--Custom style -->
   <style>
+    body {
+      font-family: font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+      font-size: 13px;
+    }
+
+    .chart-outer {
+      background-color: #bce5ae;
+      outline: 1px solid #bdbdbd;
+      width: 396px;
+      height: 212px;
+
+    }
+
     .chart {
-      background-color: #c4e0b3;
+      background-color: #bce5ae;
+      stroke: #bdbdbd;
+      stroke-width: 1.0;
+
     }
 
     .chart rect {
       fill: #bf9133;
+      stroke: #858c83;
+      stroke-width: 1.0;
     }
 
     .chart text {
-      fill: #000000;
-      font: 10px sans-serif;
+      fill: #404040;
+      font: 8px sans-serif;
       text-anchor: middle;
+      stroke-width: 0;
+    }
+
+    .chart text.title {
+      font-size: 12px;
+    }
+
+    .chart circle {
+      fill: #a5d2f7;
+      stroke: #016de0;
+      stroke-width: 1.0;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: none;
+      shape-rendering: crispEdges;
+    }
+
+    .domain {
+      fill: none;
+      stroke: none;
     }
 
     .outer {
       margin: 15px;
       background-color #FFFFFF;
     }
-    
+
     .row {
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
       width: 100%;
     }
-    
+
     .column {
       display: flex;
       flex-direction: column;
       flex-basis: 100%;
       flex: 1;
+      height: 220px;
     }
-    
+
     .left-column {
-      height: 290px;
       text-align: center;
     }
 
     .middle-column {
-      height: 290px;
       width: 545px;
       text-align: center;
     }
 
     .right-column {
-        height: 290px;
-        text-align: center;
-        position: relative;
+      text-align: center;
+      position: relative;
+      height: 220px;
+    }
+
+    .right-column .controls {
+      padding: 1rem;
     }
 
     .right-column .company-container {
@@ -63,6 +107,7 @@
       bottom: 0;
       width: 100%;
       text-align: center;
+
     }
   </style>
 </head>
@@ -73,19 +118,23 @@
     <div class='row'>
       <div class='column'>
         <div class='left-column'>
-          Einstein Analytics
         </div>
       </div>
       <div class='column'>
         <div class='middle-column'>
-          <svg class="chart"></svg>
+          <div class="chart-outer">
+            <svg class="chart"></svg>
+          </div>
         </div>
       </div>
       <div class='column'>
         <div class='right-column'>
-          <select id="select" value="" onchange="handleSelect(this.value);"></select>
-          <div class="company-container">
+          <div class="controls">
+            <span class="select-label">Sort</span>
+            <select id="select" value="" onchange="handleSelect(this.value);"></select>
+            <div class="company-container">
               <div id="company-name"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -100,7 +149,6 @@
   <script>
     var appId = '<%- appId %>';
     var domain = '<%- domain %>';
-    console.warn('domain: ', domain);
     //var loginURL = "https://login.salesforce.com";
     var loginURL = "https://einsteinprediction123.my.salesforce.com";
     var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
@@ -109,11 +157,9 @@
     var _oauthResult = null;
 
     oauth.login().then(function (oauthResult) {
-      console.warn('oauthResult: ', oauthResult);
       _oauthResult = oauthResult;
       var domain = oauthResult.instanceURL.replace(/.my.salesforce.com/, '');
       domain = domain.replace(/https\:\/\//, '');
-      console.warn('domain: ', domain);
       var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, 'lightning.force');
 
       updateControls();
@@ -121,14 +167,14 @@
 
     var queries = {
       all: "\
-      q = load \"0FbB0000000HO4hKAG/0FcB0000002DgcrKAC\"; \
+      q = load \"0FbB0000000HO4hKAG/0FcB0000002DipJKAS\"; \
       q = filter q by 'Company' == \"{{Company}}\"; \
       q = foreach q generate 'Company' as 'Company', 'Inquiries' as 'Inquiries', 'Time' as 'Time'; \
       q = order q by ('Company' asc, 'Time' asc); \
       q = limit q 100; \
       ",
       companies: " \
-      q = load \"0FbB0000000HO4hKAG/0FcB0000002DgcrKAC\"; \
+      q = load \"0FbB0000000HO4hKAG/0FcB0000002DipJKAS\"; \
       q = foreach q generate 'Company' as 'Company'; \
       q = order q by ('Company' asc); \
       q = limit q 100; \
@@ -136,25 +182,25 @@
     };
 
     var query = " \
-        q = load \"0FbB0000000HO4hKAG/0FcB0000002DgcrKAC\"; \
+        q = load \"0FbB0000000HO4hKAG/0FcB0000002DipJKAS\"; \
         q = filter q by 'Company' == \"{{Company}}\"; \
         q = foreach q generate 'Company' as 'Company', 'Inquiries' as 'Inquiries', 'Time' as 'Time'; \
         q = order q by ('Company' asc, 'Time' asc); \
         q = limit q 100; \
       ";
 
+    var testdata = {
+
+    }
+
     function execQuery(data, callback) {
-      console.warn('execQuery: ', data);
       var req = new XMLHttpRequest();
       req.onreadystatechange = function (event) {
-        // XMLHttpRequest.HEADERS_RECEIVED
         if (req.readyState == 2) {
         } else if (req.readyState == 4) {
           if (req.status === 200) {
-            console.log('response: ', req.response);
             var json = req.response;
             var result = JSON.parse(json);
-            console.warn('result: ', result);
             if (typeof callback === 'function') {
               callback(null, result);
             }
@@ -195,50 +241,126 @@
     }
 
     function updateChart(data) {
-      console.warn('updateChart: ', data);
 
+      var maxWidth = 396;
+      var maxHeight = 210;
 
-      var width = 540,
-        height = 290;
+      var width = maxWidth;
+      var height = maxHeight;
 
-      var barMaxHeight = 200;
+      var barAreaWidth = 300;
+
+      var barMaxHeight = 150;
 
       var y = d3.scale.linear()
         .range([barMaxHeight, 0]);
 
       var chart = d3.select(".chart")
-        .attr("width", width)
-        .attr("height", height);
+        .attr("width", maxWidth)
+        .attr("height", maxHeight);
 
       chart.selectAll("*").remove();
 
       y.domain([0, d3.max(data, function (d) { return d.value; })]);
 
-      var innerBarWidth = 40;
+      var innerBarWidth = 28;
 
-      var barWidth = width / data.length;
-      var barDelta = barWidth + (barWidth / 2) - innerBarWidth;
+      var barWidth = barAreaWidth / data.length;
+      var barDelta = barWidth + (innerBarWidth / 2);
+
+      var leftMargin = 58;
 
       var bar = chart.selectAll("g")
         .data(data)
         .enter().append("g")
-        .attr("transform", function (d, i) { return "translate(" + i * barDelta + ", " +((height / 2) - (barMaxHeight / 2)) + ")"; });
+        .attr("transform", function (d, i) { return "translate(" + ((i * barDelta) + leftMargin) + ", " + 35 + ")"; })
+
 
       bar.append("rect")
         .attr("y", function (d) { return y(d.value); })
         .attr("height", function (d) { return barMaxHeight - y(d.value); })
-        .attr("width", innerBarWidth); //barWidth - 1);
+        .attr("width", innerBarWidth);
 
       bar.append("text")
-        .attr("x", function(d)  { return (innerBarWidth / 2); })
-        .attr("y", function (d) { return y(d.value) - 10; })
+        .attr("x", function (d) { return (innerBarWidth / 2); })
+        .attr("y", function (d) { return y(d.value) - 12; })
         .attr("dy", ".75em")
         .text(function (d) { return d.value; });
 
+      bar.append("text")
+        .attr("x", function (d) { return (innerBarWidth / 2); })
+        .attr("y", function (d) { return barMaxHeight + 8; })
+        .attr("dy", ".75em")
+        .text(function (d) { return d.name; });
+
+      var circleRadius = 3;
+
+      bar.append("circle")
+        .attr("cy", function (d) { return y(d.value); })
+        .attr("cx", function (d) { return 0; })
+        .attr("r", function (d) { return circleRadius; });
+
+      bar.append("circle")
+        .attr("cy", function (d) { return barMaxHeight; })
+        .attr("cx", function (d) { return 0; })
+        .attr("r", function (d) { return circleRadius; });
+
+      bar.append("circle")
+        .attr("cy", function (d) { return y(d.value); })
+        .attr("cx", function (d) { return innerBarWidth; })
+        .attr("r", function (d) { return circleRadius; });
+
+      bar.append("circle")
+        .attr("cy", function (d) { return barMaxHeight; })
+        .attr("cx", function (d) { return innerBarWidth; })
+        .attr("r", function (d) { return circleRadius; });
+
+      var xAxisLabels = [];
+      var values = [];
+      var maxValue = 0;
+      data.forEach(function (d) {
+        xAxisLabels.push(d.name);
+        values.push(d.value);
+        maxValue = d.value > maxValue ? d.value : maxValue;
+      });
+
+      var yAxisMax = Math.ceil(maxValue / 50) * 50;
+      var yTicks = yAxisMax / 50;
+      var yTickValues = [];
+      for (var i = 0; i <= yTicks; i++) {
+        yTickValues.push(i * 50);
+      }
+
+      var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .ticks(yTicks)
+        .tickValues(yTickValues);
+
+      var marginX = 30;
+      var marginY = 35;
+
+      chart.append("g")
+        .attr("transform", "translate(" + marginX + "," + marginY + ")")
+        .attr("class", "axis")
+        .call(yAxis);
+
+      var yAxisLeftMargin = 28;
+      var yAxisRightMargin = 12;
+      var yAxisWidth = width - (yAxisLeftMargin + yAxisRightMargin);
+
+      chart.append("text")
+        .attr('class', 'title')
+        .attr("dx", maxWidth / 2)
+        .attr("dy", 8)
+        .attr("dominant-baseline", "text-before-edge")
+        .attr("text-anchor", "middle")
+        .text(function (d) { return 'Boris\' client inquiries'; });
+
     }
 
+
     function handleSelect(value) {
-      console.warn('handleSelect: ', value);
       update(value);
       document.getElementById('company-name').innerHTML = value;
     }
@@ -269,12 +391,10 @@
     }
 
     function update(companyName) {
-      //var companyName = 'Forrester';
       execQuery({ 'queryName': 'all', 'options': { 'Company': companyName } }, function (err, result) {
         if (err) {
 
         } else {
-          console.warn('result: ', result);
           var records = result.results.records;
           var data = [];
           records.forEach(function (record) {
