@@ -56,13 +56,18 @@ function request(obj, successHandler, errorHandler) {
 
     if (obj.headers) {
         for (var k in obj.headers) {
+            console.warn('setting header: ', k, ' to ', obj.headers[k]);
             xhr.setRequestHeader(k, obj.headers[k]);            
         }
     }
     
-    console.warn("xhr.send obj.data: ", obj.data, JSON.stringify(obj.data));
+    //console.warn("xhr.send obj.data: ", obj.data, JSON.stringify(obj.data));
 
-    xhr.send(obj.data ? JSON.stringify(obj.data) : undefined);
+    var json = JSON.stringify(obj.data);
+
+    console.warn('json: ', json);
+
+    xhr.send(json || undefined);
 }
 
 /*

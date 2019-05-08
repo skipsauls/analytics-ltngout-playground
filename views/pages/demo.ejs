@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">    
+    <title>Einstein Analytics Embedded Demo</title>
+    <!--Custom style -->    
+    <link rel="stylesheet" href="/FDBootstrap/css/style.css">
+    </head>
+  <body>
+    
+    <div>Demo Demo Demo</div>
+
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
+    <script src="/javascripts/force.all.js"></script>
+    <script src="/javascripts/util.js"></script>
+    <script>
+      var appId = '<%- appId %>';
+      var domain = '<%- domain %>';
+      console.warn('domain: ', domain);
+      var loginURL = "https://login.salesforce.com";
+      var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
+      var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+      var loAppName = "c:loApp";
+      var _oauthResult = null;
+
+      var dashboardComponent = null;
+
+
+      function handleAnalyticsTreeSelection(event) {
+        var params = event.getParams();
+        console.warn('handleAnalyticsTreeSelection: ', params);
+        console.warn('dashboardComponent: ', dashboardComponent);
+        if (params.assetType === 'dashboard' && typeof dashboardComponent !== 'undefined') {  
+          dashboardComponent.set('v.dashboardId', params.assetId);
+          document.querySelector('#dashboard_label').innerHTML = params.asset.label;
+          document.querySelector('#dashboard_last_modified_by').innerHTML = params.asset.lastModifiedBy.name;
+        }
+      }
+
+      var defaultDashboardIds = {
+        'adx-dev-ed': '0FKB000000091kVOAQ',
+        'wavepm': '0FKB00000002t3JOAQ'
+      };
+
+      oauth.login().then(function(oauthResult) {
+        console.warn('oauthResult: ', oauthResult);
+        _oauthResult = oauthResult;
+        var domain = oauthResult.instanceURL.replace(/.my.salesforce.com/, '');
+        domain = domain.replace(/https\:\/\//, '');
+        console.warn('domain: ', domain);
+        var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, 'lightning.force');
+      });
+
+      var query = " \
+        q = load \"0FbB0000000HO4hKAG/0FcB0000002DgcrKAC\"; \
+        q = foreach q generate 'Company' as 'Company', 'Inquiries' as 'Inquiries', 'Time' as 'Time'; \
+        q = order q by ('Company' asc, 'Time' asc); \
+        q = limit q 100; \
+      ";
+
+      var query2 = "q = load \"0FbB0000000HO4hKAG/0FcB0000002DgcrKAC\"; q = foreach q generate 'Company' as 'Company', 'Inquiries' as 'Inquiries', 'Time' as 'Time';q = order q by ('Company' asc, 'Time' asc);q = limit q 100;";
+
+      function _execQuery() {
+        console.warn('execQuery');
+        var req = new XMLHttpRequest();     
+        req.onreadystatechange = function(event) {
+          console.warn('event: ', event);
+          console.warn('req: ', req);
+          // XMLHttpRequest.HEADERS_RECEIVED
+          if (req.readyState == 2) {
+          } else if (req.readyState == 4) {
+            if (req.status === 200) {                    
+              console.log('response: ', req.response);
+            } else {
+              // Something went wrong.
+            }
+          }
+        };
+
+        var url = _oauthResult.instanceURL + '/services/data/v46.0/wave/query';
+
+        req.open('POST', url);
+      
+        //req.setRequestHeader('Authorization', 'OAuth ' + oauthResult.accessToken);
+        req.setRequestHeader('Content-Type', 'application/json');
+  
+        console.warn('calling req.send');
+        req.send(JSON.stringify({query: query}));        
+      }
+
+      function execQuery(oauthResult, saql) {
+        var config = {
+          path: oauthResult.instanceURL + '/services/data/v46.0/wave/query',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + oauthResult.accessToken
+          },
+          data: {
+            "query": saql
+          }
+        };
+        console.warn('config: ', config);
+        request(config, 
+          function(res) {
+            console.warn('execQuery result: ', res);
+          },
+          function(err) {
+            console.warn('execQuery error: ', err);
+          }
+        );
+      }
+
+      function test() {
+        execQuery(_oauthResult, query2);
+      }
+
+
+    </script>
+  </body>
+</html>
