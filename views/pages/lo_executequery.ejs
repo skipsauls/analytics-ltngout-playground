@@ -59,7 +59,6 @@
         console.warn('query: ', query);
         console.warn('methodName: ', methodName);
         console.warn('methodParameters: ', methodParameters);
-        console.warn('sdk: ', sdk);
         sdk.invokeMethod(context, methodName, methodParameters, $A.getCallback(function(err, data) {
             if (err !== null) {
                 if (callback !== null && typeof callback !== 'undefined') {
