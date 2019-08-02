@@ -12,7 +12,9 @@
     -->
     <div id="execute_query"></div>
     <div id="sdk"></div>
+    <div id="method_test"></div>
     <button onclick="test();" label="Test">Test 2</button>
+    <button onclick="testMethod();" label="Test Method">Test Method</button>
     <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
     <script src="/javascripts/force.all.js"></script>
     <script>
@@ -22,12 +24,19 @@
       var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
       var loAppName = "c:loApp";
       var sdk = null;
+      var methodTest = null;
 
       oauth.login().then(function(oauthResult) {      
         var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
         $Lightning.use(loAppName, function(evt) {
           var config = {};
+          
           $Lightning.createComponent("eadx:executeQueryTab", config, "execute_query", function(cmp, msg, err) {});
+          
+          $Lightning.createComponent("eadx:methodTestTab", {}, "method_test", function(cmp, msg, err) {
+            methodTest = cmp;
+          });
+
           $Lightning.createComponent("wave:sdk", {}, "sdk", function(cmp, msg, err) {
             sdk = cmp;
        
@@ -41,6 +50,13 @@
           });
         }, ltngURL, oauthResult.accessToken);        
       });
+
+      function methodTest() {
+        console.warn('methodTest');
+        methodTest.test(function(err, resp) {
+          console.warn('methodTest returned: ', err, resp);
+        });
+      }
 
       function test() {
         console.warn('test');
