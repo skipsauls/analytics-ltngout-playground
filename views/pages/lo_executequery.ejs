@@ -43,8 +43,8 @@
       function test() {
         console.warn('test');
         var query = "q = load \"0FbB0000000BWZRKA4/0FcB0000002OPtKKAW\";q = foreach q generate 'CloseDate' as 'CloseDate', 'ExpectedRevenue' as 'ExpectedRevenue', 'Fiscal' as 'Fiscal', 'FiscalQuarter' as 'FiscalQuarter', 'FiscalYear' as 'FiscalYear', 'ForecastCategory' as 'ForecastCategory', 'Id' as 'Id', 'IsWon' as 'IsWon', 'LeadSource' as 'LeadSource', 'Name' as 'Name', 'Probability' as 'Probability', 'StageName' as 'StageName', 'Type' as 'Type', 'eadx__OrderNumber__c' as 'eadx__OrderNumber__c';q = limit q 100;";
-        executeQuery(query, function(err, results) {
-          console.warn('executeQuery returned: ', err, results);
+        executeQuery(query, function(err, resp) {
+          console.warn('executeQuery returned: ', err, resp);
         });
       }
 
@@ -60,6 +60,7 @@
         console.warn('methodName: ', methodName);
         console.warn('methodParameters: ', methodParameters);
         sdk.invokeMethod(context, methodName, methodParameters, $A.getCallback(function(err, data) {
+          console.warn('sdk.invokeMethod returned: ', err, data);
             if (err !== null) {
                 if (callback !== null && typeof callback !== 'undefined') {
                     callback(err, null);
@@ -67,9 +68,9 @@
                     return err;
                 }
             } else {
-                let resp = JSON.parse(data);
+                let resp = typeof data === 'string' ? JSON.parse(data) : data;
                 if (callback !== null && typeof callback !== 'undefined') {
-                    callback(null, resp.results);
+                    callback(null, resp);
                 } else {
                     return data;
                 }
