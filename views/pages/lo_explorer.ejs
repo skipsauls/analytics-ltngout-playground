@@ -10,8 +10,7 @@
     <h1>Domain: <%- domain %></h1>
     <h1>App ID: <%- appId %></h1>
     -->
-    <div id="dashboard"></div>
-    <div id="tools"></div>
+    <div id="explorer"></div>
     <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
     <script src="/javascripts/force.all.js"></script>
     <script>
@@ -19,19 +18,12 @@
       var loginURL = "https://login.salesforce.com";
       var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
       var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
-      //var loAppName = "c:loApp";
-      var loAppName = 'wave:waveApp';
+      var loAppName = "c:loApp";
       oauth.login().then(function(oauthResult) {      
         var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
         $Lightning.use(loAppName, function(evt) {
-          var config = {
-            developerName: "eadx__Demo1",
-            height: "700",
-            showTitle: false,
-            showHeader: false
-          };
-          $Lightning.createComponent("wave:waveDashboard", config, "dashboard", function(cmp, msg, err) {});
-          $Lightning.createComponent("c:commanderTools", {}, "tools", function(cmp, msg, err) {});
+          var config = {};
+          $Lightning.createComponent("eadx:analyticsExplorer", config, "explorer", function(cmp, msg, err) {});
         }, ltngURL, oauthResult.accessToken);        
       });
     </script>
