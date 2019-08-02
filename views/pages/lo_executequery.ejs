@@ -22,6 +22,9 @@
       var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
       var loAppName = "c:loApp";
       var sdk = null;
+
+      var test = null;
+
       oauth.login().then(function(oauthResult) {      
         var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
         $Lightning.use(loAppName, function(evt) {
@@ -29,6 +32,16 @@
           $Lightning.createComponent("eadx:executeQueryTab", config, "execute_query", function(cmp, msg, err) {});
           $Lightning.createComponent("wave:sdk", {}, "sdk", function(cmp, msg, err) {
             sdk = cmp;
+
+
+            test = function() {
+              console.warn('test');
+              var query = "q = load \"0FbB0000000BWZRKA4/0FcB0000002OPtKKAW\";q = foreach q generate 'CloseDate' as 'CloseDate', 'ExpectedRevenue' as 'ExpectedRevenue', 'Fiscal' as 'Fiscal', 'FiscalQuarter' as 'FiscalQuarter', 'FiscalYear' as 'FiscalYear', 'ForecastCategory' as 'ForecastCategory', 'Id' as 'Id', 'IsWon' as 'IsWon', 'LeadSource' as 'LeadSource', 'Name' as 'Name', 'Probability' as 'Probability', 'StageName' as 'StageName', 'Type' as 'Type', 'eadx__OrderNumber__c' as 'eadx__OrderNumber__c';q = limit q 100;";
+              executeQuery(query, function(err, resp) {
+                console.warn('executeQuery returned: ', err, resp);
+              });
+            }
+       
             test();
             /*
             var query = "q = load \"0FbB0000000BWZRKA4/0FcB0000002OPtKKAW\";q = foreach q generate 'CloseDate' as 'CloseDate', 'ExpectedRevenue' as 'ExpectedRevenue', 'Fiscal' as 'Fiscal', 'FiscalQuarter' as 'FiscalQuarter', 'FiscalYear' as 'FiscalYear', 'ForecastCategory' as 'ForecastCategory', 'Id' as 'Id', 'IsWon' as 'IsWon', 'LeadSource' as 'LeadSource', 'Name' as 'Name', 'Probability' as 'Probability', 'StageName' as 'StageName', 'Type' as 'Type', 'eadx__OrderNumber__c' as 'eadx__OrderNumber__c';q = limit q 100;";
@@ -39,7 +52,7 @@
               });
         }, ltngURL, oauthResult.accessToken);        
       });
-
+/*
       function test() {
         console.warn('test');
         var query = "q = load \"0FbB0000000BWZRKA4/0FcB0000002OPtKKAW\";q = foreach q generate 'CloseDate' as 'CloseDate', 'ExpectedRevenue' as 'ExpectedRevenue', 'Fiscal' as 'Fiscal', 'FiscalQuarter' as 'FiscalQuarter', 'FiscalYear' as 'FiscalYear', 'ForecastCategory' as 'ForecastCategory', 'Id' as 'Id', 'IsWon' as 'IsWon', 'LeadSource' as 'LeadSource', 'Name' as 'Name', 'Probability' as 'Probability', 'StageName' as 'StageName', 'Type' as 'Type', 'eadx__OrderNumber__c' as 'eadx__OrderNumber__c';q = limit q 100;";
@@ -47,13 +60,12 @@
           console.warn('executeQuery returned: ', err, resp);
         });
       }
-
+*/
       function executeQuery(query, callback) {
         var context = {apiVersion: '46'};
-        //var methodName = 'executeQuery';
-        var methodName = 'listDashboards';
+        var methodName = 'executeQuery';
         var methodParameters = {
-            //query: query
+            query: query
         };
         console.warn('executeQuery');
         console.warn('query: ', query);
