@@ -11,7 +11,7 @@
     <h1>App ID: <%- appId %></h1>
     -->
     <div id="execute_query"></div>
-    <div id="sdk"></div>
+    <div id="sdk_div"></div>
     <button onclick="test();" label="Test">Test 2</button>
     <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
     <script src="/javascripts/force.all.js"></script>
@@ -27,7 +27,7 @@
         $Lightning.use(loAppName, function(evt) {
           var config = {};
           $Lightning.createComponent("eadx:executeQueryTab", config, "execute_query", function(cmp, msg, err) {});
-          $Lightning.createComponent("wave:sdk", {}, "sdk", function(cmp, msg, err) {
+          $Lightning.createComponent("wave:sdk", {}, "sdk_div", function(cmp, msg, err) {
             sdk = cmp;
             test();
             /*
