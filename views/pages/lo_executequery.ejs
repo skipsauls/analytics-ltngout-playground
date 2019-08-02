@@ -27,7 +27,7 @@
         $Lightning.use(loAppName, function(evt) {
           var config = {};
           $Lightning.createComponent("eadx:executeQueryTab", config, "execute_query", function(cmp, msg, err) {});
-          $Lightning.createComponent("wave:sdk", {}, "sdk_div", function(cmp, msg, err) {
+          $Lightning.createComponent("wave:sdk", {}, null, function(cmp, msg, err) {
             sdk = cmp;
             test();
             /*
