@@ -54,7 +54,8 @@
         var methodParameters = {
             query: query
         };
-        sdk.invokeMethod(context, methodName, methodParameters, $A.getCallback(function(err, data) {
+        //sdk.invokeMethod(context, methodName, methodParameters, $A.getCallback(function(err, data) {
+        sdk.invokeMethod(context, methodName, methodParameters, function(err, data) {
             if (err !== null) {
                 if (callback !== null && typeof callback !== 'undefined') {
                     callback(err, null);
@@ -69,7 +70,8 @@
                     return data;
                 }
             }
-        }));
+        });
+        //}));
     }
 
 
