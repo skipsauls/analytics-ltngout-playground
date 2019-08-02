@@ -23,8 +23,6 @@
       var loAppName = "c:loApp";
       var sdk = null;
 
-      var test = null;
-
       oauth.login().then(function(oauthResult) {      
         var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
         $Lightning.use(loAppName, function(evt) {
@@ -40,7 +38,7 @@
               console.warn('executeQuery returned: ', err, results);
             });
             */
-              });
+          });
         }, ltngURL, oauthResult.accessToken);        
       });
 
