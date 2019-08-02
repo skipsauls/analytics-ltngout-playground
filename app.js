@@ -534,6 +534,16 @@ app.get('/lo_explorer', function(req, res) {
     res.render('pages/lo_explorer', {title: 'Lightning Out - Einstein Analytics', appId: appAuth.appId, domain: domain, host: _host});
 });
 
+app.get('/lo_executequery', function(req, res) {
+
+	let domain = 'adx-dev-ed';
+
+    var appAuth = _appAuth[domain];
+		
+    res.render('pages/lo_executequery', {title: 'Lightning Out - Einstein Analytics', appId: appAuth.appId, domain: domain, host: _host});
+});
+
+
 app.get('/lo_platform', function(req, res) {
 
 	let domain = 'adx-dev-ed';
