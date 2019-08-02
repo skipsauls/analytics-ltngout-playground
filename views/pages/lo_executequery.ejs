@@ -43,9 +43,9 @@
       function test() {
         console.warn('test');
         var query = "q = load \"0FbB0000000BWZRKA4/0FcB0000002OPtKKAW\";q = foreach q generate 'CloseDate' as 'CloseDate', 'ExpectedRevenue' as 'ExpectedRevenue', 'Fiscal' as 'Fiscal', 'FiscalQuarter' as 'FiscalQuarter', 'FiscalYear' as 'FiscalYear', 'ForecastCategory' as 'ForecastCategory', 'Id' as 'Id', 'IsWon' as 'IsWon', 'LeadSource' as 'LeadSource', 'Name' as 'Name', 'Probability' as 'Probability', 'StageName' as 'StageName', 'Type' as 'Type', 'eadx__OrderNumber__c' as 'eadx__OrderNumber__c';q = limit q 100;";
-        executeQuery(query, function(err, results) {
+        executeQuery(query, $A.getCallback(function(err, results) {
           console.warn('executeQuery returned: ', err, results);
-        });
+        }));
       }
 
       function executeQuery(query, callback) {
@@ -54,6 +54,11 @@
         var methodParameters = {
             query: query
         };
+        console.warn('executeQuery');
+        console.warn('query: ', query);
+        console.warn('methodName: ', methodName);
+        console.warn('methodParameters: ', methodParameters);
+        console.warn('sdk: ', sdk);
         //sdk.invokeMethod(context, methodName, methodParameters, $A.getCallback(function(err, data) {
         sdk.invokeMethod(context, methodName, methodParameters, function(err, data) {
             if (err !== null) {
