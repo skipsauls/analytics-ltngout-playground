@@ -5,7 +5,6 @@
         "instrumentationKey": "APPINSIGHTS_INSTRUMENTATIONKEY"
     },
     "bot": {
-        "appId": "e762697b-ca85-4d96-979a-340e82acf824",
-        "appPassword": ""
+        "appId": "e762697b-ca85-4d96-979a-340e82acf824"
     }
 }
