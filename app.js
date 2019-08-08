@@ -586,6 +586,12 @@ app.get('/lo_forrester', function(req, res) {
 
 
 // Teams demo
+
+// Adding a bot to our app
+var bot = require('./bot');
+bot.setup(app);
+
+
 app.get('/hello', function(req, res) {
 	let domain = 'adx-dev-ed';
     var appAuth = _appAuth[domain];

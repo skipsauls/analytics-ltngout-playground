@@ -19,7 +19,7 @@
     "alexa-sdk": "^1.0.12",
     "base-64": "^0.1.0",
     "body-parser": "^1.17.2",
-    "botbuilder": "^4.5.3",
+    "botbuilder": "^3.16.0",
     "botbuilder-teams": "^0.2.7",
     "cometd-nodejs-server": "^1.0.2",
     "config": "^3.2.2",
