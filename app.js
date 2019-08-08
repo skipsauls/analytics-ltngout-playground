@@ -586,6 +586,12 @@ app.get('/lo_forrester', function(req, res) {
 
 
 // Teams demo
+app.get('/hello', function(req, res) {
+	let domain = 'adx-dev-ed';
+    var appAuth = _appAuth[domain];
+    res.render('pages/hello', {title: 'Hello', appId: appAuth.appId, domain: domain, host: _host});
+});
+
 app.get('/config', function(req, res) {
 	let domain = 'adx-dev-ed';
     var appAuth = _appAuth[domain];
