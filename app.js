@@ -584,6 +584,27 @@ app.get('/lo_forrester', function(req, res) {
     res.render('pages/lo_forrester', {title: 'Lightning Out - Einstein Analytics', appId: appAuth.appId, domain: domain, host: _host});
 });
 
+
+// Teams demo
+app.get('/config', function(req, res) {
+	let domain = 'adx-dev-ed';
+    var appAuth = _appAuth[domain];
+    res.render('pages/config', {title: 'Config', appId: appAuth.appId, domain: domain, host: _host});
+});
+
+app.get('/privacy', function(req, res) {
+	let domain = 'adx-dev-ed';
+    var appAuth = _appAuth[domain];
+    res.render('pages/privacy', {title: 'Privacy', appId: appAuth.appId, domain: domain, host: _host});
+});
+
+app.get('/termsofuse', function(req, res) {
+	let domain = 'adx-dev-ed';
+    var appAuth = _appAuth[domain];
+    res.render('pages/privacy', {title: 'Terms of Use', appId: appAuth.appId, domain: domain, host: _host});
+});
+
+
 app.get('/lo_cmdr', function(req, res) {
 
 	let domain = 'adx-dev-ed';
