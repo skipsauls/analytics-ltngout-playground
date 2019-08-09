@@ -613,7 +613,13 @@ app.get('/privacy', function(req, res) {
 app.get('/termsofuse', function(req, res) {
 	let domain = 'adx-dev-ed';
     var appAuth = _appAuth[domain];
-    res.render('pages/privacy', {title: 'Terms of Use', appId: appAuth.appId, domain: domain, host: _host});
+    res.render('pages/termsofuse', {title: 'Terms of Use', appId: appAuth.appId, domain: domain, host: _host});
+});
+
+app.get('/msauth', function(req, res) {
+	let domain = 'adx-dev-ed';
+    var appAuth = _appAuth[domain];
+    res.render('pages/msauth', {title: 'Auth', appId: appAuth.appId, domain: domain, host: _host});
 });
 
 
