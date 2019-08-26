@@ -35,7 +35,9 @@ module.exports.setup = function(app) {
     // Setup an endpoint on the router for the bot to listen.
     // NOTE: This endpoint cannot be changed and must be api/messages
     app.post('/api/messages', connector.listen());
-/*
+        console.warn('POST /api/messages called at ', new Date());
+
+    /*
     app.post('/api/messages', function(req, res) {
         console.warn('POST /api/messages called at ', new Date());
     

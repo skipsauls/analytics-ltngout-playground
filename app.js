@@ -587,10 +587,26 @@ app.get('/lo_forrester', function(req, res) {
 
 // Teams demo
 
+/*
 // Adding a bot to our app
 var bot = require('./bot');
 bot.setup(app);
+*/
 
+app.get('/lo_msteams', function(req, res) {
+
+	let domain = 'adx-dev-ed';
+
+    var appAuth = _appAuth[domain];
+		
+    res.render('pages/lo_msteams', {title: 'MS Teams - Einstein Analytics', appId: appAuth.appId, domain: domain, host: _host});
+});
+
+
+app.post('/api/messages', function(req, res) {
+	console.warn('POST /api/messages called at ', new Date());
+	console.warn('body: ', req.body);
+});
 
 app.get('/hello', function(req, res) {
 	let domain = 'adx-dev-ed';
