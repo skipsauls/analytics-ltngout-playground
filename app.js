@@ -603,7 +603,7 @@ app.get('/lo_msteams', function(req, res) {
 
 	let params = getParams(req);
 	console.warn('params');
-	var params = JSON.stringify(req.params, null, 2);
+	console.warn(JSON.stringify(req.params, null, 2));
 
 	let domain = 'adx-dev-ed';
 
