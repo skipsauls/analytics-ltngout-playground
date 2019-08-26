@@ -595,9 +595,19 @@ bot.setup(app);
 
 app.get('/lo_msteams', function(req, res) {
 
+	console.warn('headers');
+	console.warn(JSON.stringify(req.headers, null, 2));
+
+	console.warn('body');
+	console.warn(JSON.stringify(req.body, null, 2));
+
+	let params = getParams(req);
+	console.warn('params');
+	var params = JSON.stringify(req.params, null, 2);
+
 	let domain = 'adx-dev-ed';
 
-    var appAuth = _appAuth[domain];
+    let appAuth = _appAuth[domain];
 		
     res.render('pages/lo_msteams', {title: 'MS Teams - Einstein Analytics', appId: appAuth.appId, domain: domain, host: _host});
 });
