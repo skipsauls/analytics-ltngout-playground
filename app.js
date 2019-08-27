@@ -585,6 +585,15 @@ app.get('/lo_forrester', function(req, res) {
 });
 
 
+app.get('/lo_commander', function(req, res) {
+	let domain = 'adx-dev-ed';
+
+    let appAuth = _appAuth[domain];
+		
+    res.render('pages/lo_commander', {title: 'Einstein Commander', appId: appAuth.appId, domain: domain, host: _host});
+});
+
+
 // Teams demo
 
 /*
