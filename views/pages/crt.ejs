@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>CRT</title>
+  <link href="https://fonts.googleapis.com/css?family=VT323&display=swap" rel="stylesheet">
+  <style>
+    @keyframes flicker {
+      0% {
+        opacity: 0.27861;
+      }
+
+      5% {
+        opacity: 0.34769;
+      }
+
+      10% {
+        opacity: 0.23604;
+      }
+
+      15% {
+        opacity: 0.90626;
+      }
+
+      20% {
+        opacity: 0.18128;
+      }
+
+      25% {
+        opacity: 0.83891;
+      }
+
+      30% {
+        opacity: 0.65583;
+      }
+
+      35% {
+        opacity: 0.67807;
+      }
+
+      40% {
+        opacity: 0.26559;
+      }
+
+      45% {
+        opacity: 0.84693;
+      }
+
+      50% {
+        opacity: 0.96019;
+      }
+
+      55% {
+        opacity: 0.08594;
+      }
+
+      60% {
+        opacity: 0.20313;
+      }
+
+      65% {
+        opacity: 0.71988;
+      }
+
+      70% {
+        opacity: 0.53455;
+      }
+
+      75% {
+        opacity: 0.37288;
+      }
+
+      80% {
+        opacity: 0.71428;
+      }
+
+      85% {
+        opacity: 0.70419;
+      }
+
+      90% {
+        opacity: 0.7003;
+      }
+
+      95% {
+        opacity: 0.36108;
+      }
+
+      100% {
+        opacity: 0.24387;
+      }
+    }
+
+    @keyframes textShadow {
+      0% {
+        text-shadow: 0.4389924193300864px 0 1px rgba(0, 30, 255, 0.5), -0.4389924193300864px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      5% {
+        text-shadow: 2.7928974010788217px 0 1px rgba(0, 30, 255, 0.5), -2.7928974010788217px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      10% {
+        text-shadow: 0.02956275843481219px 0 1px rgba(0, 30, 255, 0.5), -0.02956275843481219px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      15% {
+        text-shadow: 0.40218538552878136px 0 1px rgba(0, 30, 255, 0.5), -0.40218538552878136px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      20% {
+        text-shadow: 3.4794037899852017px 0 1px rgba(0, 30, 255, 0.5), -3.4794037899852017px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      25% {
+        text-shadow: 1.6125630401149584px 0 1px rgba(0, 30, 255, 0.5), -1.6125630401149584px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      30% {
+        text-shadow: 0.7015590085143956px 0 1px rgba(0, 30, 255, 0.5), -0.7015590085143956px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      35% {
+        text-shadow: 3.896914047650351px 0 1px rgba(0, 30, 255, 0.5), -3.896914047650351px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      40% {
+        text-shadow: 3.870905614848819px 0 1px rgba(0, 30, 255, 0.5), -3.870905614848819px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      45% {
+        text-shadow: 2.231056963361899px 0 1px rgba(0, 30, 255, 0.5), -2.231056963361899px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      50% {
+        text-shadow: 0.08084290417898504px 0 1px rgba(0, 30, 255, 0.5), -0.08084290417898504px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      55% {
+        text-shadow: 2.3758461067427543px 0 1px rgba(0, 30, 255, 0.5), -2.3758461067427543px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      60% {
+        text-shadow: 2.202193051050636px 0 1px rgba(0, 30, 255, 0.5), -2.202193051050636px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      65% {
+        text-shadow: 2.8638780614874975px 0 1px rgba(0, 30, 255, 0.5), -2.8638780614874975px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      70% {
+        text-shadow: 0.48874025155497314px 0 1px rgba(0, 30, 255, 0.5), -0.48874025155497314px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      75% {
+        text-shadow: 1.8948491305757957px 0 1px rgba(0, 30, 255, 0.5), -1.8948491305757957px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      80% {
+        text-shadow: 0.0833037308038857px 0 1px rgba(0, 30, 255, 0.5), -0.0833037308038857px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      85% {
+        text-shadow: 0.09769827255241735px 0 1px rgba(0, 30, 255, 0.5), -0.09769827255241735px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      90% {
+        text-shadow: 3.443339761481782px 0 1px rgba(0, 30, 255, 0.5), -3.443339761481782px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      95% {
+        text-shadow: 2.1841838852799786px 0 1px rgba(0, 30, 255, 0.5), -2.1841838852799786px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+
+      100% {
+        text-shadow: 2.6208764473832513px 0 1px rgba(0, 30, 255, 0.5), -2.6208764473832513px 0 1px rgba(255, 0, 80, 0.3), 0 0 3px;
+      }
+    }
+
+    .crt::after {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background: rgba(18, 16, 16, 0.1);
+      opacity: 0;
+      z-index: 2;
+      pointer-events: none;
+      animation: flicker 0.15s infinite;
+    }
+
+    .crt::before {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      z-index: 2;
+      background-size: 100% 2px, 3px 100%;
+      pointer-events: none;
+    }
+
+    .crt {
+      animation: textShadow 1.6s infinite;
+    }
+
+    body {
+      background-color: black;
+      margin: 0px;
+      padding: 0px;
+      height: 99%;      
+    }
+
+    textarea {
+      background-color: inherit;
+      color: green;
+      width: 80rem;
+      height: 24em;
+      font-size: 20pt;
+      line-height: 1.8rem;
+      font-family: 'VT323', monospace;
+      border: 1px solid green;
+      outline:0px !important;
+      -webkit-appearance:none;
+      box-shadow: none !important;
+      resize: none;
+      overflow: hidden;
+    }
+
+  textarea#setter { /* explorer doesn't support [att=val] selector :( */
+    left: 0px;
+    position: absolute;
+    color: transparent;
+  }
+  
+  .cursor {
+    font-size: 20pt;
+    background-color: green;
+    color: green;
+    position: relative;
+    opacity: 0.5;
+    padding: 0 3px;
+    margin: 0 2px;    
+  }
+  
+  #terminal {
+    margin: 0px;
+    cursor: text;
+    font-size: 20pt;
+    font-family: 'VT323', monospace;
+    font-stretch: extra-expanded;
+    font-weight: bold;
+    line-height: 1.8rem;    
+    width: 80em;
+    height: 24em;
+    overflow: hidden;
+  }
+  
+  #writer {
+  }
+                    
+  #getter {
+    margin: 5px;
+    color: green;
+    font-size: 20pt;
+    font-family: 'VT323', monospace;
+    font-stretch: extra-expanded;
+    font-weight: bold;
+    line-height: 1.8rem;
+    transform: translate(25%, 0px) scale(1.5, 1);
+    overflow: hidden;
+  }
+
+  .container {
+    position: relative;
+    margin: 8px auto;
+    width: 80%;
+  }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div id="terminal" onclick="$('setter').focus();">
+      <textarea spellcheck="false" "text" id="setter" onkeydown="writeit(this, event);moveIt(this.value.length, event)" onkeyup="writeit(this, event)" onkeypress="writeit(this, event);"></textarea>
+      <div id="getter" class="crt">
+        <span id="writer"></span><b class="cursor" id="cursor">B</b>
+      </div>
+    </div>  
+  </div>
+  
+  <script nonce="">window['API_BASE_URL'] = '\/'; window['STYLE_PROTOCOL_OVERRIDE'] = '\/\/'; window['STYLE_DOMAIN'] = 'fonts.googleapis.com'; window['LOG_DEBUG'] =  1.0 ; window['ENABLE_EXPERIMENTAL_SCRIPTS'] =  0.0 ; window['ENABLE_EXPERIMENTAL_VF_UI'] =  0.0 ; window['ENABLE_SIDEBAR_CHECKOUT'] =  0.0 ; window['ENABLE_UXR_RECRUITMENT_BANNER'] =  1.0 ; window['SUPPORTS_VF'] =  1.0 ;</script>
+  <script id="base-js" src="//www.gstatic.com/_/fonts/_/js/k=fonts.app.en_US.4ZTbVn7Ji9s.O/d=1/rs=AE60u5eTOub7xPFN5pSMdzArUFuOHYeNgA/m=core" async="" nonce=""></script>
+
+  <script>
+    function $(elid){
+      return document.getElementById(elid);
+    }
+
+    var cursor;
+    window.onload = init;
+    
+    function init(){
+      cursor = $("cursor");				
+      cursor.style.left = "0px";
+    }
+    
+    function nl2br(txt){
+      return txt.replace(/\n/g, "<br />");
+    }
+    
+    function writeit(from, e){
+      e = e || window.event;
+      var w = $("writer");
+      var tw = from.value;
+      w.innerHTML = nl2br(tw);
+    }
+    
+    function moveIt(count, e){
+      e = e || window.event;
+      var keycode = e.keyCode || e.which;
+//				alert(count);
+      if(keycode == 37 && parseInt(cursor.style.left) >= (0-((count-1)*10))){
+        cursor.style.left = parseInt(cursor.style.left) - 10 + "px";
+      } else if(keycode == 39 && (parseInt(cursor.style.left) + 10) <= 0){
+        cursor.style.left = parseInt(cursor.style.left) + 10 + "px";
+      }
+
+    }
+    
+    function alert(txt){
+    console.log(txt);
+    }
+    
+    
+  </script>
+</body>
+
+</html>

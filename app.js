@@ -593,6 +593,10 @@ app.get('/lo_commander', function(req, res) {
     res.render('pages/lo_commander', {title: 'Einstein Commander', appId: appAuth.appId, domain: domain, host: _host});
 });
 
+app.get('/crt', function(req, res) {
+		
+    res.render('pages/crt', {title: 'CRT'});
+});
 
 // Teams demo
 
