@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>hEAlth - Signup</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/design-system/2.9.0/styles/salesforce-lightning-design-system.min.css" rel="stylesheet"/>
+  <style type="text/css">
+
+  </style>
+</head>
+
+<body>
+
+  <div class="slds-scope">
+    <p>
+      hEAlth - Signup
+    </p>
+  
+    <form method="POST" action="/health/api/signup" onsubmit="return submitForm(this);">
+      <input type="text" name="name" value="previousValue" />
+      <input type="submit" value="Update" />
+    </form>
+  
+    <div id="tokens" class="slds-hide">
+      <h1>Your token is: <span id="token"></span></h1>
+      <h1>Your secret is: <span id="secret"></span></h1>
+    </div>
+  
+  </div>
+  <script type="text/javascript">
+
+    function submitForm(oFormElement) {
+      var xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        let obj = JSON.parse(xhr.responseText);
+        document.querySelector('#token').innerHTML = obj.token.token;
+        document.querySelector('#secret').innerHTML = obj.token.secret;
+        document.querySelector('#tokens').classList.remove('slds-hide');
+      }
+      xhr.open(oFormElement.method, oFormElement.getAttribute("action"), true);
+      xhr.send(new FormData(oFormElement));
+      return false;
+    }
+
+
+  </script>
+
+
+</body>
+
+</html>

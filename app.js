@@ -20,6 +20,35 @@ var WebSocket = require('ws');
 var Twitter = require('twitter');
 var base64 = require('base-64');
 
+// Cryptr
+const Cryptr = require('cryptr');
+
+
+// Postgres
+const { Client } = require('pg');
+
+console.warn('process.env.DATABASE_URL: ', process.env.DATABASE_URL);
+
+const client = new Client({
+	connectionString: process.env.DATABASE_URL,
+	ssl: true,
+  });
+  
+client.connect();
+/*
+client.query('SELECT table_schema,table_name FROM information_schema.tables;', (err, res) => {
+	console.warn('client.query returned: ', err, res);
+
+	if (err) {
+		console.error('postgres client.query error: ', err);
+		throw err;
+	}
+	for (let row of res.rows) {
+		console.log(JSON.stringify(row));
+	}
+	client.end();
+});
+*/
 
 //var amazonProductAPI = require('amazon-product-api');
 
@@ -276,6 +305,7 @@ function getToken(domain, callback) {
 	});		
 }
 
+/*
 for (var domain in tokenConfigs) {
 	getToken(domain, function(err, oauthResult) {
 		getUserInfo(domain, function(err, userInfo) {
@@ -283,6 +313,7 @@ for (var domain in tokenConfigs) {
 		});
 	});
 }
+*/
 
 function getCurrentAPIVersion(domain, callback) {
 
@@ -457,6 +488,369 @@ function createPlatformEvent(domain, eventName, type, target, payload, callback)
 	}   
 }
 
+// hEAlth
+
+function encryptHealthToken(token, secret) {
+	const cryptr = new Cryptr(secret);
+	let encryptedSecret = cryptr.encrypt(token);
+	return encryptedSecret;
+}
+
+function validateHealthToken(token, encryptedSecret, callback) {
+	console.warn('validateHealthToken');
+	console.warn('token: ', token);
+	console.warn('encryptedSecret: ', encryptedSecret);
+
+	client.query('SELECT secret FROM account WHERE token = \'' + token + '\';', (err, resp) => {
+		let match = false;
+		if (err) {
+			console.error('client.query error: ', err);
+			match = false;
+		} else if (resp && resp.rows && resp.rows.length === 1){
+			let secret = resp.rows[0].secret;
+			console.warn('secret: ', secret);
+			const cryptr = new Cryptr(secret);
+			let test = cryptr.decrypt(encryptedSecret);
+			console.warn('test: ', test);
+			if (test === token) {
+				console.warn('matching secret!!!!!!!!!!!!!!');
+				match = true;
+			}
+		}
+
+		if (typeof callback === 'function') {
+			callback(err, {match: match});
+		}
+	}); 
+
+}
+
+function createHealthToken(body, callback) {
+	
+	// We will not store anything from the request
+
+	let error = null;
+	let token = null;
+
+	// Handle refresh by checking for token AND secret
+	if (body.token && body.secret) {
+		let valid = validateHealthToken(body.token, body.secret, function(err, match) {
+			console.warn('validateHealthToken returned: ', err, match);
+
+			let error = null;
+			let resp = null;
+
+			if (err || match.match === false) {
+				error = {
+					error: 'UNABLE_TO_REFRESH_TOKEN',
+					msg: 'Unable to refresh token'
+				};
+
+				if (typeof callback === 'function') {
+					callback(error, resp);
+				}
+			} else {
+
+				let token =  uuidv4();
+				let secret = uuidv4();
+		
+				//const text = 'UPDATE account SET token = $1::text, secret = $2::text WHERE token = $3::text';
+				//const values = [token, secret, body.token];
+
+				
+				const query = 'UPDATE account SET token = \'' + token + '\', secret = \'' + secret + '\' WHERE token = \'' + body.token + '\';';
+
+				console.warn('query: ', query);
+
+				let error = null;
+				let resp = null;
+				let encryptedToken = null;
+		
+				//client.query(text, values, (err, res) => {
+				client.query(query, (err, res) => {
+				if (err) {
+					console.error('client.query error: ', err.stack);
+					error = {
+						error: 'UNABLE_TO_CREATE_TOKEN',
+						msg: 'Unable to create a new token'
+					};
+				  } else {
+					  console.warn('res: ', res);
+					  
+					  encryptedToken = encryptHealthToken(token, secret);
+					  
+					  resp = {
+						  token: token,
+						  secret: encryptedToken
+						};
+					}
+		
+					if (typeof callback === 'function') {
+						callback(error, resp);
+					}
+				});	
+		
+
+			}
+		});
+
+	} else {
+		let token =  uuidv4();
+		let secret = uuidv4();
+
+		const text = 'INSERT INTO account(token, secret, created_on) VALUES($1, $2, NOW()) RETURNING token,secret';
+		const values = [token, secret];
+
+		let error = null;
+		let resp = null;
+		let encryptedToken = null;
+
+		client.query(text, values, (err, res) => {
+			if (err) {
+				console.error(err.stack);
+				error = {
+					error: 'UNABLE_TO_CREATE_TOKEN',
+					msg: 'Unable to create a new token'
+				};
+		  	} else {
+				console.log(res.rows[0]);
+				let t = res.rows[0].token;
+				let s = res.rows[0].secret;
+
+				encryptedToken = encryptHealthToken(t, s);
+				resp = {
+					token: t,
+					secret: encryptedToken
+				};
+		  	}
+
+		  	if (typeof callback === 'function') {
+			  	callback(error, resp);
+		  	}
+		});	
+	
+	}	
+}
+
+function getHealthAccount(token, callback) {
+	client.query('SELECT uid,token,created_on FROM account WHERE token=\'' + token + '\';', (err, resp) => {
+		let error = null;
+		let account = null;
+		if (resp.rows && resp.rows.length > 0) {
+			account = resp.rows[0];
+		} else {
+			error = {
+				error: 'ACCOUNT_NOT_FOUND',
+				msg: 'Account for token ' + token + ' not found'
+			};
+		}
+
+		if (typeof callback === 'function') {
+			callback(error, account);
+		}
+	});
+}
+
+function getHealthAccounts(config, callback) {
+	client.query('SELECT uid,token,secret,created_on FROM account;', (err, resp) => {
+		let error = null;
+		let accounts = null;
+		if (resp.rows && resp.rows.length > 0) {
+			accounts = resp.rows;
+		} else {
+			error = {
+				error: 'ACCOUNTS_NOT_FOUND',
+				msg: 'Accounts not found'
+			};
+		}
+
+		if (typeof callback === 'function') {
+			callback(error, accounts);
+		}
+	});
+}
+
+function getHealthSteps(token, callback) {
+	getHealthAccount(token, (err, account) => {
+		let body = {};
+		if (err || !account) {
+			body.error = err;
+			let error = {
+				error: 'INVALID_TOKEN',
+				msg: 'Token ' + token + ' is invalid'
+			};
+
+			if (typeof callback === 'function') {
+				callback(error, null);
+			}			
+		} else { 
+			client.query('SELECT value,date FROM steps WHERE account_uid=\'' + account.uid + '\' ORDER BY date;', (err, resp) => {
+				let error = null;
+				let steps = null;
+				if (err) {
+					console.error('getHealthSteps error: ', err);
+					error = {
+						error: 'STEPS_NOT_FOUND',
+						msg: 'Steps for token ' + token + ' not found'
+					};
+				} else {
+					steps = [];
+					resp.rows.forEach(function(row) {
+						steps.push(row);
+					});					
+				}
+				if (typeof callback === 'function') {
+					callback(error, steps);
+				}
+			});
+		}
+	});
+}
+
+function addHealthSteps(body, callback) {
+	console.warn('addHealthSteps - body: ', JSON.stringify(body, null, 2));
+	getHealthAccount(body.token, (err, account) => {
+		if (err || !account) {
+			let error = {
+				error: 'INVALID_TOKEN',
+				msg: 'Token ' + body.token + ' is invalid'
+			};
+
+			if (typeof callback === 'function') {
+				callback(error, null);
+			}	
+		} else { 
+
+			let date = body.date;
+			let value = body.value;
+
+			const text = 'INSERT INTO steps(account_uid, value, date) VALUES($1, $2, $3) RETURNING value,date';
+			const values = [account.uid, value, date];
+	
+			let error = null;
+			let resp = null;
+	
+			client.query(text, values, (err, res) => {
+				if (err) {
+					console.error(err.stack);
+					error = {
+						error: 'UNABLE_TO_ADD_STEPS',
+						msg: 'Unable to add steps'
+					};
+				  } else {
+					console.log('client.query returned res: ', res);
+					let v = res.rows[0].value;
+					let d = res.rows[0].date;
+	
+					resp = {
+						value: v,
+						date: d
+					};
+				  }
+	
+				  if (typeof callback === 'function') {
+					  callback(error, resp);
+				  }
+			});	
+	
+
+
+		}
+	});
+
+}
+app.post('/health/api/ping', function(req, res) {	
+	let params = req.params;
+	let query = req.query;
+	let body = req.body;
+	let headers = req.headers;
+
+	console.warn('POST ping');
+	console.warn('params: ', params);
+	console.warn('query: ', query);
+	console.warn('body: ', body);
+	console.warn('headers: ', headers);
+	let resp = {pong: 'Pong!'};
+	res.send(resp);
+});
+
+app.get('/health/api/account/:token?', function(req, res) {	
+	var token = req.params.token;
+
+	getHealthAccount(token, (err, account) => {
+		let resp = {};
+		resp.error = err || undefined;
+		resp.account = account || undefined;
+		res.send(resp);	
+	});
+});
+
+app.get('/health/api/steps', function(req, res) {	
+	var token = req.query.token;
+
+	getHealthSteps(token, (err, steps) => {
+		let resp = {};
+		resp.error = err || undefined;
+		resp.steps = {steps: steps} || undefined;
+		res.send(resp);
+	});
+});
+
+app.post('/health/api/steps', function(req, res) {	
+	let body = req.body;
+	
+	addHealthSteps(body, (err, steps) => {
+		let resp = {};
+		resp.error = err || undefined;
+		resp.steps = {steps: steps} || undefined;
+		res.send(resp);
+	});
+});
+
+app.post('/health/api/signup', function(req, res) {
+	let body = req.body;
+
+	createHealthToken(body, (err, token) => {
+		let resp = {};
+		resp.error = err || undefined;
+		resp.token = token || undefined;
+		res.send(resp);		
+	});
+});
+
+app.get('/health', function(req, res) {
+    res.render('pages/health/index', {title: 'hEAlth - Home'});
+});
+
+app.get('/health/signup', function(req, res) {
+    res.render('pages/health/signup', {title: 'hEAlth - Signup'});
+});
+
+
+
+const auth = require('./auth')
+
+app.use(auth)
+
+app.get('/health/admin', function(req, res) {
+    res.render('pages/health/admin', {title: 'hEAlth - Admin'});
+});
+
+app.get('/health/admin/api/accounts', function(req, res) {	
+	console.warn('app.get /health/admin/api/accounts');
+	let config = {};
+	getHealthAccounts(config, (err, accounts) => {
+		let resp = {};
+		resp.error = err || undefined;
+		resp.accounts = accounts || undefined;
+		res.send(resp);	
+	});
+});
+
+
+
+
+
 
 app.get('/', function(req, res) {
     res.render('pages/index', {title: 'Analytics Lightning Out Playground', appId: process.env.APPID});
@@ -596,6 +990,15 @@ app.get('/lo_commander', function(req, res) {
 app.get('/crt', function(req, res) {
 		
     res.render('pages/crt', {title: 'CRT'});
+});
+
+app.get('/lineage', function(req, res) {
+	
+	let assetsFile = fs.readFileSync('ea_assets.json');
+	let assets = JSON.parse(assetsFile);		
+	let assetsJson = JSON.stringify(assets);
+
+    res.render('pages/lineage', {assets: assetsJson});
 });
 
 // Teams demo

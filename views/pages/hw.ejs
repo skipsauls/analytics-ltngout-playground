@@ -5,12 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />  
     <meta name="google" value="notranslate"/>  
     <title><%= title %></title>
-    <link rel="stylesheet" type="text/css" href="/assets/styles/index.css" />
     
   </head>
   <body>
-    <h1>Canvas App on NodeJS Localhost</h1>
-
+    <h1>foobar</h1>
+    <h1 id="username"></h1>
     <script type="text/javascript" src="/javascripts/canvas-all.js"></script>
 
     <script>
@@ -21,6 +20,7 @@
         }
 
         Sfdc.canvas(function() {
+          console.warn('in Sfdc.canvas');
             var sr = JSON.parse('<%= signedRequestJson %>');
             // Save the token
             Sfdc.canvas.oauth.token(sr.oauthToken);

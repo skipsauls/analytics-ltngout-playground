@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Einstein Analytics - Lineage</title>
+
+  <script type="text/javascript" src="/vis/vis-network.min.js"></script>
+  <link href="/vis/vis-network.min.css" rel="stylesheet" type="text/css" />
+
+  <style type="text/css">
+    .network {
+      width: 1280px;
+      height: 800px;
+      border: 1px solid lightgray;
+    }
+  </style>
+</head>
+
+<body>
+
+  <p>
+    Einstein Analytics - Asset Lineage
+  </p>
+
+  <div class="network" id="network"></div>
+
+  <script type="text/javascript">
+    let assetsJson = '<%- assets %>';
+    let assets = JSON.parse(assetsJson);
+    console.warn('assets: ', assets);
+
+    let childTypes = {
+      folder: {
+        dashboards: [],
+        dataflows: [],
+        datasets: [],        
+        lenses: [],
+        recipes: [],
+        stories: []
+      }
+    };
+
+    let assetMap = {};
+    var list = null;
+    for (var type in assets) {
+      console.warn('type: ', type);
+      list = assets[type];
+      list.forEach(function(asset) {
+        console.warn('asset: ', asset);
+        assetMap[asset.id] = asset;
+      });
+    }
+    console.warn('assetMap: ', assetMap);
+
+    let assetNodes = [];
+    var asset = null;
+    for (var id in assetMap) {
+      asset = assetMap[id];
+      assetNodes.push(asset);
+    }
+
+    var nodes = new vis.DataSet(assetNodes);
+
+    /*
+    // create an array with nodes
+    var nodes = new vis.DataSet([
+      { id: 1, label: 'Node 1' },
+      { id: 2, label: 'Node 2' },
+      { id: 3, label: 'Node 3' },
+      { id: 4, label: 'Node 4' },
+      { id: 5, label: 'Node 5' }
+    ]);
+    */
+    
+    // create an array with edges
+    var edges = new vis.DataSet([
+      { from: 1, to: 3 },
+      { from: 1, to: 2 },
+      { from: 2, to: 4 },
+      { from: 2, to: 5 },
+      { from: 3, to: 3 }
+    ]);
+
+    // create a network
+    var container = document.getElementById('network');
+    var data = {
+      nodes: nodes,
+      edges: edges
+    };
+    var options = {};
+    var network = new vis.Network(container, data, options);
+  </script>
+
+
+</body>
+
+</html>

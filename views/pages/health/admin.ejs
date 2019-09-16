@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>hEAlth - Admin</title>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/design-system/2.9.0/styles/salesforce-lightning-design-system.min.css"
+    rel="stylesheet" />
+  <style type="text/css">
+    .section {
+      display: none;
+    }
+
+    .section:target {
+      display: block;
+    }
+
+    #home.section:not(:target) {
+      display: none;
+    }
+
+    .sections .section {
+      min-height: 20rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="slds-scope">
+    <div class="slds-brand-band slds-brand-band_large">
+      <div class="slds-text-heading_large slds-align_absolute-center slds-m-around_medium">hEAlth - Admin</div>
+
+      <div class="slds-grid slds-gutters">
+        <div class="slds-col slds-size_2-of-12">
+        </div>
+        <div class="slds-col slds-size_8-of-12">
+
+          <div class="slds-tabs_default">
+            <ul class="slds-tabs_default__nav" role="tablist">
+              <li class="slds-tabs_default__item slds-is-active" title="Overview" role="presentation">
+                <a class="slds-tabs_default__link" href="" role="tab" tabindex="0" aria-selected="true"
+                  id="tab-default-1__item">Overview</a>
+              </li>
+              <li class="slds-tabs_default__item" title="Accounts" role="presentation">
+                <a class="slds-tabs_default__link" href="#accounts" role="tab" tabindex="1" aria-selected="false"
+                  id="tab-default-1__item">Accounts</a>
+              </li>
+            </ul>
+          </div>
+
+
+
+          <div id="sections" class="sections slds-card">
+            <div class="section" id="overview">
+              <div class="slds-text-heading_medium">Overview</div>
+            </div>
+            <div class="section" id="accounts">
+              <div class="slds-text-heading_medium">Accounts</div>
+              <div class="table-container slds-m-around_medium" id="accounts_table_container"></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+      <div class="slds-col slds-size_2-of-12">
+      </div>
+    </div>
+
+  </div>
+
+
+
+  </div>
+  <script type="text/javascript">
+
+    (function () {
+      console.warn('init');
+      if (location.hash === '') {
+        location.hash = '#overview';
+      }
+    })();
+
+    function signup(oFormElement) {
+      var xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        let obj = JSON.parse(xhr.responseText);
+        document.querySelector('#token').innerHTML = obj.token.token;
+        document.querySelector('#secret').innerHTML = obj.token.secret;
+        document.querySelector('#tokens').classList.remove('slds-hide');
+      }
+      xhr.open(oFormElement.method, oFormElement.getAttribute("action"), true);
+      xhr.send(new FormData(oFormElement));
+      return false;
+    }
+
+    function createTable(containerId, values) {
+      let table = document.createElement('table');
+      table.classList.add('slds-table', 'slds-table_cell-buffer', 'slds-table_bordered', 'slds-table_striped');
+
+      let head = document.createElement('thead');
+
+      let row = document.createElement('tr');
+      row.classList.add('slds-line-height_reset');
+
+      let value = values[0];
+      var cell = null;
+      var div = null;
+
+      cell = document.createElement('th');
+      cell.classList.add('slds-text-align_right');
+      cell.setAttribute('scope', 'col');
+      cell.style.width = '3.25rem';
+      row.appendChild(cell);
+
+      for (var key in value) {
+        cell = document.createElement('th');
+        //cell.classList.add('');
+        cell.setAttribute('scope', 'col');
+        div = document.createElement('div');
+        div.classList.add('slds-truncate');
+        div.setAttribute('title', key);
+        div.innerHTML = key;
+        cell.appendChild(div);
+        row.appendChild(cell);
+      }
+
+      head.appendChild(row);
+
+      table.appendChild(head);
+
+      let body = document.createElement('tbody');
+
+
+      var idx = 0;
+
+      var checkbox = null;
+      var label = null;
+      var span = null;
+      values.forEach(function(value) {
+        row = document.createElement('tr');
+        row.classList.add('slds-hint-parent');
+
+        cell = document.createElement('td');
+        cell.classList.add('slds-text-align_right');
+        cell.setAttribute('role', 'gridcell');
+        div = document.createElement('div');
+        div.classList.add('slds-checkbox');
+
+        checkbox = document.createElement('input');
+        checkbox.setAttribute('type', 'checkbox');
+        checkbox.setAttribute('name', 'options');
+        checkbox.setAttribute('id', 'checkbox-' + idx);
+        checkbox.setAttribute('value', 'checkbox-' + idx);
+
+        checkbox.onclick = function(evt) {
+          let checked = evt.target.checked;
+          let row = evt.target.closest('tr.slds-hint-parent');
+          if (row) {
+            if (checked) {
+              row.classList.add('slds-is-selected');
+            } else {
+              row.classList.remove('slds-is-selected');
+            }
+          }
+        }
+
+        label = document.createElement('label');
+        label.classList.add('slds-checkbox__label');
+        label.setAttribute('for', 'checkbox-' + idx);
+        label.setAttribute('id', 'check=button-label-' + idx);
+
+        span = document.createElement('span');
+        span.classList.add('slds-checkbox_faux');
+        label.appendChild(span);
+
+        span = document.createElement('span');
+        span.classList.add('slds-form-element__label', 'slds-assistive-text');
+        span.innerHTML = 'Select item ' + idx;
+        label.appendChild(span);
+
+        div.appendChild(checkbox);
+        div.appendChild(label);
+
+        cell.appendChild(div);
+
+        row.appendChild(cell);
+
+        for (var key in value) {
+          cell = document.createElement('td');
+          //cell.classList.add('');
+          cell.setAttribute('role', 'gridcell');
+          cell.setAttribute('data-label', key);
+          div = document.createElement('div');
+          div.classList.add('slds-truncate');
+          div.setAttribute('title', value[key]);
+          div.innerHTML = value[key];
+          cell.appendChild(div);
+          row.appendChild(cell);
+        }
+
+        body.appendChild(row);
+
+        idx++;
+      });
+
+      table.appendChild(body);
+
+      let container = document.getElementById(containerId);
+      container.innerHTML = null;
+      container.appendChild(table);
+    }
+
+    function getAccounts(callback) {
+      console.warn('getAccounts');
+      var xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        let obj = JSON.parse(xhr.responseText);
+        let accounts = obj.accounts;
+        console.warn('accounts: ', accounts);
+        if (typeof callback === 'function') {
+          callback(null, accounts);
+        }
+      }
+      xhr.open('GET', '/health/admin/api/accounts');
+      xhr.send();
+    }
+
+    getAccounts((err, accounts) => {
+      if (err) {
+        console.error(err);
+      } else {
+        createTable('accounts_table_container', accounts);
+      }
+    });
+
+  </script>
+
+
+</body>
+
+</html>

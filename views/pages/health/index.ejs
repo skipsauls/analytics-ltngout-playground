@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>hEAlth - Home</title>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/design-system/2.9.0/styles/salesforce-lightning-design-system.min.css"
+    rel="stylesheet" />
+  <style type="text/css">
+    .section {
+      display: none;
+    }
+
+    .section:target {
+      display: block;
+    }
+
+    #home.section:not(:target) {
+      display: none;
+    }
+
+    .sections .section {
+      height: 12rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="slds-scope">
+    <div class="slds-brand-band slds-brand-band_large">
+      <div class="slds-text-heading_large slds-align_absolute-center slds-m-around_medium">hEAlth</div>
+
+      <div class="slds-grid slds-gutters">
+        <div class="slds-col slds-size_2-of-12">
+        </div>
+        <div class="slds-col slds-size_8-of-12">
+
+          <div class="slds-tabs_default">
+            <ul class="slds-tabs_default__nav" role="tablist">
+              <li class="slds-tabs_default__item slds-is-active" title="Home" role="presentation">
+                <a class="slds-tabs_default__link" href="" role="tab" tabindex="0" aria-selected="true"
+                  id="tab-default-1__item">Home</a>
+              </li>
+              <li class="slds-tabs_default__item" title="Sign Up" role="presentation">
+                <a class="slds-tabs_default__link" href="#signup" role="tab" tabindex="1" aria-selected="false"
+                  id="tab-default-1__item">Sign Up</a>
+              </li>
+            </ul>
+          </div>
+
+
+
+          <div id="sections" class="sections slds-card">
+            <div class="section" id="home">
+              <div class="slds-text-heading_medium">Welcome to hEAlth! This app is blah blah blah...</div>
+            </div>
+            <div class="section" id="signup">
+              <div class="slds-text-heading_medium">Signing up for hEAlth is easy!</div>
+              <form class="slds-align_absolute-center slds-m-around_medium" method="POST" action="/health/api/signup" onsubmit="return signup(this);">
+                <input class="slds-button slds-button_brand" type="submit" value="Signup!" />
+              </form>
+              <div id="tokens" class="slds-hide">
+                  <div class="slds-text-heading_small">Your token is: <span id="token"></span></div>
+                  <div class="slds-text-heading_small">Your secret is: <span id="secret"></span></div>
+                </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+      <div class="slds-col slds-size_2-of-12">
+      </div>
+    </div>
+
+  </div>
+
+
+
+  </div>
+  <script type="text/javascript">
+
+    (function () {
+      console.warn('init');
+      if (location.hash === '') {
+        location.hash = '#home';
+      }
+    })();
+
+    function signup(oFormElement) {
+      var xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        let obj = JSON.parse(xhr.responseText);
+        document.querySelector('#token').innerHTML = obj.token.token;
+        document.querySelector('#secret').innerHTML = obj.token.secret;
+        document.querySelector('#tokens').classList.remove('slds-hide');
+      }
+      xhr.open(oFormElement.method, oFormElement.getAttribute("action"), true);
+      xhr.send(new FormData(oFormElement));
+      return false;
+    }
+
+
+  </script>
+
+
+</body>
+
+</html>

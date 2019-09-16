@@ -1,0 +1,52 @@
+{
+  "folders": [
+    {
+      "id": "110000000000",
+      "label": "Demo App",
+      "name": "demo_app",
+      "namespace": "eadx",
+      "type": "folder"
+    }
+  ],
+  "dashboards": [
+    {
+      "datasets": [
+        {
+          "id": "310000000000"
+        }
+      ],
+      "folder": {
+        "id": "110000000000"
+      },
+      "id": "510000000000",
+      "label": "Demo Dashboard",
+      "name": "demo_dashboard",
+      "namespace": "eadx",
+      "type": "dashboard"
+    },
+    {
+      "datasets": [
+        {
+          "id": "310000000000"
+        }
+      ],
+      "folder": {
+        "id": "110000000000"
+      },
+      "id": "510000000001",
+      "label": "Test Dashboard",
+      "name": "test_dashboard",
+      "namespace": "eadx",
+      "type": "dashboard"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "310000000000",
+      "label": "Demo Dataset",
+      "name": "demo_dataset",
+      "namespace": "eadx",
+      "type": "dataset"
+    }
+  ]
+}
