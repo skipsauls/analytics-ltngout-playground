@@ -1,0 +1,91 @@
+<div class="slds-p-around_small">
+    <div class="slds-text-heading_medium"><%- objLabel %></div>
+    <div class="slds-form" role="list" id="user_info_form"></div>  
+</div>
+
+
+
+<script type="text/javascript">
+
+  function createForm() {
+
+    var config = JSON.parse('<%- config %>');
+    console.warn('config: <%- config %>');
+
+    let obj = config['<%- objName %>'];
+
+    console.warn('obj: ', obj);
+
+    let fields = obj.fields;
+    let rows = obj.rows;
+    let record = rows && rows.length > 0 ? rows[0] : null;
+
+    let form = document.getElementById('user_info_form');
+
+    let row = null;
+    let formItem = null;
+    let formElement = null;
+    let label = null;
+    let formControl = null;
+    let input = null;
+    let value = null;
+    let inputType = null;
+
+    let typeMap = {
+      'default': 'text',
+      'date': 'date',
+      'int4': 'number'      
+    }
+    fields.forEach(function (field, idx) {
+      console.warn('field: ', field);
+
+      value = record ? record[field.name] : '';
+
+      formItem = document.createElement('div');
+      formItem.classList.add('slds-form__item');
+
+      formElement = document.createElement('div');
+      formElement.classList.add('slds-form-element', 'slds-form-element_stacked', 'slds-is-editing');
+
+      label = document.createElement('label');
+      label.classList.add('slds-form-element__label');
+      label.setAttribute('for', 'input_' + idx);
+      label.innerText = field.name.replace(/_/g, ' ');
+
+      formControl = document.createElement('div');
+      formControl.classList.add('slds-form-element__control');
+
+      input = document.createElement('input');
+      input.classList.add('slds-input');
+      input.id = 'input_' + idx;
+      inputType = typeMap[field.type.toLowerCase()] || typeMap['default'];
+      input.setAttribute('type', inputType);
+      if (inputType === 'date') {
+        value = new Date(value).toISOString().split('T')[0];
+      }
+      input.setAttribute('value', value);
+
+      formControl.appendChild(input);
+
+      formElement.appendChild(label);
+      
+      formElement.appendChild(formControl);
+
+      formItem.appendChild(formElement);
+
+      if (idx % 2 === 0) { 
+        row = document.createElement('div');
+        row.classList.add('slds-form__row');
+        form.appendChild(row);
+      }
+      
+      row.appendChild(formItem);
+
+
+    });
+
+  }
+
+  createForm();
+
+</script>

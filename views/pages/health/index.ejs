@@ -20,7 +20,7 @@
     }
 
     .sections .section {
-      height: 12rem;
+      min-height: 20rem;
     }
   </style>
 </head>
@@ -38,12 +38,16 @@
 
           <div class="slds-tabs_default">
             <ul class="slds-tabs_default__nav" role="tablist">
-              <li class="slds-tabs_default__item slds-is-active" title="Home" role="presentation">
+              <li class="slds-tabs_default__item slds-is-active" title="Home" id="home_tab" role="presentation">
                 <a class="slds-tabs_default__link" href="" role="tab" tabindex="0" aria-selected="true"
                   id="tab-default-1__item">Home</a>
               </li>
-              <li class="slds-tabs_default__item" title="Sign Up" role="presentation">
-                <a class="slds-tabs_default__link" href="#signup" role="tab" tabindex="1" aria-selected="false"
+              <li class="slds-tabs_default__item" title="User Info" id="user_info_tab" role="presentation">
+                <a class="slds-tabs_default__link" href="#user_info" role="tab" tabindex="1" aria-selected="false"
+                  id="tab-default-1__item">User Info</a>
+              </li>
+              <li class="slds-tabs_default__item" title="Sign Up" id="signup_tab" role="presentation">
+                <a class="slds-tabs_default__link" href="#signup" role="tab" tabindex="2" aria-selected="false"
                   id="tab-default-1__item">Sign Up</a>
               </li>
             </ul>
@@ -54,17 +58,34 @@
           <div id="sections" class="sections slds-card">
             <div class="section" id="home">
               <div class="slds-text-heading_medium">Welcome to hEAlth! This app is blah blah blah...</div>
+
+              <div class="slds-form-element slds-p-around_small">
+                <label class="slds-form-element__label" for="health_token">hEAlth Token</label>
+                <div class="slds-form-element__control">
+                  <input type="text" id="health_token" placeholder="Enter your hEAlth Token" class="slds-input"
+                    value="169a6c8a-7980-4a5a-9b2f-ae3538032347" />
+                  <button class="slds-button slds-button_brand slds-m-vertical_small" label="Set Token"
+                    onclick="setToken();">Set Token</button>
+                </div>
+              </div>
             </div>
+
+            <div class="section" id="user_info">
+                <%- include('../../partials/health/record_input.ejs', {config: config, objName: 'user_info', objLabel: 'User Info'}); %>
+            </div>
+
             <div class="section" id="signup">
               <div class="slds-text-heading_medium">Signing up for hEAlth is easy!</div>
-              <form class="slds-align_absolute-center slds-m-around_medium" method="POST" action="/health/api/signup" onsubmit="return signup(this);">
+              <form class="slds-align_absolute-center slds-m-around_medium" method="POST" action="/health/api/signup"
+                onsubmit="return signup(this);">
                 <input class="slds-button slds-button_brand" type="submit" value="Signup!" />
               </form>
               <div id="tokens" class="slds-hide">
-                  <div class="slds-text-heading_small">Your token is: <span id="token"></span></div>
-                  <div class="slds-text-heading_small">Your secret is: <span id="secret"></span></div>
-                </div>
+                <div class="slds-text-heading_small">Your token is: <span id="token"></span></div>
+                <div class="slds-text-heading_small">Your secret is: <span id="secret"></span></div>
+              </div>
             </div>
+
           </div>
 
         </div>
@@ -76,17 +97,58 @@
 
   </div>
 
-
-
-  </div>
   <script type="text/javascript">
+
+    function showTab(name, show) {
+      console.warn('showTab: ', name, show);
+      if (show === true || typeof show === 'undefined') {
+        document.querySelector('#' + name).classList.add('slds-show');
+        document.querySelector('#' + name + '_tab').classList.add('slds-show');
+      } else {
+        document.querySelector('#' + name).classList.add('slds-hide');
+        document.querySelector('#' + name + '_tab').classList.add('slds-hide');
+      }  
+    }
+
+    function hideTab(name) {
+      document.querySelector('#' + name).classList.add('slds-hide');
+      document.querySelector('#' + name + '_tab').classList.add('slds-hide');
+    }
+
+    let config = JSON.parse('<%- config %>');
+    console.warn('config: ', config);
+
+    console.warn('error: ', config.error);
+    console.warn('user_info: ', config.user_info);
 
     (function () {
       console.warn('init');
       if (location.hash === '') {
         location.hash = '#home';
       }
+
+      showTab('user_info', config.authorized === true);
+      showTab('signup', config.authorized !== true);
+  
     })();
+
+    function setToken() {
+      console.warn('setToken');
+      let tokenField = document.getElementById('health_token');
+      let token = tokenField.value;
+      console.warn('token: ', token);
+      var xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        let obj = JSON.parse(xhr.responseText);
+        console.warn('setToken returned: ', obj);
+        if (obj.status && obj.status === 'SUCCESS') {
+          window.location.reload();
+        }
+      }
+      xhr.open('POST', '/health/api/token');
+      xhr.setRequestHeader('health_token', token);
+      xhr.send();
+    }
 
     function signup(oFormElement) {
       var xhr = new XMLHttpRequest();

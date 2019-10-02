@@ -10,6 +10,7 @@
     <h1>Domain: <%- domain %></h1>
     <h1>App ID: <%- appId %></h1>
     -->
+    <button label="Create Dasboard Image" onclick="test('#tools');">Create Dashboard Image</button>
     <div id="dashboard"></div>
     <div id="tools"></div>
     <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
@@ -35,5 +36,21 @@
         }, ltngURL, oauthResult.accessToken);        
       });
     </script>
+
+    <script src="/javascripts/html-to-image.js"></script>
+    <script type="text/javascript">
+      console.warn('htmlToImage: ', htmlToImage);
+  
+      function test(selector) {
+        htmlToImage.toJpeg(document.querySelector(selector), { quality: 0.95 })
+          .then(function (dataUrl) {
+            var link = document.createElement('a');
+            link.download = 'my-image-name.jpeg';
+            link.href = dataUrl;
+            link.click();
+          });
+      }
+    </script>
+
   </body>
 </html>

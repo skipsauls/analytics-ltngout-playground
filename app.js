@@ -6,6 +6,7 @@ var request = require('request');
 var rest = require('restler');
 var url = require('url');
 var app = express();
+var path = require('path');
 var low = require('lowdb');
 var cookieSession = require('cookie-session');
 var bodyParser = require('body-parser');
@@ -20,12 +21,17 @@ var WebSocket = require('ws');
 var Twitter = require('twitter');
 var base64 = require('base-64');
 
+// Proxy
+var html2CanvasProxy = require('html2canvas-proxy');
+
 // Cryptr
 const Cryptr = require('cryptr');
 
 
 // Postgres
 const { Client } = require('pg');
+
+var types = require('pg').types;
 
 console.warn('process.env.DATABASE_URL: ', process.env.DATABASE_URL);
 
@@ -164,7 +170,10 @@ var db = low('db.json');
 
 app.set('view engine', 'ejs');
 
-app.set('views', './views');
+//app.set('views', './views');
+
+app.set('views', path.join(__dirname, 'views'));
+
 
 app.use(express.static(__dirname + '/public'));
 
@@ -651,6 +660,7 @@ function getHealthAccount(token, callback) {
 	});
 }
 
+
 function getHealthAccounts(config, callback) {
 	client.query('SELECT uid,token,secret,created_on FROM account;', (err, resp) => {
 		let error = null;
@@ -666,6 +676,105 @@ function getHealthAccounts(config, callback) {
 
 		if (typeof callback === 'function') {
 			callback(error, accounts);
+		}
+	});
+}
+
+function getHealthUserInfo(token, callback) {
+	getHealthAccount(token, (err, account) => {
+		let body = {};
+		if (err || !account) {
+			body.error = err;
+			let error = {
+				error: 'INVALID_TOKEN',
+				msg: 'Token ' + token + ' is invalid'
+			};
+
+			if (typeof callback === 'function') {
+				callback(error, null);
+			}			
+		} else { 
+			client.query('SELECT date_of_birth,age,sex,gender,sfdc_org_id,sfdc_user_id FROM user_info WHERE account_id=\'' + account.uid + '\';', (err, res) => {
+				let error = null;
+				let resp = null;
+				if (err) {
+					console.error('getHealthUserInfo error: ', err);
+					error = {
+						error: 'USER_INFO_NOT_FOUND',
+						msg: 'User info for token ' + token + ' not found'
+					};
+				} else {
+					let fields = [];
+					let field = null;
+					let typeMap = {};
+					let v = null;
+					for (var t in res._types._types.builtins) {
+						v = res._types._types.builtins[t];
+						typeMap[v] = t;
+					}
+					res.fields.forEach(function(f) {
+						field = {
+							type: typeMap[f.dataTypeID],
+							size: f.dataTypeSize,
+							format: f.format,
+							name: f.name 
+						};
+						fields.push(field);
+					});
+					resp = {
+						all: res,
+						fields: fields,
+						rows: res.rows
+					};
+				}
+				if (typeof callback === 'function') {
+					callback(error, resp);
+				}
+			});
+		}
+	});
+}
+
+function updateHealthUserInfo(body, callback) {
+
+	getHealthAccount(body.token, (err, account) => {
+		let body = {};
+		if (err || !account) {
+			body.error = err;
+			let error = {
+				error: 'INVALID_TOKEN',
+				msg: 'Token ' + token + ' is invalid'
+			};
+
+			if (typeof callback === 'function') {
+				callback(error, null);
+			}			
+		} else { 
+
+			const text = 'INSERT INTO user_info(account_id, date_of_birth, age, sex, gender, sfdc_org_id, sfdc_user_id) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *';
+			const values = [account.uid, body.date_of_birth, body.age, body.sex, body.gender, body.sfdc_org_id, body.sfdc_user_id];
+
+			let error = null;
+			let resp = null;
+
+			client.query(text, values, (err, res) => {
+				if (err) {
+					console.error(err.stack);
+					error = {
+						error: 'UNABLE_TO_UPDATE_USER_INFO',
+						msg: 'Unable to update user info'
+					};
+				} else {
+					console.log('clienty query returned rows: ', res.rows);
+					console.log('clienty query returned row 0: ', res.rows[0]);
+
+					resp = res.rows[0];
+				}
+
+				if (typeof callback === 'function') {
+					callback(error, resp);
+				}
+			});
 		}
 	});
 }
@@ -774,8 +883,10 @@ app.post('/health/api/ping', function(req, res) {
 	res.send(resp);
 });
 
-app.get('/health/api/account/:token?', function(req, res) {	
-	var token = req.params.token;
+//app.get('/health/api/account/:token?', function(req, res) {	
+//	var token = req.params.token;
+app.get('/health/api/account', function(req, res) {	
+	let token = req.headers.health_token;
 
 	getHealthAccount(token, (err, account) => {
 		let resp = {};
@@ -807,6 +918,17 @@ app.post('/health/api/steps', function(req, res) {
 	});
 });
 
+app.post('/health/api/user_info', function(req, res) {	
+	let body = req.body;
+	
+	updateHealthUserInfo(body, (err, user_info) => {
+		let resp = {};
+		resp.error = err || undefined;
+		resp.user_info = user_info || undefined;
+		res.send(resp);
+	});
+});
+
 app.post('/health/api/signup', function(req, res) {
 	let body = req.body;
 
@@ -818,8 +940,54 @@ app.post('/health/api/signup', function(req, res) {
 	});
 });
 
+app.post('/health/api/token', function(req, res) {
+	console.warn('POST /health/api/token');
+	let body = req.body;
+	console.warn('body: ', body);
+	let headers = req.headers;
+	console.warn('headers: ', headers);
+	let token = headers.health_token || body.health_token;
+	console.warn('token: ', token);
+	let resp = {};
+	if (token) {
+		req.session.token = token;
+		resp.status = 'SUCCESS';
+	} else {
+		resp.error = {
+				error: 'UNABLE_TO_SET_TOKEN',
+				msg: 'Unable to set token'
+		};
+	}
+	res.send(resp);
+});
+
+
+
 app.get('/health', function(req, res) {
-    res.render('pages/health/index', {title: 'hEAlth - Home'});
+	let token = req.session.token;
+	console.warn('health_token: ', token);
+
+	let config = {
+		title: 'hEAlth'
+	};
+	if (token) {
+		getHealthAccount(token, (err, account) => {
+			config.authorized = account ? true : false;
+			getHealthUserInfo(token, (err, user_info) => {
+				console.warn('getHealthUserInfo returned: ', err, user_info);
+				if (err) {
+					config.error = err;
+				} else {
+					config.user_info = user_info;
+				}
+	
+				res.render('pages/health/index', {config: JSON.stringify(config)});
+			});	
+		});
+		
+	} else {
+		res.render('pages/health/index', {config: JSON.stringify(config)});
+	}
 });
 
 app.get('/health/signup', function(req, res) {
@@ -2621,6 +2789,9 @@ var sfdcProxy = proxy(options);
 
 app.use('/proxy', sfdcProxy);
 
+
+// html2canvas proxy
+app.use("/", html2CanvasProxy());
 
 app.get('/userinfo', function(req, res) {
 
