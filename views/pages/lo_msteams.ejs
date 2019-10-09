@@ -20,7 +20,7 @@
       var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
       var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
       //var loAppName = "c:loApp";
-      var loAppName = 'eadx:loApp';
+      var loAppName = 'c:loApp';
       oauth.login().then(function(oauthResult) {      
         var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
         $Lightning.use(loAppName, function(evt) {
