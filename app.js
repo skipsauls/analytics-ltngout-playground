@@ -135,7 +135,11 @@ var _appAuthMap = {
             'ackeynotedf18': {
                 appId: '3MVG9SemV5D80oBe0VjaR0v7j83DUFyaBAxCQugkuZlXESfkkueEoRTvL0piDwLa2Xhv.nRwUDjzhKp6LdKHm',
                 appSecret: '6962648447068098115'
-            }                        
+			},
+			'df19ea': {
+				appId: '3MVG9SemV5D80oBcff3jWxxK32f4PQBwm702A4fEFlSAEviJg7BsC7PUI_WpupyyBwMfhXypJSkdVqKX7_IXr',
+				appSecret: '6818833808157477050'
+			}                        
         }
 	},
 
@@ -1196,6 +1200,24 @@ app.get('/lo_msteams', function(req, res) {
     res.render('pages/lo_msteams', {title: 'MS Teams - Einstein Analytics', appId: appAuth.appId, domain: domain, host: _host});
 });
 
+app.get('/df19ea_msteams', function(req, res) {
+
+	console.warn('headers');
+	console.warn(JSON.stringify(req.headers, null, 2));
+
+	console.warn('body');
+	console.warn(JSON.stringify(req.body, null, 2));
+
+	let params = getParams(req);
+	console.warn('params');
+	console.warn(JSON.stringify(req.params, null, 2));
+
+	let domain = 'df19ea';
+
+    let appAuth = _appAuth[domain];
+		
+    res.render('pages/lo_msteams', {title: 'MS Teams - Einstein Analytics', appId: appAuth.appId, domain: domain, host: _host});
+});
 
 app.post('/api/messages', function(req, res) {
 	console.warn('POST /api/messages called at ', new Date());
