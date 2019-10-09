@@ -5,6 +5,7 @@
   <input type="radio" name="maptype" value="bing" onclick="onClick()"> Bing Maps<br>
   <input type="radio" name="maptype" value="google" onclick="onClick()"> Google Maps
 </form>
+<button onclick="onClick()" label="Okay">Okay</button>
 
 <script src="https://statics.teams.microsoft.com/sdk/v1.4.2/js/MicrosoftTeams.min.js" crossorigin="anonymous"></script>
 
@@ -12,7 +13,8 @@
 
 microsoftTeams.initialize();
 microsoftTeams.settings.registerOnSaveHandler(function(saveEvent){
-
+  console.warn('onSaveHandler');
+/*
     var radios = document.getElementsByName("maptype");
     if (radios[0].checked) {
        microsoftTeams.settings.setSettings({
@@ -31,11 +33,12 @@ microsoftTeams.settings.registerOnSaveHandler(function(saveEvent){
          removeUrl: "https://teams-get-started-sample.azurewebsites.net/tabremove.html",
       });
     }
-
+*/
     saveEvent.notifySuccess();
 });
 
 function onClick() {
+    console.warn('onClick');
     microsoftTeams.settings.setValidityState(true);
 }
 
