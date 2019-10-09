@@ -2,8 +2,8 @@
 <html>
 <body>
 <form>
-  <input type="radio" name="maptype" value="bing" onclick="onClick()"> Bing Maps<br>
-  <input type="radio" name="maptype" value="google" onclick="onClick()"> Google Maps
+  <input type="radio" name="eatype" value="einstein_analytics" onclick="onClick()"> Einstein Analytics<br/>
+  <input type="radio" name="eatype" value="einstein_discovery" onclick="onClick()"> Einstein Discovery<br/>
 </form>
 <button onclick="onClick()" label="Okay">Okay</button>
 
@@ -14,26 +14,25 @@
 microsoftTeams.initialize();
 microsoftTeams.settings.registerOnSaveHandler(function(saveEvent){
   console.warn('onSaveHandler');
-/*
-    var radios = document.getElementsByName("maptype");
+    var radios = document.getElementsByName("eatype");
     if (radios[0].checked) {
        microsoftTeams.settings.setSettings({
-         entityId: "bing",
-         contentUrl: "https://www.bing.com/maps/embed",
-         suggestedDisplayName: "Bing Map",
-         websiteUrl: "https://www.bing.com/maps",
-         removeUrl: "https://teams-get-started-sample.azurewebsites.net/tabremove.html",
+         entityId: "einstein_analtics",
+         contentUrl: "https://analytics-ltngout-playground.herokuapp.com/lo_msteams",
+         suggestedDisplayName: "Einstein Analytics",
+         websiteUrl: "https://analytics-ltngout-playground.herokuapp.com",
+         removeUrl: "https://analytics-ltngout-playground.herokuapp.com/tabremove",
       });
     } else {
        microsoftTeams.settings.setSettings({
-         entityId: "google",
-         contentUrl: "https://www.google.com/maps/embed",
-         suggestedDisplayName: "Google Map",
-         websiteUrl: "https://www.google.com/maps",
-         removeUrl: "https://teams-get-started-sample.azurewebsites.net/tabremove.html",
-      });
+        entityId: "einstein_discovery",
+        contentUrl: "https://analytics-ltngout-playground.herokuapp.com/lo_msteams",
+        suggestedDisplayName: "Einstein Discovery",
+        websiteUrl: "https://analytics-ltngout-playground.herokuapp.com",
+        removeUrl: "https://analytics-ltngout-playground.herokuapp.com/tabremove",
+     });
     }
-*/
+
     saveEvent.notifySuccess();
 });
 
