@@ -47,7 +47,7 @@
           // XMLHttpRequest.HEADERS_RECEIVED
           if (req.readyState == 2) {
           } else if (req.readyState == 4) {
-            if (req.status === 200) {                    
+            if (req.status >= 200 && req.status <= 299) {                    
               console.log('response: ', req.response);
             } else {
               // Something went wrong.
