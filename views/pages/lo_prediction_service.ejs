@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Einstein Analytics - Lightning Out</title>
+    <link href="/assets/styles/salesforce-lightning-design-system.min.css" type="text/css" rel="stylesheet"/>
+    <style>
+      html, body {
+        background-color: #f3f2f1;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="msteams"></div>
+    <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
+    <script src="/javascripts/force.all.js"></script>
+    <script>
+      var appId = '<%- appId %>';
+      var loginURL = "https://login.salesforce.com";
+      var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
+      var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+      oauth.login().then(function(oauthResult) {
+        console.warn('logged in: ' + oauthResult);
+
+        let payload = {
+          "predictionDefinition": "0ORB0000000Ccs1OAC",
+          "type": "Records",
+          "records": ["a1SB0000000A9laMAC"]
+        };
+        callPredictionService(payload);
+
+
+      });
+
+      function callPredictionService(paylaod) {
+
+        let url = oauthResult.instanceURL + '/services/data/v47.0/smartdatadiscovery/predict';
+        console.warn('url: ' + url);
+
+        console.warn('callPredictionService: ', payload);
+        var req = new XMLHttpRequest();     
+        req.onreadystatechange = function(event) {
+          console.warn('event: ', event);
+          console.warn('req: ', req);
+          // XMLHttpRequest.HEADERS_RECEIVED
+          if (req.readyState == 2) {
+          } else if (req.readyState == 4) {
+            if (req.status === 200) {                    
+              console.log('response: ', req.response);
+            } else {
+              // Something went wrong.
+            }
+          }
+        };
+
+        req.open('POST', url);
+      
+        //req.setRequestHeader('Authorization', 'Bearer ' + oauthResult.accessToken);
+        req.setRequestHeader('Content-Type', 'application/json');
+  
+        console.warn('calling req.send');
+        req.send(payload);        
+      }      
+    </script>
+  </body>
+</html>
