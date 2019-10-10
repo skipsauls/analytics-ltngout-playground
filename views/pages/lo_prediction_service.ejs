@@ -11,30 +11,67 @@
     </style>
   </head>
   <body>
-    <div id="msteams"></div>
+    <div id="prediction">
+      <label for="total">Total: </label>
+      <span id="total"></span>
+    </div>
     <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
+    <script src='https://statics.teams.microsoft.com/sdk/v1.0/js/MicrosoftTeams.min.js'></script>
     <script src="/javascripts/force.all.js"></script>
     <script>
+      const predictionRangeLabels = [
+        [0, 25, 'Low'],
+        [25, 100, 'High']
+      ];
+
+      function getPredictionLabel(val) {
+        let label = '';
+        let r = null;
+        for (var i = 0; i < predictionRangeLabels.length; i++) {
+          r = predictionRangeLabels[i];
+          if (val >= r[0] && val < r[1]) {
+            label = r[2];
+            break;
+          }
+        }
+        return label;
+      } 
+
       var appId = '<%- appId %>';
       var loginURL = "https://login.salesforce.com";
       var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
       var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
       var _oauthResult = null;
-      oauth.login().then(function(oauthResult) {
-        console.warn('logged in: ' + oauthResult);
-        _oauthResult = oauthResult;
 
-        let payload = {
-          "predictionDefinition": "0ORB0000000Ccs1OAC",
-          "type": "Records",
-          "records": ["a1SB0000000A9laMAC"]
-        };
-        callPredictionService(payload);
+      function loginToSalesforce() {
+        oauth.login().then(function(oauthResult) {
+          console.warn('logged in: ' + oauthResult);
+          _oauthResult = oauthResult;
 
+          let payload = {
+            "predictionDefinition": "0ORB0000000Ccs1OAC",
+            "type": "Records",
+            "records": ["a1SB0000000A9laMAC"]
+          };
+          callPredictionService(payload, function(err, result) {
+            console.warn('callPredictionService returned: ', err, result);
 
-      });
+            try {
+              result.predictions.forEach(function(p) {
+                console.warn('prediction: ', p.prediction);
+                let total = p.prediction.total;
+                let label = getPredictionLabel(total);
+                document.querySelector('#total').innerText = label;
+              });
+            } catch (e) {
+              consoole.warn('Exception: ', e);
+            }
 
-      function callPredictionService(payload) {
+          });
+        });
+      }
+
+      function callPredictionService(payload, callback) {
 
         let url = _oauthResult.instanceURL + '/services/data/v47.0/smartdatadiscovery/predict';
         console.warn('url: ' + url);
@@ -47,10 +84,16 @@
           // XMLHttpRequest.HEADERS_RECEIVED
           if (req.readyState == 2) {
           } else if (req.readyState == 4) {
+            var result = null;
+            var error = null;
             if (req.status >= 200 && req.status <= 299) {                    
               console.log('response: ', req.response);
+              result = JSON.parse(req.response);
             } else {
               // Something went wrong.
+            }
+            if (typeof callback === 'function') {
+              callback(error, result);
             }
           }
         };
@@ -65,7 +108,20 @@
         console.warn('payload: ', payload, typeof payload);
         let body = JSON.stringify(payload);
         req.send(body);        
-      }      
+      }
+      
+      
+      var callback = function(){
+        console.warn('document ready callback!!!');
+        loginToSalesforce();
+      };
+      
+      if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement.doScroll)) {
+        callback();
+      } else {
+        document.addEventListener("DOMContentLoaded", callback);
+      }
+
     </script>
   </body>
 </html>

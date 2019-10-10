@@ -113,8 +113,8 @@ var _appAuthMap = {
                 appSecret: '3244981663010648141'
 			},
 			'df19ea': {
-				appId: '3MVG9SemV5D80oBcff3jWxxK32f4PQBwm702A4fEFlSAEviJg7BsC7PUI_WpupyyBwMfhXypJSkdVqKX7_IXr',
-				appSecret: '6818833808157477050'
+				appId: '3MVG9SemV5D80oBcFtKiNxaBPDwFPb9jYuTBAiSTaXC22xUqdnMj99wd1QUn7qOuYt1TnOOzA3SaSFCR3YolL',
+				appSecret: '81D172705214785C51F5961457956FEAA3FDBFE7B768840871DA8AD6089B8651'
 			}			
         }
     },
@@ -141,8 +141,8 @@ var _appAuthMap = {
                 appSecret: '6962648447068098115'
 			},
 			'df19ea': {
-				appId: '3MVG9SemV5D80oBcff3jWxxK32f4PQBwm702A4fEFlSAEviJg7BsC7PUI_WpupyyBwMfhXypJSkdVqKX7_IXr',
-				appSecret: '6818833808157477050'
+				appId: '3MVG9SemV5D80oBcFtKiNxaBPDxnwT_J2a83FMyZaZ1hwP0JIl7egJrTLaZiPgmdNHOEhHuM1hPkGZcstaC9P',
+				appSecret: '4916F3BB4C246864FC3C23B7739D075826BCF8766C7D0A152FCBFC833C3596FB'
 			}                        
         }
 	},

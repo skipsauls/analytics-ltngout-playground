@@ -14,6 +14,7 @@
     <div id="msteams"></div>
     <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
     <script src="/javascripts/force.all.js"></script>
+    <script src='https://statics.teams.microsoft.com/sdk/v1.0/js/MicrosoftTeams.min.js'></script>
     <script>
       var appId = '<%- appId %>';
       var loginURL = "https://login.salesforce.com";
@@ -21,13 +22,34 @@
       var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
       //var loAppName = "c:loApp";
       var loAppName = 'c:loApp';
-      oauth.login().then(function(oauthResult) {      
-        var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
-        $Lightning.use(loAppName, function(evt) {
-          var config = {};
-          $Lightning.createComponent("c:msTeamsDemo", config, "msteams", function(cmp, msg, err) {});
-        }, ltngURL, oauthResult.accessToken);        
-      });
+
+      function loginToSalesforce() {
+        oauth.login().then(function(oauthResult) {      
+          var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
+          $Lightning.use(loAppName, function(evt) {
+            var config = {};
+            $Lightning.createComponent("c:msTeamsDemo", config, "msteams", function(cmp, msg, err) {});
+          }, ltngURL, oauthResult.accessToken);        
+        });
+      }
+
+      function setupTeams() {
+        microsoftTeams.initialize();
+        microsoftTeams.registerOnThemeChangeHandler(function(theme) {
+          console.warn('theme changed: ', theme);
+        }
+      }
+      var callback = function(){
+        console.warn('document ready callback!!!');
+        loginToSalesforce();
+        setupTeams();
+      };
+      
+      if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement.doScroll)) {
+        callback();
+      } else {
+        document.addEventListener("DOMContentLoaded", callback);
+      }      
     </script>
   </body>
 </html>
