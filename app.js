@@ -111,7 +111,11 @@ var _appAuthMap = {
             'ackeynotedf18': {
                 appId: '3MVG9SemV5D80oBe0VjaR0v7j8x6.Mh.doZYoVpBZcQpdZ3b13QSABzJ2vX8ShgPh_i.GNOLw7171sLPpFRmk',
                 appSecret: '3244981663010648141'
-            }            
+			},
+			'df19ea': {
+				appId: '3MVG9SemV5D80oBcff3jWxxK32f4PQBwm702A4fEFlSAEviJg7BsC7PUI_WpupyyBwMfhXypJSkdVqKX7_IXr',
+				appSecret: '6818833808157477050'
+			}			
         }
     },
     heroku: {
@@ -277,15 +281,21 @@ var tokenConfigs = {
 	'adx-dev-ed': {
 		domain: 'adx-dev-ed',
 		username: 'skip@eadx.com',
-		password: 'waveout4$',
-		securityToken: 'POO8eW3hPCbOo6AK65S0s6nG'
+		password: 'waveout9(',
+		securityToken: '8qep45xiHEGtdxersgWxxJ75'
 	},
 	'ackeynotedf18': {
 		domain: 'ackeynotedf18',
 		username: 'ssauls@eakeynote18.org',
 		password: 'waveout4$',
 		securityToken: ''
-	}
+	},
+	'df19ea': {
+		domain: 'df19ea',
+		username: 'adminuser@df19demo.com',
+		password: 'EAPlus123#',
+		securityToken: ''
+	},
 };
 
 function getToken(domain, callback) {
@@ -318,15 +328,17 @@ function getToken(domain, callback) {
 	});		
 }
 
-/*
+
 for (var domain in tokenConfigs) {
+	console.warn('domain: ', domain);
 	getToken(domain, function(err, oauthResult) {
+		console.warn('oauthResult: ', oauthResult);
 		getUserInfo(domain, function(err, userInfo) {
-			//console.warn('userInfo: ', userInfo);
+			console.warn('userInfo: ', userInfo);
 		});
 	});
 }
-*/
+
 
 function getCurrentAPIVersion(domain, callback) {
 
@@ -357,6 +369,45 @@ function getCurrentAPIVersion(domain, callback) {
     });
 
 }
+
+function callPredictionService(domain, payload, callback) {
+	try {
+		let path = '/services/data/v47.0/smartdatadiscovery/predict';
+
+		let oauthResult = _oauthResultMap[domain];
+
+		let url = oauthResult.instanceURL + path;
+		var config = {
+
+			headers: {
+				"Authorization": oauthResult.tokenType + " " + oauthResult.accessToken,
+				"Content-Type": "application/json",
+				"Accept": "application/json"
+			},
+			data: payload //JSON.stringify(payload)
+		};
+			
+		let err = null;
+		let userInfo = null;
+
+		rest.post(url, options).on('complete', function(result, response) {			
+			if (response.statusCode >= 200 && response.statusCode <= 299) {
+				console.warn('callPredictionService returned: ', result);
+			} else {            
+				console.error('callPredictionService error: ', response.statusCode, response.statusMessage);
+				//err = {statusCode: response.statusCode, statusMessage: response.statusMessage};
+			}
+			if (typeof callback === 'function') {
+				callback(err, result);
+			}
+		});
+	} catch (e) {
+		if (typeof callback === 'function') {
+			callback({exception: e}, null);
+		}
+	}
+        
+  }
 
 function getUserInfo(domain, callback) {
 	try {
