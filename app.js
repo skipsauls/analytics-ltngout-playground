@@ -1219,6 +1219,25 @@ app.get('/df19ea_msteams', function(req, res) {
     res.render('pages/lo_msteams', {title: 'MS Teams - Einstein Analytics', appId: appAuth.appId, domain: domain, host: _host});
 });
 
+app.get('/lo_prediction_service', function(req, res) {
+
+	console.warn('headers');
+	console.warn(JSON.stringify(req.headers, null, 2));
+
+	console.warn('body');
+	console.warn(JSON.stringify(req.body, null, 2));
+
+	let params = getParams(req);
+	console.warn('params');
+	console.warn(JSON.stringify(req.params, null, 2));
+
+	let domain = 'df19ea';
+
+    let appAuth = _appAuth[domain];
+		
+    res.render('pages/lo_prediction_service', {title: 'MS Teams - Einstein Dicovery', appId: appAuth.appId, domain: domain, host: _host});
+});
+
 app.post('/api/messages', function(req, res) {
 	console.warn('POST /api/messages called at ', new Date());
 	console.warn('body: ', req.body);
