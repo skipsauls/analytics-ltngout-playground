@@ -59,7 +59,7 @@
       
         //req.setRequestHeader('Authorization', 'Bearer ' + oauthResult.accessToken);
         req.setRequestHeader('Content-Type', 'application/json');
-        req.setHeader('Access-Control-Allow-Origin: *');
+        req.setRequestHeader('Access-Control-Allow-Origin', '*');
 
         console.warn('calling req.send');
         req.send(payload);        
