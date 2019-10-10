@@ -14,7 +14,7 @@
     <div id="msteams"></div>
     <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
     <script src="/javascripts/force.all.js"></script>
-    <script src='https://statics.teams.microsoft.com/sdk/v1.0/js/MicrosoftTeams.min.js'></script>
+    <script src="https://statics.teams.microsoft.com/sdk/v1.4.2/js/MicrosoftTeams.min.js" crossorigin="anonymous"></script>
     <script>
       var appId = '<%- appId %>';
       var loginURL = "https://login.salesforce.com";
@@ -37,6 +37,14 @@
         microsoftTeams.initialize();
         microsoftTeams.registerOnThemeChangeHandler(function(theme) {
           console.warn('theme changed: ', theme);
+        });
+
+        microsoftTeams.getContext(function(context) {
+          console.warn('getContext returned: ', context);
+        });
+
+        microsoftTeams.getTabInstances(function(tabInfo) {
+          console.warn('getTabInstances returned: ', tabInfo);
         });
       }
       var callback = function(){
