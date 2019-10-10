@@ -19,8 +19,10 @@
       var loginURL = "https://login.salesforce.com";
       var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
       var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+      var _oauthResult = null;
       oauth.login().then(function(oauthResult) {
         console.warn('logged in: ' + oauthResult);
+        _oauthResult = oauthResult;
 
         let payload = {
           "predictionDefinition": "0ORB0000000Ccs1OAC",
@@ -34,7 +36,7 @@
 
       function callPredictionService(paylaod) {
 
-        let url = oauthResult.instanceURL + '/services/data/v47.0/smartdatadiscovery/predict';
+        let url = _oauthResult.instanceURL + '/services/data/v47.0/smartdatadiscovery/predict';
         console.warn('url: ' + url);
 
         console.warn('callPredictionService: ', payload);
