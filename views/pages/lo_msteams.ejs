@@ -109,16 +109,16 @@
 
       }
 
-      var callback = function(){
+      var _readyCallback = function(){
         console.warn('document ready callback!!!');
         loginToSalesforce();
         setupTeams();
       };
       
       if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement.doScroll)) {
-        callback();
+        _readyCallback();
       } else {
-        document.addEventListener("DOMContentLoaded", callback);
+        document.addEventListener("DOMContentLoaded", _readyCallback);
       }      
     </script>
   </body>
