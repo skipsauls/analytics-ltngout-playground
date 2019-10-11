@@ -134,6 +134,7 @@
         console.warn('getContext returned: ', context);
         let appSessionId = context.appSessionId;
 
+        /*
         console.warn('calling microsoftTeams.authentication.authenticate');
         microsoftTeams.authentication.authenticate({
           url: window.location.origin + "/ms-simple-start?appId=" + appSessionId,
@@ -146,7 +147,8 @@
               handleAuthError(reason);
           }
         });        
-
+        */
+        
       });
 
       microsoftTeams.getTabInstances(function (tabInfo) {
