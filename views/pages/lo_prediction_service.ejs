@@ -11,7 +11,7 @@
     }
 
     .main {
-      width: 33%;
+      width: 100%;
     }
 
     .value.true {
@@ -90,14 +90,14 @@
 </head>
 
 <body>
-  <div class="main">
+  <div id="main" class="main slds-hide">
     <div class="slds-box slds-box_xx-small box-custom slds-theme_default slds-m-around_xx-small">
-      <div id="outer" class="slds-hide">
+      <div id="outer">
 
 
         <section class="highlight">
           <div class="einsteinHolder">
-            <h2 class="title slds-text-heading_medium slds-p-left_x-large">Einstein Discovery</h2>
+            <h2 id="title" class="title slds-text-heading_medium slds-p-left_x-large"></h2>
             <img alt=""
               src="https://df19ea.lightning.force.com//img/analytics/einsteindatadiscovery/einstein_header_icon.svg"
               class="header-icon first" />
@@ -195,6 +195,51 @@
       }
     }
 
+    function storeToken(oauthResult, callback) {
+      let host = 'https://' + window.location.hostname;
+      let port = window.location.port;
+      if (port) {
+        host += ':' + port;
+      }
+
+      let url = host + '/auth/token';
+
+      //console.warn('url: ' + url);
+
+      var req = new XMLHttpRequest();     
+      req.onreadystatechange = function(event) {
+        //console.warn('event: ', event);
+        //console.warn('req: ', req);
+        // XMLHttpRequest.HEADERS_RECEIVED
+        if (req.readyState == 2) {
+        } else if (req.readyState == 4) {
+          var result = null;
+          var error = null;
+          if (req.status >= 200 && req.status <= 299) {                    
+            //console.log('response: ', req.response);
+            result = JSON.parse(req.response);
+          } else {
+            // Something went wrong.
+          }
+          if (typeof callback === 'function') {
+            callback(error, result);
+          }
+        }
+      };
+
+      req.open('POST', url);
+    
+      req.setRequestHeader('Content-Type', 'application/json');
+      req.setRequestHeader('Access-Control-Allow-Origin', '*');
+      //req.setRequestHeader('Authorization', 'Bearer ' + _oauthResult.accessToken);
+
+      //console.warn('calling req.send');        
+      let body = JSON.stringify(oauthResult);
+      //console.warn('body: ', body);
+      req.send(body); 
+
+    }
+        
     function setupSalesforce() {
       loginToSalesforce(function (err, result) {
 
@@ -348,7 +393,7 @@
 
             });
 
-            document.querySelector('#outer').classList.remove('slds-hide');
+            document.querySelector('#main').classList.remove('slds-hide');
 
           } catch (e) {
             console.warn('Exception: ', e);
@@ -397,10 +442,90 @@
       req.send(body);
     }
 
+    function setupTeams() {
+      microsoftTeams.initialize();
+      microsoftTeams.registerOnThemeChangeHandler(function(theme) {
+        console.warn('theme changed: ', theme);
+      });
+
+      microsoftTeams.getContext(function(context) {
+        console.warn('getContext returned: ', context);
+      });
+
+      microsoftTeams.getTabInstances(function(tabInfo) {
+        console.warn('getTabInstances returned: ', tabInfo);
+      });
+/*
+      try {
+        console.warn('microsoftTeams.teamTabs: ', microsoftTeams.teamTabs);
+      } catch (e) {
+        console.error(e);
+      }
+
+      try {
+        console.warn('microsoftTeams.conversation: ', microsoftTeams.conversation);
+      } catch (e) {
+        console.error(e);
+      }
+*/        
+/*
+      getTeamInfo(function(err, info) {
+        console.warn('getTeamInfo returned: ', err, info);
+      });
+*/        
+    }
+
+    function getTeamInfo() {
+      let host = 'https://' + window.location.hostname;
+      let port = window.location.port;
+      if (port) {
+        host += ':' + port;
+      }
+
+      let url = host + '/graph/beta/me/joinedTeams';
+
+      console.warn('url: ' + url);
+
+      var req = new XMLHttpRequest();     
+      req.onreadystatechange = function(event) {
+        //console.warn('event: ', event);
+        //console.warn('req: ', req);
+        // XMLHttpRequest.HEADERS_RECEIVED
+        if (req.readyState == 2) {
+        } else if (req.readyState == 4) {
+          var result = null;
+          var error = null;
+          if (req.status >= 200 && req.status <= 299) {                    
+            console.log('response: ', req.response);
+            result = JSON.parse(req.response);
+          } else {
+            // Something went wrong.
+          }
+          if (typeof callback === 'function') {
+            callback(error, result);
+          }
+        }
+      };
+
+      req.open('GET', url);
+    
+      req.setRequestHeader('Content-Type', 'application/json');
+      req.setRequestHeader('Access-Control-Allow-Origin', '*');
+      //req.setRequestHeader('Authorization', 'Bearer ' + _oauthResult.accessToken);
+
+      //console.warn('calling req.send');        
+      //let body = JSON.stringify(payload);
+      req.send();//body); 
+
+    }
+
+
+
+
     var _readyCallback = function () {
       //console.warn('document ready callback!!!');
       setupSalesforce();
-      //setupTeams();
+      setupTeams();
     };
 
     if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement
