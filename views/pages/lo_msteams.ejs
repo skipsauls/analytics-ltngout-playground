@@ -17,12 +17,16 @@
     <script src="https://statics.teams.microsoft.com/sdk/v1.4.2/js/MicrosoftTeams.min.js" crossorigin="anonymous"></script>
     <script>
 
-      var oauthResultJson = '<%- oauthResult %>';
-      console.warn('oauthResultJson: ', oauthResultJson);
       var oauthResult = null;
-      if (oauthResultJson) {
+      var oauthResultJson = null;
+
+      try {
+        oauthResultJson = '<%- oauthResult %>';
+        console.warn('oauthResultJson: ', oauthResultJson);
         oauthResult = JSON.parse(oauthResultJson);
         console.warn('oauthResult: ', oauthResult);
+      } catch (e) {
+        console.warn('Exception: ', e);
       }
 
       var appId = '<%- appId %>';
