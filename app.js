@@ -1321,7 +1321,7 @@ app.get('/df19ea_msteams', function(req, res) {
 
 	let oauthResultObj = req.session.tokens[appAuth.appId];
 	console.warn('oauthResultObj: ', oauthResultObj);
-	let oauthResult = null;
+	let oauthResult = '';
 	if (oauthResultObj) {
 		oauthResult = JSON.stringify(oauthResultObj);
 	}
