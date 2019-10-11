@@ -3,7 +3,7 @@
 <body>
 <form>
   <input type="radio" name="eatype" value="einstein_analytics" onclick="onClick()"> Einstein Analytics<br/>
-  <input type="radio" name="eatype" value="einstein_discovery" onclick="onClick()"> Einstein Discovery<br/>
+  <input type="radio" name="eatype" value="attrition_risk" onclick="onClick()"> Attrition Risk<br/>
 </form>
 <button onclick="onClick()" label="Okay">Okay</button>
 
@@ -18,16 +18,16 @@ microsoftTeams.settings.registerOnSaveHandler(function(saveEvent){
     if (radios[0].checked) {
        microsoftTeams.settings.setSettings({
          entityId: "einstein_analtics",
-         contentUrl: "https://analytics-ltngout-playground.herokuapp.com/lo_msteams",
+         contentUrl: "https://analytics-ltngout-playground.herokuapp.com/df19_msteams",
          suggestedDisplayName: "Einstein Analytics",
          websiteUrl: "https://analytics-ltngout-playground.herokuapp.com",
          removeUrl: "https://analytics-ltngout-playground.herokuapp.com/tabremove",
       });
     } else {
        microsoftTeams.settings.setSettings({
-        entityId: "einstein_discovery",
-        contentUrl: "https://analytics-ltngout-playground.herokuapp.com/lo_msteams",
-        suggestedDisplayName: "Einstein Discovery",
+        entityId: "attrition_risk",
+        contentUrl: "https://analytics-ltngout-playground.herokuapp.com/lo_prediction_service",
+        suggestedDisplayName: "Attrition Risk",
         websiteUrl: "https://analytics-ltngout-playground.herokuapp.com",
         removeUrl: "https://analytics-ltngout-playground.herokuapp.com/tabremove",
      });
