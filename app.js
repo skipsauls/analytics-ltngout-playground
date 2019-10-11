@@ -1414,7 +1414,7 @@ app.get('/ms-simple-start', function(req, res) {
 	console.warn('body: ', req.body);
 	console.warn('headers: ', req.headers);
 
-	let appId = res.query.appId;
+	let appId = req.query.appId;
 	console.warn('appId: ', appId);
 
     res.render('pages/ms_simple-start-tab', {title: 'MS Simple Start', appId: appId});
