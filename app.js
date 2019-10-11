@@ -1324,7 +1324,11 @@ app.get('/df19ea_msteams', function(req, res) {
 	let oauthResult = '';
 	if (oauthResultObj) {
 		oauthResult = JSON.stringify(oauthResultObj);
+	} else {
+		oauthResult = '';
 	}
+
+	console.warn('oauthResult: ', oauthResult);
     res.render('pages/lo_msteams', {title: 'MS Teams - Einstein Analytics', appId: appAuth.appId, domain: domain, host: _host, oauthResult: oauthResult});
 });
 
