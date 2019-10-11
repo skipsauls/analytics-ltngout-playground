@@ -137,9 +137,27 @@
 
       microsoftTeams.getTabInstances(function (tabInfo) {
         console.warn('getTabInstances returned: ', tabInfo);
+        let teamTabs = tabInfo.teamTabs;
+        let teamTab = teamTabs[0];
+        let appId = teamTab.appId;
+
+        console.warn('calling microsoftTeams.authentication.authenticate');
+        microsoftTeams.authentication.authenticate({
+          url: window.location.origin + "/ms-simple-start?appId=" + appId,
+          width: 600,
+          height: 535,
+          successCallback: function (result) {
+              getUserProfile(result.accessToken);
+          },
+          failureCallback: function (reason) {
+              handleAuthError(reason);
+          }
+        });
+  
       });
 
-      /*
+      console.warn('microsoftTeams.conversation: ', microsoftTeam.conversation);
+
       console.warn('calling microsoftTeams.authentication.authenticate');
       microsoftTeams.authentication.authenticate({
         url: window.location.origin + "/ms-simple-start",
@@ -152,8 +170,7 @@
             handleAuthError(reason);
         }
       });
-      */
-            
+
       /*
               try {
                 console.warn('microsoftTeams.teamTabs: ', microsoftTeams.teamTabs);

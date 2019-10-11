@@ -1408,7 +1408,16 @@ app.get('/lo_prediction_service', function(req, res) {
 });
 
 app.get('/ms-simple-start', function(req, res) {
-    res.render('pages/ms_simple-start-tab', {title: 'MS Simple Start'});
+	console.warn('GET /ms-simple-start');
+	console.warn('params: ', req.params);
+	console.warn('query: ', req.query);
+	console.warn('body: ', req.body);
+	console.warn('headers: ', req.headers);
+
+	let appId = res.query.appId;
+	console.warn('appId: ', appId);
+
+    res.render('pages/ms_simple-start-tab', {title: 'MS Simple Start', appId: appId});
 });
 
 app.get('/ms-simple-end', function(req, res) {
