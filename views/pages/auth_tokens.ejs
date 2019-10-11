@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Auth Tokens</title>
+    <style>
+        ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+        }
+        li {
+          border: 1px solid #A0A0A0;
+          padding: 2px;
+          margin: 2px;
+        }
+    </style>
+  </head>
+  <body>
+    <h2>Auth Tokens</h2>
+    <ul>
+        <% for (var i = 0; i < tokenInfo.length; i++) { %>
+          <li>
+            <div>App ID: <%= tokenInfo[i].appId %></div>
+            <div>Instance URL: <%= tokenInfo[i].instanceURL %></div>
+            <div>User ID: <%= tokenInfo[i].userId %></div>
+            <a href="/auth/tokens?action=reset&appId=<%= tokenInfo[i].appId %>">Reset Token</a></li>
+        <% } %>
+    </ul>
+    <script>
+      if (window.location.search && window.location.search.length > 0) {
+        window.location.href = window.location.origin + window.location.pathname;
+      }
+    </script>
+  </body>
+</html>

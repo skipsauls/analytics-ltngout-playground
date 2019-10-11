@@ -1279,7 +1279,76 @@ app.delete('/auth/token/:appId?', function(req, res) {
 	}
 	res.send(resp);
 });
-	
+
+app.get('/auth/tokens', function(req, res) {
+
+	console.warn('GET /auth/tokens');
+	console.warn('params: ', req.params);
+	console.warn('query: ', req.query);
+	console.warn('body: ', req.body);
+	console.warn('headers: ', req.headers);
+
+	if (req.query.action) {
+		let action = req.query.action;
+		console.warn('action: ', action);
+		if (req.query.appId) {
+			let appId = req.query.appId;
+			console.warn('appId: ', appId);
+			try {
+				req.session.tokens = req.session.tokens || {};
+				req.session.tokens[appId] = null;
+				delete req.session.tokens[appId];
+			} catch (e) {
+				console.error('Exception: ', e);
+			}
+		}
+	}
+
+	let tokens = req.session.tokens || {};
+	let tokenInfo = [];
+	let token = null;
+	console.warn('tokens: ', tokens);
+	for (var appId in tokens) {
+		token = tokens[appId];
+		tokenInfo.push({
+			appId: token.appId,
+			instanceURL: token.instanceURL,
+			userId: token.userId
+		});
+	}
+
+	res.render('pages/auth_tokens', {title: 'Auth Tokens', tokenInfo: tokenInfo});	
+
+});
+
+app.get('/auth/token/reset', function(req, res) {
+
+	console.warn('GET /auth/token/reset');
+	console.warn('params: ', req.params);
+	console.warn('query: ', req.query);
+	console.warn('body: ', req.body);
+	console.warn('headers: ', req.headers);
+
+	let msg = '';
+
+	if (req.query.appId) {
+		try {
+			let appId = req.query.appId;
+			console.warn('appId: ', appId);
+			req.session.tokens = req.session.tokens || {};
+			req.session.tokens[appId] = null;
+			delete req.session.tokens[appId];
+			msg = 'Successfully reset token for appId: ' + appId;
+		} catch(e) {
+			console.error('Exception: ', e);
+			msg = 'There was a problem trying to reset token for appId: ' + appId;
+		}
+	} else {
+		msg = 'No appId specified.'
+	}
+    res.render('pages/auth_token_reset', {title: 'Auth Token Reset', msg: msg});	
+});
+
 app.get('/lo_msteams', function(req, res) {
 
 	//let domain = 'adx-dev-ed';

@@ -22,12 +22,13 @@
 
       try {
         oauthResultJson = '<%- oauthResult %>';
-        //console.warn('oauthResultJson: ', oauthResultJson);
         oauthResult = JSON.parse(oauthResultJson);
-        //console.warn('oauthResult: ', oauthResult);
       } catch (e) {
         console.warn('Exception: ', e);
       }
+
+      console.warn('oauthResultJson: ', oauthResultJson);
+      console.warn('oauthResult: ', oauthResult);
 
       var appId = '<%- appId %>';
       var loginURL = "https://login.salesforce.com";
@@ -38,12 +39,14 @@
 
       function loginToSalesforce(callback) {
         if (oauthResult) {
+          console.warn('calling callback');
           if (typeof callback === 'function') {
             callback(null, oauthResult);
           }
         } else {
+          console.warn('calling oauth.login');
           oauth.login().then(function(_oauthResult) {
-            //console.warn('_oauthResult: ', _oauthResult); 
+            console.warn('_oauthResult: ', _oauthResult); 
             
             oauthResult = _oauthResult;
 
@@ -61,7 +64,7 @@
 
       function setupSalesforce() {
         loginToSalesforce(function(err, result) {
-
+          console.warn('loginToSalesforce returned: ', err, result);
           var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
 
           $Lightning.use(loAppName, function(evt) {
@@ -112,7 +115,7 @@
 
         //console.warn('calling req.send');        
         let body = JSON.stringify(oauthResult);
-        c//onsole.warn('body: ', body);
+        //console.warn('body: ', body);
         req.send(body); 
 
       }
@@ -145,10 +148,11 @@
           console.error(e);
         }
 */        
-
+/*
         getTeamInfo(function(err, info) {
           console.warn('getTeamInfo returned: ', err, info);
         });
+*/        
       }
 
       function getTeamInfo() {
