@@ -108,31 +108,43 @@
 
     }
 
-    function setupSalesforce() {
+    function setupSalesforce(teamInfo) {
+      teamInfo = teamInfo || {};
       loginToSalesforce(function (err, result) {
         console.warn('loginToSalesforce returned: ', err, result);
         var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
 
         $Lightning.use(loAppName, function (evt) {
-          var config = {};
+          var config = {teamInfo: JSON.stringify(teamInfo)};
           $Lightning.createComponent("c:msTeamsDemo", config, "msteams", function (cmp, msg, err) {});
         }, ltngURL, oauthResult.accessToken);
 
       });
     }
 
-    function setupTeams() {
+    function setupTeams(callback) {
       console.warn('setupTeams');
       microsoftTeams.initialize();
       microsoftTeams.registerOnThemeChangeHandler(function (theme) {
         console.warn('theme changed: ', theme);
       });
 
+      console.warn('callingt microsoftTeams.authentication.getAuthToken');
+      microsoftTeams.authentication.getAuthToken(function(a,b){console.warn(a,b)})
 
       console.warn('calling microsoftTeams.getContext');
       microsoftTeams.getContext(function (context) {
         console.warn('getContext returned: ', context);
-        let appSessionId = context.appSessionId;
+
+        console.warn('calling microsoftTeams.getTabInstances');
+        microsoftTeams.getTabInstances(function (tabInstances) {
+          console.warn('getTabInstances returned: ', tabInstances);
+
+          if (typeof callback === 'function') {
+            callback(null, {context: context, tabInstances: tabInstances});
+          }
+        });
+      });
 
         /*
         console.warn('calling microsoftTeams.authentication.authenticate');
@@ -148,21 +160,7 @@
           }
         });        
         */
-        
-      });
-
-      microsoftTeams.getTabInstances(function (tabInfo) {
-        console.warn('getTabInstances returned: ', tabInfo);
-        let teamTabs = tabInfo.teamTabs;
-        let teamTab = teamTabs[0];
-        let appId = teamTab.appId;
-
-
-  
-      });
-
-      console.warn('microsoftTeams.conversation: ', microsoftTeam.conversation);
-
+      /*        
       console.warn('calling microsoftTeams.authentication.authenticate');
       microsoftTeams.authentication.authenticate({
         url: window.location.origin + "/ms-simple-start",
@@ -174,25 +172,8 @@
         failureCallback: function (reason) {
             handleAuthError(reason);
         }
+
       });
-
-      /*
-              try {
-                console.warn('microsoftTeams.teamTabs: ', microsoftTeams.teamTabs);
-              } catch (e) {
-                console.error(e);
-              }
-
-              try {
-                console.warn('microsoftTeams.conversation: ', microsoftTeams.conversation);
-              } catch (e) {
-                console.error(e);
-              }
-      */
-      /*
-              getTeamInfo(function(err, info) {
-                console.warn('getTeamInfo returned: ', err, info);
-              });
       */
     }
 
@@ -243,8 +224,10 @@
 
     var _readyCallback = function () {
       //console.warn('document ready callback!!!');
-      setupSalesforce();
-      setupTeams();
+      setupTeams(function(err, teamInfo) {
+        console.warn('setupTeams returned: ', teamInfo);
+        setupSalesforce(teamInfo);
+      })
     };
 
     if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement
