@@ -132,6 +132,20 @@
       console.warn('calling microsoftTeams.getContext');
       microsoftTeams.getContext(function (context) {
         console.warn('getContext returned: ', context);
+        let appSessionId = context.appSessionId;
+
+        console.warn('calling microsoftTeams.authentication.authenticate');
+        microsoftTeams.authentication.authenticate({
+          url: window.location.origin + "/ms-simple-start?appId=" + appSessionId,
+          width: 600,
+          height: 535,
+          successCallback: function (result) {
+              getUserProfile(result.accessToken);
+          },
+          failureCallback: function (reason) {
+              handleAuthError(reason);
+          }
+        });        
 
       });
 
@@ -141,18 +155,7 @@
         let teamTab = teamTabs[0];
         let appId = teamTab.appId;
 
-        console.warn('calling microsoftTeams.authentication.authenticate');
-        microsoftTeams.authentication.authenticate({
-          url: window.location.origin + "/ms-simple-start?appId=" + appId,
-          width: 600,
-          height: 535,
-          successCallback: function (result) {
-              getUserProfile(result.accessToken);
-          },
-          failureCallback: function (reason) {
-              handleAuthError(reason);
-          }
-        });
+
   
       });
 
