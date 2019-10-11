@@ -15,6 +15,9 @@
       <label for="total">Predicted Attrition Risk: </label>
       <span id="total"></span>
     </div>
+    <div id="prescriptions">
+    </div>
+
     <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
     <script src="https://statics.teams.microsoft.com/sdk/v1.4.2/js/MicrosoftTeams.min.js" crossorigin="anonymous"></script>
     <script src="/javascripts/force.all.js"></script>
@@ -87,14 +90,47 @@
             "records": ["a1SB0000000A9laMAC"]
           };
           callPredictionService(payload, function(err, result) {
-            //console.warn('callPredictionService returned: ', err, result);
+            console.warn('callPredictionService returned: ', err, result);
 
             try {
+              let list = document.createElement('ul');
+              let row = null;
+
               result.predictions.forEach(function(p) {
-                //console.warn('prediction: ', p.prediction);
+                console.warn('prediction: ', p.prediction);
                 let total = p.prediction.total;
                 let label = getPredictionLabel(total);
                 document.querySelector('#total').innerText = label;
+
+                let span = null;
+                let text = null;
+                p.prescriptions.forEach(function(prescription) {
+                  console.warn('prescription: ',prescription);
+                  row = document.createElement('li');
+                  prescription.columns.forEach(function(c) {
+                    console.warn('c: ', c);
+                    columnName = c.columnName;
+                    columnValue = c.columnValue;
+                    span = document.createElement('span');
+                    text = 'Set ' + columnName;
+                    if (isNaN(columnValue)) {
+                      text += ' from ' + columnValue;
+                    } else {
+                      text += ' to ' + columnValue;
+                    }
+                    span.innerText = text;
+                    row.appendChild(span);
+                  });
+                  list.setAttribute('title', 'Predicted Improvement: ' + prescription.value);
+                  list.appendChild(row);
+                  //let total = p.prediction.total;
+                  //let label = getPredictionLabel(total);
+                  //document.querySelector('#total').innerText = label;
+                });
+                let prescriptions = document.querySelector('#prescriptions');
+                prescriptions.innerHTML = null;
+                prescriptions.appendChild(list);
+
               });
             } catch (e) {
               console.warn('Exception: ', e);
