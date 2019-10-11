@@ -95,6 +95,7 @@
       <div id="outer">
 
 
+        <!--
         <section class="highlight">
           <div class="einsteinHolder">
             <h2 id="title" class="title slds-text-heading_medium slds-p-left_x-large"></h2>
@@ -103,7 +104,7 @@
               class="header-icon first" />
           </div>
         </section>
-
+        -->
 
         <section class="predictionSection">
 
@@ -239,7 +240,7 @@
       req.send(body); 
 
     }
-        
+
     function setupSalesforce() {
       loginToSalesforce(function (err, result) {
 
@@ -289,7 +290,7 @@
 
                     img = document.createElement('img');
                     img.classList.add('trendIcon');
-                    span.appendChild(img);
+                    //span.appendChild(img);
 
                     innerSpan = document.createElement('span');
                     innerSpan.innerText = text;
@@ -346,7 +347,7 @@
 
                     img = document.createElement('img');
                     img.classList.add('trendIcon');
-                    span.appendChild(img);
+                    //span.appendChild(img);
 
                     innerSpan = document.createElement('span');
                     innerSpan.innerText = text;
