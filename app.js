@@ -1407,6 +1407,14 @@ app.get('/lo_prediction_service', function(req, res) {
     res.render('pages/lo_prediction_service', {title: 'MS Teams - Einstein Discovery', appId: appAuth.appId, domain: domain, host: _host, oauthResult: oauthResult});
 });
 
+app.get('/ms-simple-start', function(req, res) {
+    res.render('pages/ms_simple-start-tab', {title: 'MS Simple Start'});
+});
+
+app.get('/ms-simple-end', function(req, res) {
+    res.render('pages/ms_simple-end-tab', {title: 'MS Simple End'});
+});
+
 app.post('/api/messages', function(req, res) {
 	console.warn('POST /api/messages called at ', new Date());
 	console.warn('body: ', req.body);
