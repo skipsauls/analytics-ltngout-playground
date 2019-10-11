@@ -22,9 +22,9 @@
 
       try {
         oauthResultJson = '<%- oauthResult %>';
-        console.warn('oauthResultJson: ', oauthResultJson);
+        //console.warn('oauthResultJson: ', oauthResultJson);
         oauthResult = JSON.parse(oauthResultJson);
-        console.warn('oauthResult: ', oauthResult);
+        //console.warn('oauthResult: ', oauthResult);
       } catch (e) {
         console.warn('Exception: ', e);
       }
@@ -43,7 +43,7 @@
           }
         } else {
           oauth.login().then(function(_oauthResult) {
-            console.warn('_oauthResult: ', _oauthResult); 
+            //console.warn('_oauthResult: ', _oauthResult); 
             
             oauthResult = _oauthResult;
 
@@ -81,19 +81,19 @@
 
         let url = host + '/auth/token';
 
-        console.warn('url: ' + url);
+        //console.warn('url: ' + url);
 
         var req = new XMLHttpRequest();     
         req.onreadystatechange = function(event) {
-          console.warn('event: ', event);
-          console.warn('req: ', req);
+          //console.warn('event: ', event);
+          //console.warn('req: ', req);
           // XMLHttpRequest.HEADERS_RECEIVED
           if (req.readyState == 2) {
           } else if (req.readyState == 4) {
             var result = null;
             var error = null;
             if (req.status >= 200 && req.status <= 299) {                    
-              console.log('response: ', req.response);
+              //console.log('response: ', req.response);
               result = JSON.parse(req.response);
             } else {
               // Something went wrong.
@@ -110,9 +110,9 @@
         req.setRequestHeader('Access-Control-Allow-Origin', '*');
         //req.setRequestHeader('Authorization', 'Bearer ' + _oauthResult.accessToken);
 
-        console.warn('calling req.send');        
+        //console.warn('calling req.send');        
         let body = JSON.stringify(oauthResult);
-        console.warn('body: ', body);
+        c//onsole.warn('body: ', body);
         req.send(body); 
 
       }
@@ -164,8 +164,8 @@
 
         var req = new XMLHttpRequest();     
         req.onreadystatechange = function(event) {
-          console.warn('event: ', event);
-          console.warn('req: ', req);
+          //console.warn('event: ', event);
+          //console.warn('req: ', req);
           // XMLHttpRequest.HEADERS_RECEIVED
           if (req.readyState == 2) {
           } else if (req.readyState == 4) {
@@ -189,14 +189,14 @@
         req.setRequestHeader('Access-Control-Allow-Origin', '*');
         //req.setRequestHeader('Authorization', 'Bearer ' + _oauthResult.accessToken);
 
-        console.warn('calling req.send');        
+        //console.warn('calling req.send');        
         //let body = JSON.stringify(payload);
         req.send();//body); 
 
       }
 
       var _readyCallback = function(){
-        console.warn('document ready callback!!!');
+        //console.warn('document ready callback!!!');
         setupSalesforce();
         setupTeams();
       };

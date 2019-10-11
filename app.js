@@ -1281,29 +1281,15 @@ app.delete('/auth/token/:appId?', function(req, res) {
 });
 	
 app.get('/lo_msteams', function(req, res) {
-	console.warn('get /lo_msteams');
-
-	console.warn('headers');
-	console.warn(JSON.stringify(req.headers, null, 2));
-
-	console.warn('body');
-	console.warn(JSON.stringify(req.body, null, 2));
-
-	let params = getParams(req);
-	console.warn('params');
-	console.warn(JSON.stringify(req.params, null, 2));
 
 	//let domain = 'adx-dev-ed';
 	let domain = 'df19ea';
 
     let appAuth = _appAuth[domain];
 		
-	console.warn('appAuth.appId: ', appAuth.appId);
-
 	req.session.tokens = req.session.tokens || {};
 
 	let oauthResultObj = req.session.tokens[appAuth.appId];
-	console.warn('oauthResultObj: ', oauthResultObj);
 	let oauthResult = '';
 	if (oauthResultObj) {
 		oauthResult = JSON.stringify(oauthResultObj);
@@ -1311,33 +1297,18 @@ app.get('/lo_msteams', function(req, res) {
 		oauthResult = '';
 	}
 
-	console.warn('oauthResult: ', oauthResult);
     res.render('pages/lo_msteams', {title: 'MS Teams - Einstein Analytics', appId: appAuth.appId, domain: domain, host: _host, oauthResult: oauthResult});	
 });
 
 app.get('/df19ea_msteams', function(req, res) {
-	console.warn('get /df19ea_msteams');
-		
-	console.warn('headers');
-	console.warn(JSON.stringify(req.headers, null, 2));
-
-	console.warn('body');
-	console.warn(JSON.stringify(req.body, null, 2));
-
-	let params = getParams(req);
-	console.warn('params');
-	console.warn(JSON.stringify(req.params, null, 2));
 
 	let domain = 'df19ea';
 
     let appAuth = _appAuth[domain];
 		
-	console.warn('appAuth.appId: ', appAuth.appId);
-
 	req.session.tokens = req.session.tokens || {};
 
 	let oauthResultObj = req.session.tokens[appAuth.appId];
-	console.warn('oauthResultObj: ', oauthResultObj);
 	let oauthResult = '';
 	if (oauthResultObj) {
 		oauthResult = JSON.stringify(oauthResultObj);
@@ -1345,27 +1316,26 @@ app.get('/df19ea_msteams', function(req, res) {
 		oauthResult = '';
 	}
 
-	console.warn('oauthResult: ', oauthResult);
     res.render('pages/lo_msteams', {title: 'MS Teams - Einstein Analytics', appId: appAuth.appId, domain: domain, host: _host, oauthResult: oauthResult});
 });
 
 app.get('/lo_prediction_service', function(req, res) {
 
-	console.warn('headers');
-	console.warn(JSON.stringify(req.headers, null, 2));
-
-	console.warn('body');
-	console.warn(JSON.stringify(req.body, null, 2));
-
-	let params = getParams(req);
-	console.warn('params');
-	console.warn(JSON.stringify(req.params, null, 2));
-
 	let domain = 'df19ea';
 
     let appAuth = _appAuth[domain];
 		
-    res.render('pages/lo_prediction_service', {title: 'MS Teams - Einstein Dicovery', appId: appAuth.appId, domain: domain, host: _host});
+	req.session.tokens = req.session.tokens || {};
+
+	let oauthResultObj = req.session.tokens[appAuth.appId];
+	let oauthResult = '';
+	if (oauthResultObj) {
+		oauthResult = JSON.stringify(oauthResultObj);
+	} else {
+		oauthResult = '';
+	}
+
+    res.render('pages/lo_prediction_service', {title: 'MS Teams - Einstein Discovery', appId: appAuth.appId, domain: domain, host: _host, oauthResult: oauthResult});
 });
 
 app.post('/api/messages', function(req, res) {
@@ -1395,6 +1365,12 @@ app.get('/termsofuse', function(req, res) {
 	let domain = 'adx-dev-ed';
     var appAuth = _appAuth[domain];
     res.render('pages/termsofuse', {title: 'Terms of Use', appId: appAuth.appId, domain: domain, host: _host});
+});
+
+app.get('/tabremove', function(req, res) {
+	let domain = 'adx-dev-ed';
+    var appAuth = _appAuth[domain];
+    res.render('pages/tabremove', {title: 'Tab Remove', appId: appAuth.appId, domain: domain, host: _host});
 });
 
 app.get('/msauth', function(req, res) {

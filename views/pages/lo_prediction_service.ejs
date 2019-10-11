@@ -12,11 +12,11 @@
   </head>
   <body>
     <div id="prediction">
-      <label for="total">Total: </label>
+      <label for="total">Predicted Attrition Risk: </label>
       <span id="total"></span>
     </div>
     <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
-    <script src='https://statics.teams.microsoft.com/sdk/v1.0/js/MicrosoftTeams.min.js'></script>
+    <script src="https://statics.teams.microsoft.com/sdk/v1.4.2/js/MicrosoftTeams.min.js" crossorigin="anonymous"></script>
     <script src="/javascripts/force.all.js"></script>
     <script>
       const predictionRangeLabels = [
@@ -37,16 +37,49 @@
         return label;
       } 
 
+      var oauthResult = null;
+      var oauthResultJson = null;
+
+      try {
+        oauthResultJson = '<%- oauthResult %>';
+        //console.warn('oauthResultJson: ', oauthResultJson);
+        oauthResult = JSON.parse(oauthResultJson);
+        //console.warn('oauthResult: ', oauthResult);
+      } catch (e) {
+        console.warn('Exception: ', e);
+      }
+
       var appId = '<%- appId %>';
       var loginURL = "https://login.salesforce.com";
       var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
       var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
       var _oauthResult = null;
 
-      function loginToSalesforce() {
-        oauth.login().then(function(oauthResult) {
-          console.warn('logged in: ' + oauthResult);
-          _oauthResult = oauthResult;
+      function loginToSalesforce(callback) {
+        if (oauthResult) {
+          if (typeof callback === 'function') {
+            callback(null, oauthResult);
+          }
+        } else {
+          oauth.login().then(function(_oauthResult) {
+            //console.warn('_oauthResult: ', _oauthResult); 
+            
+            oauthResult = _oauthResult;
+
+            storeToken(oauthResult, function(err, result) {
+              console.warn('storeToken returned: ', err, result);
+            });
+
+            if (typeof callback === 'function') {
+              callback(null, oauthResult);
+            }
+  
+          });
+        }
+      }
+
+      function setupSalesforce() {
+        loginToSalesforce(function(err, result) {
 
           let payload = {
             "predictionDefinition": "0ORB0000000Ccs1OAC",
@@ -54,40 +87,41 @@
             "records": ["a1SB0000000A9laMAC"]
           };
           callPredictionService(payload, function(err, result) {
-            console.warn('callPredictionService returned: ', err, result);
+            //console.warn('callPredictionService returned: ', err, result);
 
             try {
               result.predictions.forEach(function(p) {
-                console.warn('prediction: ', p.prediction);
+                //console.warn('prediction: ', p.prediction);
                 let total = p.prediction.total;
                 let label = getPredictionLabel(total);
                 document.querySelector('#total').innerText = label;
               });
             } catch (e) {
-              consoole.warn('Exception: ', e);
+              console.warn('Exception: ', e);
             }
 
-          });
+          });      
+
         });
       }
 
       function callPredictionService(payload, callback) {
 
-        let url = _oauthResult.instanceURL + '/services/data/v47.0/smartdatadiscovery/predict';
-        console.warn('url: ' + url);
+        let url = oauthResult.instanceURL + '/services/data/v47.0/smartdatadiscovery/predict';
+        //console.warn('url: ' + url);
 
-        console.warn('callPredictionService: ', payload);
+        //console.warn('callPredictionService: ', payload);
         var req = new XMLHttpRequest();     
         req.onreadystatechange = function(event) {
-          console.warn('event: ', event);
-          console.warn('req: ', req);
+          //console.warn('event: ', event);
+          //console.warn('req: ', req);
           // XMLHttpRequest.HEADERS_RECEIVED
           if (req.readyState == 2) {
           } else if (req.readyState == 4) {
             var result = null;
             var error = null;
             if (req.status >= 200 && req.status <= 299) {                    
-              console.log('response: ', req.response);
+              //console.log('response: ', req.response);
               result = JSON.parse(req.response);
             } else {
               // Something went wrong.
@@ -102,25 +136,25 @@
       
         req.setRequestHeader('Content-Type', 'application/json');
         req.setRequestHeader('Access-Control-Allow-Origin', '*');
-        req.setRequestHeader('Authorization', 'Bearer ' + _oauthResult.accessToken);
+        req.setRequestHeader('Authorization', 'Bearer ' + oauthResult.accessToken);
 
-        console.warn('calling req.send');        
-        console.warn('payload: ', payload, typeof payload);
+        //console.warn('calling req.send');        
+        //console.warn('payload: ', payload, typeof payload);
         let body = JSON.stringify(payload);
         req.send(body);        
       }
       
-      
-      var callback = function(){
-        console.warn('document ready callback!!!');
-        loginToSalesforce();
+      var _readyCallback = function(){
+        //console.warn('document ready callback!!!');
+        setupSalesforce();
+        //setupTeams();
       };
       
       if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement.doScroll)) {
-        callback();
+        _readyCallback();
       } else {
-        document.addEventListener("DOMContentLoaded", callback);
-      }
+        document.addEventListener("DOMContentLoaded", _readyCallback);
+      }   
 
     </script>
   </body>
