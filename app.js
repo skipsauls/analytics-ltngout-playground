@@ -1232,6 +1232,54 @@ var bot = require('./bot');
 bot.setup(app);
 */
 
+
+app.post('/auth/token', function(req, res) {	
+	let params = req.params;
+	let query = req.query;
+	let body = req.body;
+	let headers = req.headers;
+
+	console.warn('POST /auth/token');
+	console.warn('params: ', params);
+	console.warn('query: ', query);
+	console.warn('body: ', body);
+	console.warn('headers: ', headers);
+	let resp = null;
+	if (body) {
+		try {
+			let oauthResult = typeof body === 'string' ? JSON.parse(body) : body;
+			console.warn('oauthResult: ', oauthResult);
+			req.session.tokens = req.session.tokens || {};
+			req.session.tokens[oauthResult.appId] = oauthResult;
+			resp = {msg: 'Successfully set token'};
+		} catch (e) {
+			console.error(e);
+			resp = {msg: 'Unable to set token'};
+			req.session.tokens = req.session.tokens || {};
+			req.session.tokens[appId] = null;
+			delete request.session.tokens[appId];	
+		}
+	} else {
+		resp = {msg: 'Token not sent'};
+	}
+	res.send(resp);
+});
+
+app.delete('/auth/token/:appId?', function(req, res) {	
+	var appId = req.params.appId;
+	console.warn('delete /auth/token - appId: ', appId);
+	let resp = null;
+	if (appId) {
+		req.session.tokens = req.session.tokens || {};
+		req.session.tokens[appId] = null;
+		delete request.session.tokens[appId];
+		resp = {msg: 'Successfully deleted token'};
+	} else {
+		resp = {msg: 'Token not found'};
+	}
+	res.send(resp);
+});
+	
 app.get('/lo_msteams', function(req, res) {
 
 	console.warn('headers');
@@ -1267,7 +1315,17 @@ app.get('/df19ea_msteams', function(req, res) {
 
     let appAuth = _appAuth[domain];
 		
-    res.render('pages/lo_msteams', {title: 'MS Teams - Einstein Analytics', appId: appAuth.appId, domain: domain, host: _host});
+	console.warn('appAuth.appId: ', appAuth.appId);
+
+	req.session.tokens = req.session.tokens || {};
+
+	let oauthResultObj = req.session.tokens[appAuth.appId];
+	console.warn('oauthResultObj: ', oauthResultObj);
+	let oauthResult = null;
+	if (oauthResultObj) {
+		oauthResult = JSON.stringify(oauthResultObj);
+	}
+    res.render('pages/lo_msteams', {title: 'MS Teams - Einstein Analytics', appId: appAuth.appId, domain: domain, host: _host, oauthResult: oauthResult});
 });
 
 app.get('/lo_prediction_service', function(req, res) {

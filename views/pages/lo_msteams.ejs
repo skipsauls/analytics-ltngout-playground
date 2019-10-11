@@ -16,6 +16,15 @@
     <script src="/javascripts/force.all.js"></script>
     <script src="https://statics.teams.microsoft.com/sdk/v1.4.2/js/MicrosoftTeams.min.js" crossorigin="anonymous"></script>
     <script>
+
+      var oauthResultJson = '<%- oauthResult %>';
+      console.warn('oauthResultJson: ', oauthResultJson);
+      var oauthResult = null;
+      if (oauthResultJson) {
+        oauthResult = JSON.parse(oauthResultJson);
+        console.warn('oauthResult: ', oauthResult);
+      }
+
       var appId = '<%- appId %>';
       var loginURL = "https://login.salesforce.com";
       var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
@@ -23,15 +32,88 @@
       //var loAppName = "c:loApp";
       var loAppName = 'c:loApp';
 
-      function loginToSalesforce() {
-        oauth.login().then(function(oauthResult) {      
+      function loginToSalesforce(callback) {
+        if (oauthResult) {
+          if (typeof callback === 'function') {
+            callback(null, oauthResult);
+          }
+        } else {
+          oauth.login().then(function(_oauthResult) {
+            console.warn('_oauthResult: ', _oauthResult); 
+            
+            oauthResult = _oauthResult;
+
+            storeToken(oauthResult, function(err, result) {
+              console.warn('storeToken returned: ', err, result);
+            });
+
+            if (typeof callback === 'function') {
+              callback(null, oauthResult);
+            }
+  
+          });
+        }
+      }
+
+      function setupSalesforce() {
+        loginToSalesforce(function(err, result) {
+
           var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
+
           $Lightning.use(loAppName, function(evt) {
             var config = {};
             $Lightning.createComponent("c:msTeamsDemo", config, "msteams", function(cmp, msg, err) {});
           }, ltngURL, oauthResult.accessToken);        
+
         });
       }
+
+      function storeToken(oauthResult, callback) {
+        let host = 'https://' + window.location.hostname;
+        let port = window.location.port;
+        if (port) {
+          host += ':' + port;
+        }
+
+        let url = host + '/auth/token';
+
+        console.warn('url: ' + url);
+
+        var req = new XMLHttpRequest();     
+        req.onreadystatechange = function(event) {
+          console.warn('event: ', event);
+          console.warn('req: ', req);
+          // XMLHttpRequest.HEADERS_RECEIVED
+          if (req.readyState == 2) {
+          } else if (req.readyState == 4) {
+            var result = null;
+            var error = null;
+            if (req.status >= 200 && req.status <= 299) {                    
+              console.log('response: ', req.response);
+              result = JSON.parse(req.response);
+            } else {
+              // Something went wrong.
+            }
+            if (typeof callback === 'function') {
+              callback(error, result);
+            }
+          }
+        };
+
+        req.open('POST', url);
+      
+        req.setRequestHeader('Content-Type', 'application/json');
+        req.setRequestHeader('Access-Control-Allow-Origin', '*');
+        //req.setRequestHeader('Authorization', 'Bearer ' + _oauthResult.accessToken);
+
+        console.warn('calling req.send');        
+        let body = JSON.stringify(oauthResult);
+        console.warn('body: ', body);
+        req.send(body); 
+
+      }
+
+
 
       function setupTeams() {
         microsoftTeams.initialize();
@@ -111,7 +193,7 @@
 
       var _readyCallback = function(){
         console.warn('document ready callback!!!');
-        loginToSalesforce();
+        setupSalesforce();
         setupTeams();
       };
       
