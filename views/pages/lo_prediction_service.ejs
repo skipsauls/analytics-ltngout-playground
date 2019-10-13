@@ -90,71 +90,14 @@
 </head>
 
 <body>
-  <div id="main" class="main slds-hide">
-    <div class="slds-box slds-box_xx-small box-custom slds-theme_default slds-m-around_xx-small">
-      <div id="outer">
 
-
-        <!--
-        <section class="highlight">
-          <div class="einsteinHolder">
-            <h2 id="title" class="title slds-text-heading_medium slds-p-left_x-large"></h2>
-            <img alt=""
-              src="https://df19ea.lightning.force.com//img/analytics/einsteindatadiscovery/einstein_header_icon.svg"
-              class="header-icon first" />
-          </div>
-        </section>
-        -->
-
-        <section class="predictionSection">
-
-          <div id="container" class="predictionContainer slds-p-left_x-large slds-p-top_x-small slds-p-bottom_xx-small">
-            <span class="predictionResult slds-text-heading_medium">
-              <span class="unit"></span>
-              <span id="total" title=""></span>
-            </span>
-            <span title="Attrition Risk" class="textColorGrey">Attrition Risk</span>
-          </div>
-
-        </section>
-
-        <section class="topFactors slds-p-left_x-large">
-          <h3 class="subTitle">Top Factors</h3>
-          <div id="factors"></div>
-        </section>
-
-        <section class="otherInfo slds-p-left_x-large">
-          <h3 class="subTitle">How To Improve This</h3>
-          <div id="prescriptions"></div>
-        </section>
-
-      </div>
-    </div>
-  </div>
+  <div id="demo"/>
 
   <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
   <script src="https://statics.teams.microsoft.com/sdk/v1.4.2/js/MicrosoftTeams.min.js" crossorigin="anonymous">
   </script>
   <script src="/javascripts/force.all.js"></script>
   <script>
-    const predictionRangeLabels = [
-      [0, 25, 'Low'],
-      [25, 100, 'High']
-    ];
-
-    function getPredictionLabel(val) {
-      let label = '';
-      let r = null;
-      for (var i = 0; i < predictionRangeLabels.length; i++) {
-        r = predictionRangeLabels[i];
-        if (val >= r[0] && val < r[1]) {
-          label = r[2];
-          break;
-        }
-      }
-      return label;
-    }
-
     var oauthResult = null;
     var oauthResultJson = null;
 
@@ -172,6 +115,7 @@
     var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
     var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
     var _oauthResult = null;
+    var loAppName = 'c:loApp';
 
     function loginToSalesforce(callback) {
       if (oauthResult) {
@@ -241,239 +185,43 @@
 
     }
 
-    function setupSalesforce() {
+    function setupSalesforce(teamInfo) {
+      teamInfo = teamInfo || {};
       loginToSalesforce(function (err, result) {
+        //console.warn('loginToSalesforce returned: ', err, result);
+        var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
 
-        let payload = {
-          "predictionDefinition": "0ORB0000000Ccs1OAC",
-          "type": "Records",
-          "records": ["a1SB0000000A9laMAC"]
-        };
-        callPredictionService(payload, function (err, result) {
-          //console.warn('callPredictionService returned: ', err, result);
-
-          try {
-            let row = null;
-
-            result.predictions.forEach(function (p) {
-              //console.warn('prediction: ', p.prediction);
-              let list = document.createElement('ul');
-              let total = p.prediction.total;
-              let label = getPredictionLabel(total);
-              let totalEl = document.querySelector('#total');
-              totalEl.innerText = label;
-              totalEl.setAttribute('title', label);
-
-              let span = null;
-              let innerSpan = null;
-              let text = null;
-              let value = null;
-              let clas = null;
-              let img = null;
-
-              p.prediction.middleValues.forEach(function (middleValue) {
-                //console.warn('middleValue: ', middleValue);
-
-                row = document.createElement('li');
-
-                let sep = '';
-
-                middleValue.columns.forEach(function (c) {
-                  //console.warn('c: ', c);
-                  columnName = c.columnName;
-                  columnValue = c.columnValue;
-
-                  if (sep === '') {
-                    span = document.createElement('span');
-                    value = middleValue.value.toFixed(2);
-                    text = sep + value;
-
-                    img = document.createElement('img');
-                    img.classList.add('trendIcon');
-                    //span.appendChild(img);
-
-                    innerSpan = document.createElement('span');
-                    innerSpan.innerText = text;
-                    span.appendChild(innerSpan);
-                    span.classList.add('value');
-                    if (value < 0) {
-                      clas = 'true'
-                      img.setAttribute('src',
-                        'https://df19ea.lightning.force.com/img/analytics/einsteindatadiscovery/trendingDownMin.svg'
-                        );
-                    } else {
-                      clas = 'false'
-                      img.setAttribute('src',
-                        'https://df19ea.lightning.force.com/img/analytics/einsteindatadiscovery/trendingUpMin.svg'
-                        );
-                    }
-                    span.classList.add(clas);
-                    row.appendChild(span);
-                  }
-
-                  span = document.createElement('span');
-                  text = ' ' + columnName + ' is ' + columnValue;
-                  span.innerText = text;
-                  row.appendChild(span);
-                  sep = ' and ';
-                });
-                list.setAttribute('title', 'Top Factors');
-                list.appendChild(row);
-
-              });
-
-              let factors = document.querySelector('#factors');
-              factors.innerHTML = null;
-              factors.appendChild(list);
-
-
-
-              list = document.createElement('ul');
-
-              let maxPrescriptions = 5;
-
-              p.prescriptions.forEach(function (prescription, idx) {
-                //console.warn('prescription: ', prescription);
-                if (idx < maxPrescriptions) {
-                  row = document.createElement('li');
-                  prescription.columns.forEach(function (c) {
-                    //console.warn('c: ', c);
-                    columnName = c.columnName;
-                    columnValue = c.columnValue;
-
-                    span = document.createElement('span');
-                    value = prescription.value.toFixed(2);
-                    text = value;
-
-                    img = document.createElement('img');
-                    img.classList.add('trendIcon');
-                    //span.appendChild(img);
-
-                    innerSpan = document.createElement('span');
-                    innerSpan.innerText = text;
-                    span.appendChild(innerSpan);
-
-
-                    span.classList.add('value');
-                    if (value < 0) {
-                      clas = 'true'
-                      img.setAttribute('src',
-                        'https://df19ea.lightning.force.com/img/analytics/einsteindatadiscovery/trendingDownMin.svg'
-                        );
-                    } else {
-                      clas = 'false'
-                      img.setAttribute('src',
-                        'https://df19ea.lightning.force.com/img/analytics/einsteindatadiscovery/trendingUpMin.svg'
-                        );
-                    }
-                    span.classList.add(clas);
-                    row.appendChild(span);
-
-                    span = document.createElement('span');
-                    text = ' by changing ' + columnName;
-                    if (isNaN(columnValue)) {
-                      text += ' to a value from ' + columnValue;
-                    } else {
-                      text += ' to ' + columnValue;
-                    }
-                    span.innerText = text;
-                    row.appendChild(span);
-
-
-                  });
-                  list.setAttribute('title', 'How to Improve This');
-                  list.appendChild(row);
-                  //let total = p.prediction.total;
-                  //let label = getPredictionLabel(total);
-                  //document.querySelector('#total').innerText = label;
-                }
-              });
-              let prescriptions = document.querySelector('#prescriptions');
-              prescriptions.innerHTML = null;
-              prescriptions.appendChild(list);
-
-            });
-
-            document.querySelector('#main').classList.remove('slds-hide');
-
-          } catch (e) {
-            console.warn('Exception: ', e);
-          }
-
-        });
+        $Lightning.use(loAppName, function (evt) {
+          var config = {teamInfo: JSON.stringify(teamInfo)};
+          $Lightning.createComponent("c:predictionServiceDemo", config, "demo", function (cmp, msg, err) {});
+        }, ltngURL, oauthResult.accessToken);
 
       });
     }
 
-    function callPredictionService(payload, callback) {
-
-      let url = oauthResult.instanceURL + '/services/data/v47.0/smartdatadiscovery/predict';
-      //console.warn('url: ' + url);
-
-      //console.warn('callPredictionService: ', payload);
-      var req = new XMLHttpRequest();
-      req.onreadystatechange = function (event) {
-        //console.warn('event: ', event);
-        //console.warn('req: ', req);
-        // XMLHttpRequest.HEADERS_RECEIVED
-        if (req.readyState == 2) {} else if (req.readyState == 4) {
-          var result = null;
-          var error = null;
-          if (req.status >= 200 && req.status <= 299) {
-            //console.log('response: ', req.response);
-            result = JSON.parse(req.response);
-          } else {
-            // Something went wrong.
-          }
-          if (typeof callback === 'function') {
-            callback(error, result);
-          }
-        }
-      };
-
-      req.open('POST', url);
-
-      req.setRequestHeader('Content-Type', 'application/json');
-      req.setRequestHeader('Access-Control-Allow-Origin', '*');
-      req.setRequestHeader('Authorization', 'Bearer ' + oauthResult.accessToken);
-
-      //console.warn('calling req.send');        
-      //console.warn('payload: ', payload, typeof payload);
-      let body = JSON.stringify(payload);
-      req.send(body);
-    }
-
-    function setupTeams() {
+    function setupTeams(callback) {
+      console.warn('setupTeams');
       microsoftTeams.initialize();
-      microsoftTeams.registerOnThemeChangeHandler(function(theme) {
+      microsoftTeams.registerOnThemeChangeHandler(function (theme) {
         console.warn('theme changed: ', theme);
       });
 
-      microsoftTeams.getContext(function(context) {
+      console.warn('calling microsoftTeams.authentication.getAuthToken');
+      microsoftTeams.authentication.getAuthToken(function(a,b){console.warn(a,b)})
+
+      console.warn('calling microsoftTeams.getContext');
+      microsoftTeams.getContext(function (context) {
         console.warn('getContext returned: ', context);
-      });
 
-      microsoftTeams.getTabInstances(function(tabInfo) {
-        console.warn('getTabInstances returned: ', tabInfo);
-      });
-/*
-      try {
-        console.warn('microsoftTeams.teamTabs: ', microsoftTeams.teamTabs);
-      } catch (e) {
-        console.error(e);
-      }
+        console.warn('calling microsoftTeams.getTabInstances');
+        microsoftTeams.getTabInstances(function (tabInstances) {
+          console.warn('getTabInstances returned: ', tabInstances);
 
-      try {
-        console.warn('microsoftTeams.conversation: ', microsoftTeams.conversation);
-      } catch (e) {
-        console.error(e);
-      }
-*/        
-/*
-      getTeamInfo(function(err, info) {
-        console.warn('getTeamInfo returned: ', err, info);
+          if (typeof callback === 'function') {
+            callback(null, {context: context, tabInstances: tabInstances});
+          }
+        });
       });
-*/        
     }
 
     function getTeamInfo() {
@@ -520,13 +268,16 @@
 
     }
 
-
-
-
     var _readyCallback = function () {
       //console.warn('document ready callback!!!');
-      setupSalesforce();
-      setupTeams();
+      if (window.location.ancestorOrigins && (window.location.ancestorOrigins[0] === 'https://teams.microsoft.com')) {
+        setupTeams(function(err, teamInfo) {
+          console.warn('setupTeams returned: ', teamInfo);
+          setupSalesforce(teamInfo);
+        })  
+      } else {
+        setupSalesforce(null);
+      }
     };
 
     if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement

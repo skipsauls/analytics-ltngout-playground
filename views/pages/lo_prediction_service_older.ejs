@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Einstein Analytics - Lightning Out</title>
+  <link href="/assets/styles/salesforce-lightning-design-system.min.css" type="text/css" rel="stylesheet" />
+  <style>
+    html,
+    body {
+      background-color: #f3f2f1;
+    }
+
+    .main {
+      width: 100%;
+    }
+
+    .value.true {
+      color: #14854d;
+    }
+
+    .value.false {
+      color: #c03938;
+    }
+
+    .subTitle {
+      padding: .5rem 0;
+      font-weight: 700;
+      color: #16325c;
+    }
+
+    .textColorGrey {
+      color: #706e6b;
+    }
+
+
+    .predictionContainer {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: flex;
+    }
+
+    .predictionContainer span {
+      line-height: 1;
+      margin-top: auto;
+    }
+
+    section li {
+      padding-bottom: .25rem;
+    }
+
+    .predictionContainer .predictionResult {
+      padding-right: .5rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+      width: auto;
+      min-width: 1%;
+      max-width: 40%;
+      font-weight: 700;
+      color: #16325c;
+    }
+
+    .trendIcon {
+      padding-right: .25rem;
+    }
+
+    .einsteinHolder {
+      display: flex;
+      background-image: url(https://df19ea.lightning.force.com/img/analytics/einsteindatadiscovery/einstein_header_background.svg);
+      background-repeat: no-repeat;
+      background-position: right 0 bottom 6px;
+      background-size: cover;
+      align-items: center;
+    }
+
+    .header-icon {
+      margin-left: auto;
+    }
+
+    .title {
+      color: #16325c;
+    }
+
+    .box-custom {
+      padding: 0 0 1rem 0;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div id="main" class="main slds-hide">
+    <div class="slds-box slds-box_xx-small box-custom slds-theme_default slds-m-around_xx-small">
+      <div id="outer">
+
+
+        <!--
+        <section class="highlight">
+          <div class="einsteinHolder">
+            <h2 id="title" class="title slds-text-heading_medium slds-p-left_x-large"></h2>
+            <img alt=""
+              src="https://df19ea.lightning.force.com//img/analytics/einsteindatadiscovery/einstein_header_icon.svg"
+              class="header-icon first" />
+          </div>
+        </section>
+        -->
+
+        <section class="predictionSection">
+
+          <div id="container" class="predictionContainer slds-p-left_x-large slds-p-top_x-small slds-p-bottom_xx-small">
+            <span class="predictionResult slds-text-heading_medium">
+              <span class="unit"></span>
+              <span id="total" title=""></span>
+            </span>
+            <span title="Attrition Risk" class="textColorGrey">Attrition Risk</span>
+          </div>
+
+        </section>
+
+        <section class="topFactors slds-p-left_x-large">
+          <h3 class="subTitle">Top Factors</h3>
+          <div id="factors"></div>
+        </section>
+
+        <section class="otherInfo slds-p-left_x-large">
+          <h3 class="subTitle">How To Improve This</h3>
+          <div id="prescriptions"></div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="https://<%= domain %>.my.salesforce.com/lightning/lightning.out.js"></script>
+  <script src="https://statics.teams.microsoft.com/sdk/v1.4.2/js/MicrosoftTeams.min.js" crossorigin="anonymous">
+  </script>
+  <script src="/javascripts/force.all.js"></script>
+  <script>
+    const predictionRangeLabels = [
+      [0, 25, 'Low'],
+      [25, 100, 'High']
+    ];
+
+    function getPredictionLabel(val) {
+      let label = '';
+      let r = null;
+      for (var i = 0; i < predictionRangeLabels.length; i++) {
+        r = predictionRangeLabels[i];
+        if (val >= r[0] && val < r[1]) {
+          label = r[2];
+          break;
+        }
+      }
+      return label;
+    }
+
+    var oauthResult = null;
+    var oauthResultJson = null;
+
+    try {
+      oauthResultJson = '<%- oauthResult %>';
+      //console.warn('oauthResultJson: ', oauthResultJson);
+      oauthResult = JSON.parse(oauthResultJson);
+      //console.warn('oauthResult: ', oauthResult);
+    } catch (e) {
+      console.warn('Exception: ', e);
+    }
+
+    var appId = '<%- appId %>';
+    var loginURL = "https://login.salesforce.com";
+    var oauthCallbackURL = window.location.origin + "/oauthcallback.html";
+    var oauth = force.OAuth.createInstance(appId, loginURL, oauthCallbackURL);
+    var _oauthResult = null;
+
+    function loginToSalesforce(callback) {
+      if (oauthResult) {
+        if (typeof callback === 'function') {
+          callback(null, oauthResult);
+        }
+      } else {
+        oauth.login().then(function (_oauthResult) {
+          //console.warn('_oauthResult: ', _oauthResult); 
+
+          oauthResult = _oauthResult;
+
+          storeToken(oauthResult, function (err, result) {
+            console.warn('storeToken returned: ', err, result);
+          });
+
+          if (typeof callback === 'function') {
+            callback(null, oauthResult);
+          }
+
+        });
+      }
+    }
+
+    function storeToken(oauthResult, callback) {
+      let host = 'https://' + window.location.hostname;
+      let port = window.location.port;
+      if (port) {
+        host += ':' + port;
+      }
+
+      let url = host + '/auth/token';
+
+      //console.warn('url: ' + url);
+
+      var req = new XMLHttpRequest();     
+      req.onreadystatechange = function(event) {
+        //console.warn('event: ', event);
+        //console.warn('req: ', req);
+        // XMLHttpRequest.HEADERS_RECEIVED
+        if (req.readyState == 2) {
+        } else if (req.readyState == 4) {
+          var result = null;
+          var error = null;
+          if (req.status >= 200 && req.status <= 299) {                    
+            //console.log('response: ', req.response);
+            result = JSON.parse(req.response);
+          } else {
+            // Something went wrong.
+          }
+          if (typeof callback === 'function') {
+            callback(error, result);
+          }
+        }
+      };
+
+      req.open('POST', url);
+    
+      req.setRequestHeader('Content-Type', 'application/json');
+      req.setRequestHeader('Access-Control-Allow-Origin', '*');
+      //req.setRequestHeader('Authorization', 'Bearer ' + _oauthResult.accessToken);
+
+      //console.warn('calling req.send');        
+      let body = JSON.stringify(oauthResult);
+      //console.warn('body: ', body);
+      req.send(body); 
+
+    }
+
+    function setupSalesforce() {
+      loginToSalesforce(function (err, result) {
+
+        let payload = {
+          "predictionDefinition": "0ORB0000000Ccs1OAC",
+          "type": "Records",
+          "records": ["a1SB0000000A9laMAC"]
+        };
+        callPredictionService(payload, function (err, result) {
+          //console.warn('callPredictionService returned: ', err, result);
+
+          try {
+            let row = null;
+
+            result.predictions.forEach(function (p) {
+              //console.warn('prediction: ', p.prediction);
+              let list = document.createElement('ul');
+              let total = p.prediction.total;
+              let label = getPredictionLabel(total);
+              let totalEl = document.querySelector('#total');
+              totalEl.innerText = label;
+              totalEl.setAttribute('title', label);
+
+              let span = null;
+              let innerSpan = null;
+              let text = null;
+              let value = null;
+              let clas = null;
+              let img = null;
+
+              p.prediction.middleValues.forEach(function (middleValue) {
+                //console.warn('middleValue: ', middleValue);
+
+                row = document.createElement('li');
+
+                let sep = '';
+
+                middleValue.columns.forEach(function (c) {
+                  //console.warn('c: ', c);
+                  columnName = c.columnName;
+                  columnValue = c.columnValue;
+
+                  if (sep === '') {
+                    span = document.createElement('span');
+                    value = middleValue.value.toFixed(2);
+                    text = sep + value;
+
+                    img = document.createElement('img');
+                    img.classList.add('trendIcon');
+                    //span.appendChild(img);
+
+                    innerSpan = document.createElement('span');
+                    innerSpan.innerText = text;
+                    span.appendChild(innerSpan);
+                    span.classList.add('value');
+                    if (value < 0) {
+                      clas = 'true'
+                      img.setAttribute('src',
+                        'https://df19ea.lightning.force.com/img/analytics/einsteindatadiscovery/trendingDownMin.svg'
+                        );
+                    } else {
+                      clas = 'false'
+                      img.setAttribute('src',
+                        'https://df19ea.lightning.force.com/img/analytics/einsteindatadiscovery/trendingUpMin.svg'
+                        );
+                    }
+                    span.classList.add(clas);
+                    row.appendChild(span);
+                  }
+
+                  span = document.createElement('span');
+                  text = ' ' + columnName + ' is ' + columnValue;
+                  span.innerText = text;
+                  row.appendChild(span);
+                  sep = ' and ';
+                });
+                list.setAttribute('title', 'Top Factors');
+                list.appendChild(row);
+
+              });
+
+              let factors = document.querySelector('#factors');
+              factors.innerHTML = null;
+              factors.appendChild(list);
+
+
+
+              list = document.createElement('ul');
+
+              let maxPrescriptions = 5;
+
+              p.prescriptions.forEach(function (prescription, idx) {
+                //console.warn('prescription: ', prescription);
+                if (idx < maxPrescriptions) {
+                  row = document.createElement('li');
+                  prescription.columns.forEach(function (c) {
+                    //console.warn('c: ', c);
+                    columnName = c.columnName;
+                    columnValue = c.columnValue;
+
+                    span = document.createElement('span');
+                    value = prescription.value.toFixed(2);
+                    text = value;
+
+                    img = document.createElement('img');
+                    img.classList.add('trendIcon');
+                    //span.appendChild(img);
+
+                    innerSpan = document.createElement('span');
+                    innerSpan.innerText = text;
+                    span.appendChild(innerSpan);
+
+
+                    span.classList.add('value');
+                    if (value < 0) {
+                      clas = 'true'
+                      img.setAttribute('src',
+                        'https://df19ea.lightning.force.com/img/analytics/einsteindatadiscovery/trendingDownMin.svg'
+                        );
+                    } else {
+                      clas = 'false'
+                      img.setAttribute('src',
+                        'https://df19ea.lightning.force.com/img/analytics/einsteindatadiscovery/trendingUpMin.svg'
+                        );
+                    }
+                    span.classList.add(clas);
+                    row.appendChild(span);
+
+                    span = document.createElement('span');
+                    text = ' by changing ' + columnName;
+                    if (isNaN(columnValue)) {
+                      text += ' to a value from ' + columnValue;
+                    } else {
+                      text += ' to ' + columnValue;
+                    }
+                    span.innerText = text;
+                    row.appendChild(span);
+
+
+                  });
+                  list.setAttribute('title', 'How to Improve This');
+                  list.appendChild(row);
+                  //let total = p.prediction.total;
+                  //let label = getPredictionLabel(total);
+                  //document.querySelector('#total').innerText = label;
+                }
+              });
+              let prescriptions = document.querySelector('#prescriptions');
+              prescriptions.innerHTML = null;
+              prescriptions.appendChild(list);
+
+            });
+
+            document.querySelector('#main').classList.remove('slds-hide');
+
+          } catch (e) {
+            console.warn('Exception: ', e);
+          }
+
+        });
+
+      });
+    }
+
+    function callPredictionService(payload, callback) {
+
+      let url = oauthResult.instanceURL + '/services/data/v47.0/smartdatadiscovery/predict';
+      //console.warn('url: ' + url);
+
+      //console.warn('callPredictionService: ', payload);
+      var req = new XMLHttpRequest();
+      req.onreadystatechange = function (event) {
+        //console.warn('event: ', event);
+        //console.warn('req: ', req);
+        // XMLHttpRequest.HEADERS_RECEIVED
+        if (req.readyState == 2) {} else if (req.readyState == 4) {
+          var result = null;
+          var error = null;
+          if (req.status >= 200 && req.status <= 299) {
+            //console.log('response: ', req.response);
+            result = JSON.parse(req.response);
+          } else {
+            // Something went wrong.
+          }
+          if (typeof callback === 'function') {
+            callback(error, result);
+          }
+        }
+      };
+
+      req.open('POST', url);
+
+      req.setRequestHeader('Content-Type', 'application/json');
+      req.setRequestHeader('Access-Control-Allow-Origin', '*');
+      req.setRequestHeader('Authorization', 'Bearer ' + oauthResult.accessToken);
+
+      //console.warn('calling req.send');        
+      //console.warn('payload: ', payload, typeof payload);
+      let body = JSON.stringify(payload);
+      req.send(body);
+    }
+
+    function setupTeams() {
+      microsoftTeams.initialize();
+      microsoftTeams.registerOnThemeChangeHandler(function(theme) {
+        console.warn('theme changed: ', theme);
+      });
+
+      microsoftTeams.getContext(function(context) {
+        console.warn('getContext returned: ', context);
+      });
+
+      microsoftTeams.getTabInstances(function(tabInfo) {
+        console.warn('getTabInstances returned: ', tabInfo);
+      });
+/*
+      try {
+        console.warn('microsoftTeams.teamTabs: ', microsoftTeams.teamTabs);
+      } catch (e) {
+        console.error(e);
+      }
+
+      try {
+        console.warn('microsoftTeams.conversation: ', microsoftTeams.conversation);
+      } catch (e) {
+        console.error(e);
+      }
+*/        
+/*
+      getTeamInfo(function(err, info) {
+        console.warn('getTeamInfo returned: ', err, info);
+      });
+*/        
+    }
+
+    function getTeamInfo() {
+      let host = 'https://' + window.location.hostname;
+      let port = window.location.port;
+      if (port) {
+        host += ':' + port;
+      }
+
+      let url = host + '/graph/beta/me/joinedTeams';
+
+      console.warn('url: ' + url);
+
+      var req = new XMLHttpRequest();     
+      req.onreadystatechange = function(event) {
+        //console.warn('event: ', event);
+        //console.warn('req: ', req);
+        // XMLHttpRequest.HEADERS_RECEIVED
+        if (req.readyState == 2) {
+        } else if (req.readyState == 4) {
+          var result = null;
+          var error = null;
+          if (req.status >= 200 && req.status <= 299) {                    
+            console.log('response: ', req.response);
+            result = JSON.parse(req.response);
+          } else {
+            // Something went wrong.
+          }
+          if (typeof callback === 'function') {
+            callback(error, result);
+          }
+        }
+      };
+
+      req.open('GET', url);
+    
+      req.setRequestHeader('Content-Type', 'application/json');
+      req.setRequestHeader('Access-Control-Allow-Origin', '*');
+      //req.setRequestHeader('Authorization', 'Bearer ' + _oauthResult.accessToken);
+
+      //console.warn('calling req.send');        
+      //let body = JSON.stringify(payload);
+      req.send();//body); 
+
+    }
+
+
+
+
+    var _readyCallback = function () {
+      //console.warn('document ready callback!!!');
+      setupSalesforce();
+      setupTeams();
+    };
+
+    if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement
+      .doScroll)) {
+      _readyCallback();
+    } else {
+      document.addEventListener("DOMContentLoaded", _readyCallback);
+    }
+  </script>
+</body>
+
+</html>

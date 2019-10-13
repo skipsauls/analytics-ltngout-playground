@@ -129,7 +129,7 @@
         console.warn('theme changed: ', theme);
       });
 
-      console.warn('callingt microsoftTeams.authentication.getAuthToken');
+      console.warn('calling microsoftTeams.authentication.getAuthToken');
       microsoftTeams.authentication.getAuthToken(function(a,b){console.warn(a,b)})
 
       console.warn('calling microsoftTeams.getContext');
@@ -224,10 +224,14 @@
 
     var _readyCallback = function () {
       //console.warn('document ready callback!!!');
-      setupTeams(function(err, teamInfo) {
-        console.warn('setupTeams returned: ', teamInfo);
-        setupSalesforce(teamInfo);
-      })
+      if (window.location.ancestorOrigins && (window.location.ancestorOrigins[0] === 'https://teams.microsoft.com')) {
+        setupTeams(function(err, teamInfo) {
+          console.warn('setupTeams returned: ', teamInfo);
+          setupSalesforce(teamInfo);
+        })  
+      } else {
+        setupSalesforce(null);
+      }
     };
 
     if (document.readyState === "complete" || (document.readyState !== "loading" && !document.documentElement
