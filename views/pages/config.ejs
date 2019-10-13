@@ -1,11 +1,60 @@
 <!DOCTYPE html>
 <html>
+  <head>    
+      <title>Einstein Analytics - MS Teams Config</title>
+      <link href="/assets/styles/salesforce-lightning-design-system.min.css" type="text/css" rel="stylesheet" />
+      <style>
+          html,
+          body {
+            background-color: #f3f2f1;
+          }
+        </style>
+  </head>
 <body>
-<form>
-  <input type="radio" name="eatype" value="einstein_analytics" onclick="onClick()"> Einstein Analytics<br/>
-  <input type="radio" name="eatype" value="attrition_risk" onclick="onClick()"> Attrition Risk<br/>
-</form>
-<button onclick="onClick()" label="Okay">Okay</button>
+  <div class="outer">
+
+    <article class="slds-card">
+      <div class="slds-card__header slds-grid">
+        <header class="slds-media slds-media_center slds-has-flexi-truncate">
+          <div class="slds-media__figure">
+            <span class="slds-icon_container slds-icon-standard-topic" title="Einstein Analytics for Microsoft Teams">
+              <svg class="slds-icon slds-icon_small" aria-hidden="true">
+                <use xlink:href="/assets/icons/standard-sprite/svg/symbols.svg#team_member"></use>
+              </svg>
+              <span class="slds-assistive-text">account</span>
+            </span>
+          </div>
+          <div class="slds-media__body">
+            <h2 class="slds-card__header-title">
+              <span class="slds-card__header-link slds-truncate" title="Einstein Analytics for Microsoft Teams">
+                <span>Einstein Analytics for Microsoft Teams</span>
+              </span>
+            </h2>
+          </div>
+        </header>
+      </div>
+      <div class="slds-card__body slds-card__body_inner">
+        <fieldset class="slds-form-element slds-form-element_stacked">
+          <legend class="slds-form-element__legend slds-form-element__label">Please Select an Einstein Analytics App</legend>
+          <div class="slds-form-element__control">
+            <div class="">
+              <input type="radio" id="radio-15" value="einstein_analytics" name="eatype" onclick="onClick();"/>
+              <label class="slds-radio__label slds-m-left_x-small" for="einstein_analytics">
+                <span class="slds-form-element__label">Einstein Analytics</span>
+              </label>
+            </div>
+            <div class="">
+              <input type="radio" id="radio-16" value="attrition_risk" name="eatype" onclick="onClick();"/>
+              <label class="slds-radio__label slds-m-left_x-small" for="attrition_risk">
+                <span class="slds-form-element__label">Attrition Risk</span>
+              </label>
+            </div>  
+          </div>
+        </fieldset>          
+      </div>
+    </article>
+
+  </div>
 
 <script src="https://statics.teams.microsoft.com/sdk/v1.4.2/js/MicrosoftTeams.min.js" crossorigin="anonymous"></script>
 
@@ -16,21 +65,23 @@ microsoftTeams.settings.registerOnSaveHandler(function(saveEvent){
   console.warn('onSaveHandler');
     var radios = document.getElementsByName("eatype");
     if (radios[0].checked) {
-       microsoftTeams.settings.setSettings({
-         entityId: "einstein_analtics",
-         contentUrl: "https://analytics-ltngout-playground.herokuapp.com/df19ea_msteams",
-         suggestedDisplayName: "Einstein Analytics",
-         websiteUrl: "https://analytics-ltngout-playground.herokuapp.com",
-         removeUrl: "https://analytics-ltngout-playground.herokuapp.com/tabremove",
+      console.warn('setting Einstein Analytics')
+      microsoftTeams.settings.setSettings({
+        entityId: "einstein_analtics",
+        contentUrl: "https://analytics-ltngout-playground.herokuapp.com/df19ea_msteams",
+        suggestedDisplayName: "Einstein Analytics",
+        websiteUrl: "https://analytics-ltngout-playground.herokuapp.com",
+        removeUrl: "https://analytics-ltngout-playground.herokuapp.com/tabremove",
       });
     } else {
-       microsoftTeams.settings.setSettings({
+      console.warn('setting Attrition Risk');
+      microsoftTeams.settings.setSettings({
         entityId: "attrition_risk",
         contentUrl: "https://analytics-ltngout-playground.herokuapp.com/lo_prediction_service",
         suggestedDisplayName: "Attrition Risk",
         websiteUrl: "https://analytics-ltngout-playground.herokuapp.com",
         removeUrl: "https://analytics-ltngout-playground.herokuapp.com/tabremove",
-     });
+      });
     }
 
     saveEvent.notifySuccess();

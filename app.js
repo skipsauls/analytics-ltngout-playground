@@ -1407,6 +1407,25 @@ app.get('/lo_prediction_service', function(req, res) {
     res.render('pages/lo_prediction_service', {title: 'MS Teams - Einstein Discovery', appId: appAuth.appId, domain: domain, host: _host, oauthResult: oauthResult});
 });
 
+app.get('/lo_prediction_service_older', function(req, res) {
+
+	let domain = 'df19ea';
+
+    let appAuth = _appAuth[domain];
+		
+	req.session.tokens = req.session.tokens || {};
+
+	let oauthResultObj = req.session.tokens[appAuth.appId];
+	let oauthResult = '';
+	if (oauthResultObj) {
+		oauthResult = JSON.stringify(oauthResultObj);
+	} else {
+		oauthResult = '';
+	}
+
+    res.render('pages/lo_prediction_service_older', {title: 'MS Teams - Einstein Discovery', appId: appAuth.appId, domain: domain, host: _host, oauthResult: oauthResult});
+});
+
 app.get('/ms-simple-start', function(req, res) {
 	console.warn('GET /ms-simple-start');
 	console.warn('params: ', req.params);
