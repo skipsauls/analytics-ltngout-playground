@@ -29,8 +29,8 @@
       console.warn('Exception: ', e);
     }
 
-    console.warn('oauthResultJson: ', oauthResultJson);
-    console.warn('oauthResult: ', oauthResult);
+    //console.warn('oauthResultJson: ', oauthResultJson);
+    //console.warn('oauthResult: ', oauthResult);
 
     var appId = '<%- appId %>';
     var loginURL = "https://login.salesforce.com";
@@ -46,14 +46,14 @@
           callback(null, oauthResult);
         }
       } else {
-        console.warn('calling oauth.login');
+        //console.warn('calling oauth.login');
         oauth.login().then(function (_oauthResult) {
-          console.warn('_oauthResult: ', _oauthResult);
+          //console.warn('_oauthResult: ', _oauthResult);
 
           oauthResult = _oauthResult;
 
           storeToken(oauthResult, function (err, result) {
-            console.warn('storeToken returned: ', err, result);
+            //console.warn('storeToken returned: ', err, result);
           });
 
           if (typeof callback === 'function') {
@@ -111,7 +111,7 @@
     function setupSalesforce(teamInfo) {
       teamInfo = teamInfo || {};
       loginToSalesforce(function (err, result) {
-        console.warn('loginToSalesforce returned: ', err, result);
+        //console.warn('loginToSalesforce returned: ', err, result);
         var ltngURL = oauthResult.instanceURL.replace(/my.salesforce/, "lightning.force")
 
         $Lightning.use(loAppName, function (evt) {
@@ -123,22 +123,22 @@
     }
 
     function setupTeams(callback) {
-      console.warn('setupTeams');
+      //console.warn('setupTeams');
       microsoftTeams.initialize();
       microsoftTeams.registerOnThemeChangeHandler(function (theme) {
         console.warn('theme changed: ', theme);
       });
 
-      console.warn('calling microsoftTeams.authentication.getAuthToken');
+      //console.warn('calling microsoftTeams.authentication.getAuthToken');
       microsoftTeams.authentication.getAuthToken(function(a,b){console.warn(a,b)})
 
-      console.warn('calling microsoftTeams.getContext');
+      //console.warn('calling microsoftTeams.getContext');
       microsoftTeams.getContext(function (context) {
-        console.warn('getContext returned: ', context);
+        //console.warn('getContext returned: ', context);
 
-        console.warn('calling microsoftTeams.getTabInstances');
+        //console.warn('calling microsoftTeams.getTabInstances');
         microsoftTeams.getTabInstances(function (tabInstances) {
-          console.warn('getTabInstances returned: ', tabInstances);
+          //console.warn('getTabInstances returned: ', tabInstances);
 
           if (typeof callback === 'function') {
             callback(null, {context: context, tabInstances: tabInstances});
@@ -188,7 +188,7 @@
 
       url = 'https://graph.microsoft.com/v1.0/me/joinedTeams';
 
-      console.warn('url: ' + url);
+      //console.warn('url: ' + url);
 
       var req = new XMLHttpRequest();
       req.onreadystatechange = function (event) {
@@ -199,7 +199,7 @@
           var result = null;
           var error = null;
           if (req.status >= 200 && req.status <= 299) {
-            console.log('response: ', req.response);
+            //console.log('response: ', req.response);
             result = JSON.parse(req.response);
           } else {
             // Something went wrong.
@@ -226,7 +226,7 @@
       //console.warn('document ready callback!!!');
       if (window.location.ancestorOrigins && (window.location.ancestorOrigins[0] === 'https://teams.microsoft.com')) {
         setupTeams(function(err, teamInfo) {
-          console.warn('setupTeams returned: ', teamInfo);
+          //console.warn('setupTeams returned: ', teamInfo);
           setupSalesforce(teamInfo);
         })  
       } else {
