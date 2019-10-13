@@ -41,7 +41,7 @@
 
     function loginToSalesforce(callback) {
       if (oauthResult) {
-        console.warn('calling callback');
+        //console.warn('calling callback');
         if (typeof callback === 'function') {
           callback(null, oauthResult);
         }
