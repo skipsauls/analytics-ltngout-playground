@@ -1345,20 +1345,24 @@ app.get('/auth/tokens', function(req, res) {
 	let i = 0;
 	for (var appId in tokens) {
 		token = tokens[appId];
-		i++;
-		getUserInfoByUserId('df19ea',  token.userId, function(err, userInfo) {
-			tokenInfo.push({
-				appId: token.appId,
-				instanceURL: token.instanceURL,
-				userId: token.userId,
-				userInfo: userInfo
+		if (token) {
+			i++;
+			getUserInfoByUserId('df19ea',  token.userId, function(err, userInfo) {
+				tokenInfo.push({
+					appId: token.appId,
+					instanceURL: token.instanceURL,
+					userId: token.userId,
+					userInfo: userInfo
+				});
+				i--;
+				console.warn('i: ', i);
+				if (i <= 0) {
+					res.render('pages/auth_tokens', {title: 'Auth Tokens', tokenInfo: tokenInfo});	
+				}
 			});
-			i--;
-			console.warn('i: ', i);
-			if (i <= 0) {
-				res.render('pages/auth_tokens', {title: 'Auth Tokens', tokenInfo: tokenInfo});	
-			}
-		});
+		} else {
+			res.render('pages/auth_tokens', {title: 'Auth Tokens', tokenInfo: tokenInfo});	
+		}
 	}
 
 
