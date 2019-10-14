@@ -1343,28 +1343,31 @@ app.get('/auth/tokens', function(req, res) {
 	let tokenInfo = [];
 	let token = null;
 	let i = 0;
-	for (var appId in tokens) {
-		token = tokens[appId];
-		if (token) {
-			i++;
-			getUserInfoByUserId('df19ea',  token.userId, function(err, userInfo) {
-				tokenInfo.push({
-					appId: token.appId,
-					instanceURL: token.instanceURL,
-					userId: token.userId,
-					userInfo: userInfo
+	//console.warn('tokens: ', tokens);
+	if (Object.entries(tokens).length > 0 && tokens.constructor === Object) {
+		for (var appId in tokens) {
+			token = tokens[appId];
+			//console.warn('token: ', token);
+			if (token) {
+				i++;
+				getUserInfoByUserId('df19ea',  token.userId, function(err, userInfo) {
+					tokenInfo.push({
+						appId: token.appId,
+						instanceURL: token.instanceURL,
+						userId: token.userId,
+						userInfo: userInfo
+					});
+					i--;
+					//console.warn('i: ', i);
+					if (i <= 0) {
+						res.render('pages/auth_tokens', {title: 'Auth Tokens', tokenInfo: tokenInfo});	
+					}
 				});
-				i--;
-				console.warn('i: ', i);
-				if (i <= 0) {
-					res.render('pages/auth_tokens', {title: 'Auth Tokens', tokenInfo: tokenInfo});	
-				}
-			});
-		} else {
-			res.render('pages/auth_tokens', {title: 'Auth Tokens', tokenInfo: tokenInfo});	
+			}
 		}
+	} else {
+		res.render('pages/auth_tokens', {title: 'Auth Tokens', tokenInfo: tokenInfo});	
 	}
-
 
 });
 
