@@ -445,6 +445,49 @@ function getUserInfo(domain, callback) {
 	}
 }
 
+function getUserInfoByUserId(domain, userId, callback) {
+	console.warn('getUserInfoByUserId: ', domain, userId);
+	try {
+		//let path = '/services/oauth2/userinfo';
+
+		let path = '/services/data/v46.0/sobjects/User/' + userId;
+
+
+		let oauthResult = _oauthResultMap[domain];
+
+		let url = oauthResult.instanceURL + path;
+		let options = {
+			headers: {
+				"Accept": "application/json",
+				"Authorization": oauthResult.tokenType + " " + oauthResult.accessToken
+			}
+		};
+			
+		let err = null;
+		let userInfo = null;
+
+		console.warn('url: ', url);
+		console.warn('options: ', options);
+
+		rest.get(url, options).on('complete', function(result, response) {
+
+			if (response.statusCode >= 200 && response.statusCode <= 299) {
+				userInfo = result;
+			} else {            
+				console.error('getUserInfo error: ', response.statusCode, response.statusMessage);
+				err = {statusCode: response.statusCode, statusMessage: response.statusMessage};
+			}
+			if (typeof callback === 'function') {
+				callback(err, userInfo);
+			}
+		});
+	} catch (e) {
+		if (typeof callback === 'function') {
+			callback({exception: e}, null);
+		}
+	}
+}
+
 function getNamespacePrefix(domain, callback) {
 
 	try {
@@ -1282,19 +1325,11 @@ app.delete('/auth/token/:appId?', function(req, res) {
 
 app.get('/auth/tokens', function(req, res) {
 
-	console.warn('GET /auth/tokens');
-	console.warn('params: ', req.params);
-	console.warn('query: ', req.query);
-	console.warn('body: ', req.body);
-	console.warn('headers: ', req.headers);
-
 	if (req.query.action) {
 		let action = req.query.action;
-		console.warn('action: ', action);
-		if (req.query.appId) {
-			let appId = req.query.appId;
-			console.warn('appId: ', appId);
+		if (action === 'reset') {
 			try {
+				let appId = req.query.appId;
 				req.session.tokens = req.session.tokens || {};
 				req.session.tokens[appId] = null;
 				delete req.session.tokens[appId];
@@ -1307,17 +1342,25 @@ app.get('/auth/tokens', function(req, res) {
 	let tokens = req.session.tokens || {};
 	let tokenInfo = [];
 	let token = null;
-	console.warn('tokens: ', tokens);
+	let i = 0;
 	for (var appId in tokens) {
 		token = tokens[appId];
-		tokenInfo.push({
-			appId: token.appId,
-			instanceURL: token.instanceURL,
-			userId: token.userId
+		i++;
+		getUserInfoByUserId('df19ea',  token.userId, function(err, userInfo) {
+			tokenInfo.push({
+				appId: token.appId,
+				instanceURL: token.instanceURL,
+				userId: token.userId,
+				userInfo: userInfo
+			});
+			i--;
+			console.warn('i: ', i);
+			if (i <= 0) {
+				res.render('pages/auth_tokens', {title: 'Auth Tokens', tokenInfo: tokenInfo});	
+			}
 		});
 	}
 
-	res.render('pages/auth_tokens', {title: 'Auth Tokens', tokenInfo: tokenInfo});	
 
 });
 

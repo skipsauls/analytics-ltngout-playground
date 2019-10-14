@@ -2,30 +2,56 @@
 <html>
   <head>
     <title>Auth Tokens</title>
+    <link href="/assets/styles/salesforce-lightning-design-system.min.css" type="text/css" rel="stylesheet" />    
     <style>
-        ul {
-          list-style-type: none;
-          margin: 0;
-          padding: 0;
-        }
-        li {
-          border: 1px solid #A0A0A0;
-          padding: 2px;
-          margin: 2px;
-        }
+        html,
+          body {
+            background-color: white;
+        }      
+
     </style>
   </head>
   <body>
-    <h2>Auth Tokens</h2>
-    <ul>
+    <div class="outer">
+
         <% for (var i = 0; i < tokenInfo.length; i++) { %>
-          <li>
-            <div>App ID: <%= tokenInfo[i].appId %></div>
-            <div>Instance URL: <%= tokenInfo[i].instanceURL %></div>
-            <div>User ID: <%= tokenInfo[i].userId %></div>
-            <a href="/auth/tokens?action=reset&appId=<%= tokenInfo[i].appId %>">Reset Token</a></li>
+
+        <article class="slds-card slds-m-around_small">
+          <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+              <div class="slds-media__figure">
+                  <span class="slds-avatar slds-avatar_circle">
+                      <img alt="<%= tokenInfo[i].userInfo.Name %>" src="<%= tokenInfo[i].userInfo.SmallPhotoUrl %>" title="<%= tokenInfo[i].userInfo.Name %>" />
+                  </span>
+              </div>
+              <div class="slds-media__body">
+                <h2 class="slds-card__header-title">
+                  <span class="slds-card__header-link slds-truncate" title="<%= tokenInfo[i].userInfo.Name %>">
+                    <span><%= tokenInfo[i].userInfo.Name %></span>
+                  </span>
+                </h2>
+              </div>
+            </header>
+          </div>
+          <div class="slds-card__body slds-card__body_inner slds-truncate">
+            <div class="slds-text-heading_small slds-p-vertical_x-small">User ID: <%= tokenInfo[i].userInfo.Id %></div>
+            <div class="slds-text-heading_small slds-p-vertical_x-small">Username: <%= tokenInfo[i].userInfo.Username %></div>
+            <div class="slds-text-heading_small slds-p-vertical_x-small">App ID: <%= tokenInfo[i].appId %></div>
+            <div class="slds-text-heading_small slds-p-vertical_x-small">Instance URL: <%= tokenInfo[i].instanceURL %></div>
+            <div class="slds-p-vertical_x-small slds-text-align_right">
+                <a class="slds-button slds-button_destructive" href="/auth/tokens?action=reset&appId=<%= tokenInfo[i].appId %>">Reset Token</a></li>
+            </div>
+          </div>
+        </article>
+
         <% } %>
-    </ul>
+
+      </div>
+
+
+
+
+
     <script>
       if (window.location.search && window.location.search.length > 0) {
         window.location.href = window.location.origin + window.location.pathname;
