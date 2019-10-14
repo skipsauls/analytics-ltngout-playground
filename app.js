@@ -1344,6 +1344,8 @@ app.get('/auth/tokens', function(req, res) {
 	let token = null;
 	let i = 0;
 	//console.warn('tokens: ', tokens);
+
+	/* Session is expiring
 	if (Object.entries(tokens).length > 0 && tokens.constructor === Object) {
 		for (var appId in tokens) {
 			token = tokens[appId];
@@ -1368,6 +1370,20 @@ app.get('/auth/tokens', function(req, res) {
 	} else {
 		res.render('pages/auth_tokens', {title: 'Auth Tokens', tokenInfo: tokenInfo});	
 	}
+	*/
+
+	if (Object.entries(tokens).length > 0 && tokens.constructor === Object) {
+		for (var appId in tokens) {
+			token = tokens[appId];
+			tokenInfo.push({
+				appId: token.appId,
+				instanceURL: token.instanceURL,
+				userId: token.userId
+			});
+		}
+	}
+
+	res.render('pages/auth_tokens', {title: 'Auth Tokens', tokenInfo: tokenInfo});	
 
 });
 
